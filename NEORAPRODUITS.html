@@ -142,6 +142,34 @@
       white-space:nowrap;
       height: fit-content;
     }
+    
+    /* Navigation */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-link {
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      color: rgba(255,255,255,.7);
+      transition: all 0.2s;
+    }
+    .nav-link:hover {
+      color: rgba(255,255,255,.95);
+      background: rgba(255,255,255,.08);
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+    }
 
     /* Layout */
     .content-row{
@@ -383,7 +411,14 @@
             <p class="subtitle">Générateur d’images produit.</p>
           </div>
         </div>
-        <div class="badge">Pro</div>
+        <div class="header-right">
+          <div class="nav-links">
+            <a href="index.html" class="nav-link">🏠 Accueil</a>
+            <a href="profil.html" class="nav-link">👤 Profil</a>
+            <a href="historique.html" class="nav-link">📁 Historique</a>
+          </div>
+          <div class="badge">Pro</div>
+        </div>
       </div>
 
       <div class="content-row">

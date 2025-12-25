@@ -100,6 +100,34 @@
       box-shadow: 0 10px 30px rgba(0,0,0,.22);
       white-space:nowrap;
     }
+    
+    /* Navigation */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-link {
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      color: rgba(255,255,255,.7);
+      transition: all 0.2s;
+    }
+    .nav-link:hover {
+      color: rgba(255,255,255,.95);
+      background: rgba(255,255,255,.08);
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+    }
 
     /* Layout */
     .wrap{
@@ -465,7 +493,14 @@
           <div style="font-size:12px;color:rgba(255,255,255,.70);margin-top:4px;">Générateur d'image</div>
         </div>
       </div>
-      <div class="badge">Pro</div>
+      <div class="topbar-right">
+        <div class="nav-links">
+          <a href="index.html" class="nav-link">🏠 Accueil</a>
+          <a href="profil.html" class="nav-link">👤 Profil</a>
+          <a href="historique.html" class="nav-link">📁 Historique</a>
+        </div>
+        <div class="badge">Pro</div>
+      </div>
     </div>
   </div>
 

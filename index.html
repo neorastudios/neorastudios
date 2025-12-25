@@ -1235,6 +1235,54 @@
         font-size: 32px;
       }
     }
+    
+    /* Navigation links in app */
+    .app-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .app-nav-link {
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      color: var(--text-secondary);
+      border: 1px solid transparent;
+      transition: all 0.2s;
+      background: transparent;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    
+    .app-nav-link:hover {
+      color: var(--text-primary);
+      background: rgba(255,255,255,.05);
+    }
+    
+    .app-nav-link.active {
+      color: var(--text-primary);
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.12);
+    }
+    
+    .app-nav-divider {
+      width: 1px;
+      height: 24px;
+      background: rgba(255,255,255,.12);
+      margin: 0 8px;
+    }
+    
+    @media (max-width: 768px) {
+      .app-nav {
+        display: none;
+      }
+      .app-user-email {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1680,6 +1728,14 @@
             <div class="app-subtitle">Générateur d'image</div>
           </div>
         </div>
+        
+        <div class="app-nav">
+          <a href="index.html" class="app-nav-link active" onclick="goToApp(); return false;">🏠 Accueil</a>
+          <a href="profil.html" class="app-nav-link">👤 Profil</a>
+          <a href="historique.html" class="app-nav-link">📁 Historique</a>
+          <div class="app-nav-divider"></div>
+        </div>
+        
         <div class="app-user">
           <span class="app-user-email" id="appUserEmail"></span>
           <span class="badge-pro">Pro</span>
