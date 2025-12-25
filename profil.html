@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mon Profil - NEORA</title>
+  <style>
+    :root {
+      --bg0: #050714;
+      --bg1: #070a1a;
+      --card: rgba(255,255,255,.045);
+      --border: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.95);
+      --muted: rgba(255,255,255,.70);
+      --muted2: rgba(255,255,255,.50);
+      --grad: linear-gradient(135deg,#6366f1,#a855f7 35%,#ec4899 65%,#22d3ee);
+      --radius: 16px;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 20% 0%, rgba(99,102,241,.22), transparent 60%),
+        radial-gradient(900px 500px at 80% 10%, rgba(236,72,153,.18), transparent 55%),
+        radial-gradient(900px 700px at 50% 110%, rgba(34,211,238,.12), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      min-height: 100vh;
+    }
+    
+    /* Topbar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(16px);
+      background: linear-gradient(180deg, rgba(5,7,20,.76), rgba(5,7,20,.48));
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    
+    .topbar-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    
+    .logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: url('logo.jpg') center/cover no-repeat;
+    }
+    
+    .brand-text h1 {
+      font-size: 15px;
+      letter-spacing: .35em;
+      text-transform: uppercase;
+      margin: 0;
+    }
+    
+    .brand-text span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .nav-link {
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      color: var(--muted);
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    
+    .nav-link:hover {
+      color: var(--text);
+      background: rgba(255,255,255,.05);
+    }
+    
+    .nav-link.active {
+      color: var(--text);
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.12);
+    }
+    
+    .btn-logout {
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-logout:hover {
+      background: rgba(255,255,255,.1);
+    }
+    
+    /* Main content */
+    .main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 32px;
+    }
+    
+    /* Profile Card */
+    .profile-card {
+      background: linear-gradient(180deg, var(--card), rgba(255,255,255,.02));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+    
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    
+    .avatar-container {
+      position: relative;
+    }
+    
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: var(--grad);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      font-weight: 700;
+      color: #fff;
+      overflow: hidden;
+    }
+    
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .avatar-edit {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--grad);
+      border: 3px solid var(--bg0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .avatar-edit:hover {
+      transform: scale(1.1);
+    }
+    
+    .avatar-edit svg {
+      width: 14px;
+      height: 14px;
+      color: #fff;
+    }
+    
+    .profile-info h2 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .profile-info .email {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    
+    .profile-info .joined {
+      font-size: 13px;
+      color: var(--muted2);
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    
+    @media (max-width: 600px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .stat-card {
+      background: rgba(0,0,0,.3);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+    
+    .stat-label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    
+    /* Form */
+    .form-section {
+      border-top: 1px solid rgba(255,255,255,.1);
+      padding-top: 24px;
+    }
+    
+    .form-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-group.full {
+      grid-column: span 2;
+    }
+    
+    @media (max-width: 600px) {
+      .form-group.full {
+        grid-column: span 1;
+      }
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(0,0,0,.4);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: rgba(99,102,241,.6);
+      box-shadow: 0 0 0 4px rgba(99,102,241,.15);
+    }
+    
+    .form-input:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    
+    .btn {
+      padding: 14px 28px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-family: inherit;
+    }
+    
+    .btn-primary {
+      background: var(--grad);
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(99,102,241,.25);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(99,102,241,.3);
+    }
+    
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .btn-secondary {
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,.15);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255,255,255,.12);
+    }
+    
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 16px 24px;
+      background: rgba(16,185,129,.9);
+      color: #fff;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 10px 40px rgba(0,0,0,.3);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .toast.error {
+      background: rgba(239,68,68,.9);
+    }
+    
+    /* Loading */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,.1);
+      border-top-color: #8b5cf6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Hidden file input */
+    #avatarInput {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-inner">
+      <a href="index.html" class="brand">
+        <div class="logo"></div>
+        <div class="brand-text">
+          <h1>NEORA</h1>
+          <span>Générateur d'image</span>
+        </div>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">Accueil</a>
+        <a href="profil.html" class="nav-link active">Profil</a>
+        <a href="historique.html" class="nav-link">Historique</a>
+        <button class="btn-logout" onclick="logout()">Déconnexion</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main" id="mainContent" style="display:none;">
+    <h1 class="page-title">Mon Profil</h1>
+    
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="avatar-container">
+          <div class="avatar" id="avatarDisplay">
+            <span id="avatarInitials"></span>
+            <img id="avatarImage" style="display:none;" alt="Avatar">
+          </div>
+          <label for="avatarInput" class="avatar-edit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+          </label>
+          <input type="file" id="avatarInput" accept="image/*" onchange="handleAvatarChange(event)">
+        </div>
+        <div class="profile-info">
+          <h2 id="displayName">Chargement...</h2>
+          <p class="email" id="displayEmail"></p>
+          <p class="joined" id="displayJoined"></p>
+        </div>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="statTotal">0</div>
+          <div class="stat-label">Images générées</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statMonth">0</div>
+          <div class="stat-label">Ce mois-ci</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statFavorite">-</div>
+          <div class="stat-label">Version préférée</div>
+        </div>
+      </div>
+      
+      <div class="form-section">
+        <h3 class="form-title">Modifier mes informations</h3>
+        <form id="profileForm" onsubmit="handleProfileUpdate(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Prénom</label>
+              <input type="text" class="form-input" id="firstName" placeholder="Votre prénom">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nom</label>
+              <input type="text" class="form-input" id="lastName" placeholder="Votre nom">
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-input" id="email" disabled>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-primary" id="saveBtn">Enregistrer</button>
+            <button type="button" class="btn btn-secondary" onclick="resetForm()">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loadingState">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+  
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCKPepYjXiY92hZPEdKxqOow9AACfMTOoc",
+      authDomain: "neorastudiosnc.firebaseapp.com",
+      projectId: "neorastudiosnc",
+      storageBucket: "neorastudiosnc.firebasestorage.app",
+      messagingSenderId: "275455765566",
+      appId: "1:275455765566:web:c2cf516fcb8f13de7e356f",
+      measurementId: "G-2HWXD3297V"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+    
+    let currentUser = null;
+    let userData = null;
+    
+    // Auth state listener
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        currentUser = user;
+        await loadUserProfile();
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+      } else {
+        window.location.href = 'index.html';
+      }
+    });
+    
+    // Load user profile from Firestore
+    async function loadUserProfile() {
+      try {
+        const doc = await db.collection('users').doc(currentUser.uid).get();
+        
+        if (doc.exists) {
+          userData = doc.data();
+        } else {
+          // Create new user document
+          userData = {
+            email: currentUser.email,
+            firstName: '',
+            lastName: '',
+            avatarUrl: '',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            totalGenerations: 0
+          };
+          await db.collection('users').doc(currentUser.uid).set(userData);
+        }
+        
+        displayProfile();
+        await loadStats();
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        showToast('Erreur de chargement', 'error');
+      }
+    }
+    
+    // Display profile data
+    function displayProfile() {
+      const fullName = `${userData.firstName || ''} ${userData.lastName || ''}`.trim();
+      document.getElementById('displayName').textContent = fullName || currentUser.email.split('@')[0];
+      document.getElementById('displayEmail').textContent = currentUser.email;
+      
+      // Format join date
+      const createdAt = userData.createdAt?.toDate?.() || new Date();
+      document.getElementById('displayJoined').textContent = `Membre depuis ${formatDate(createdAt)}`;
+      
+      // Avatar
+      if (userData.avatarUrl) {
+        document.getElementById('avatarImage').src = userData.avatarUrl;
+        document.getElementById('avatarImage').style.display = 'block';
+        document.getElementById('avatarInitials').style.display = 'none';
+      } else {
+        const initials = getInitials(fullName || currentUser.email);
+        document.getElementById('avatarInitials').textContent = initials;
+        document.getElementById('avatarInitials').style.display = 'block';
+        document.getElementById('avatarImage').style.display = 'none';
+      }
+      
+      // Form fields
+      document.getElementById('firstName').value = userData.firstName || '';
+      document.getElementById('lastName').value = userData.lastName || '';
+      document.getElementById('email').value = currentUser.email;
+    }
+    
+    // Load statistics
+    async function loadStats() {
+      try {
+        // Get all generations for this user
+        const snapshot = await db.collection('generations')
+          .where('userId', '==', currentUser.uid)
+          .get();
+        
+        const generations = snapshot.docs.map(doc => doc.data());
+        
+        // Total generations
+        document.getElementById('statTotal').textContent = generations.length;
+        
+        // This month
+        const now = new Date();
+        const thisMonth = generations.filter(g => {
+          const date = g.createdAt?.toDate?.() || new Date();
+          return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+        });
+        document.getElementById('statMonth').textContent = thisMonth.length;
+        
+        // Favorite version
+        if (generations.length > 0) {
+          const versions = {};
+          generations.forEach(g => {
+            const v = g.version || 'NEORA';
+            versions[v] = (versions[v] || 0) + 1;
+          });
+          const favorite = Object.keys(versions).reduce((a, b) => versions[a] > versions[b] ? a : b);
+          document.getElementById('statFavorite').textContent = favorite;
+        }
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+    
+    // Handle profile update
+    async function handleProfileUpdate(e) {
+      e.preventDefault();
+      
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = true;
+      btn.textContent = 'Enregistrement...';
+      
+      try {
+        const updates = {
+          firstName: document.getElementById('firstName').value.trim(),
+          lastName: document.getElementById('lastName').value.trim(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        await db.collection('users').doc(currentUser.uid).update(updates);
+        
+        userData = { ...userData, ...updates };
+        displayProfile();
+        showToast('Profil mis à jour !');
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        showToast('Erreur lors de la mise à jour', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Enregistrer';
+      }
+    }
+    
+    // Handle avatar change
+    async function handleAvatarChange(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('Image trop grande (max 5MB)', 'error');
+        return;
+      }
+      
+      try {
+        showToast('Upload en cours...');
+        
+        // Upload to Firebase Storage
+        const storageRef = storage.ref(`avatars/${currentUser.uid}`);
+        await storageRef.put(file);
+        const avatarUrl = await storageRef.getDownloadURL();
+        
+        // Update Firestore
+        await db.collection('users').doc(currentUser.uid).update({ avatarUrl });
+        
+        userData.avatarUrl = avatarUrl;
+        displayProfile();
+        showToast('Photo de profil mise à jour !');
+      } catch (error) {
+        console.error('Error uploading avatar:', error);
+        showToast('Erreur lors de l\'upload', 'error');
+      }
+    }
+    
+    // Reset form
+    function resetForm() {
+      displayProfile();
+    }
+    
+    // Logout
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = 'index.html';
+      });
+    }
+    
+    // Helper functions
+    function getInitials(name) {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
+    }
+    
+    function formatDate(date) {
+      return new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(date);
+    }
+    
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast ' + type;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Historique - NEORA</title>
+  <style>
+    :root {
+      --bg0: #050714;
+      --bg1: #070a1a;
+      --card: rgba(255,255,255,.045);
+      --border: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.95);
+      --muted: rgba(255,255,255,.70);
+      --muted2: rgba(255,255,255,.50);
+      --grad: linear-gradient(135deg,#6366f1,#a855f7 35%,#ec4899 65%,#22d3ee);
+      --radius: 16px;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 20% 0%, rgba(99,102,241,.22), transparent 60%),
+        radial-gradient(900px 500px at 80% 10%, rgba(236,72,153,.18), transparent 55%),
+        radial-gradient(900px 700px at 50% 110%, rgba(34,211,238,.12), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      min-height: 100vh;
+    }
+    
+    /* Topbar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(16px);
+      background: linear-gradient(180deg, rgba(5,7,20,.76), rgba(5,7,20,.48));
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    
+    .topbar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    
+    .logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: url('logo.jpg') center/cover no-repeat;
+    }
+    
+    .brand-text h1 {
+      font-size: 15px;
+      letter-spacing: .35em;
+      text-transform: uppercase;
+      margin: 0;
+    }
+    
+    .brand-text span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .nav-link {
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      color: var(--muted);
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    
+    .nav-link:hover {
+      color: var(--text);
+      background: rgba(255,255,255,.05);
+    }
+    
+    .nav-link.active {
+      color: var(--text);
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.12);
+    }
+    
+    .btn-logout {
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-logout:hover {
+      background: rgba(255,255,255,.1);
+    }
+    
+    /* Main content */
+    .main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+    }
+    
+    /* Filters */
+    .filters {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    
+    .filter-btn:hover {
+      background: rgba(255,255,255,.1);
+      color: var(--text);
+    }
+    
+    .filter-btn.active {
+      background: var(--grad);
+      border-color: transparent;
+      color: #fff;
+    }
+    
+    /* Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    
+    /* Image Card */
+    .image-card {
+      background: linear-gradient(180deg, var(--card), rgba(255,255,255,.02));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .image-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,.3);
+      border-color: rgba(99,102,241,.4);
+    }
+    
+    .image-wrapper {
+      position: relative;
+      aspect-ratio: 16/10;
+      background: rgba(0,0,0,.3);
+      cursor: pointer;
+    }
+    
+    .image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .image-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    
+    .image-wrapper:hover .image-overlay {
+      opacity: 1;
+    }
+    
+    .overlay-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.2);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .overlay-btn:hover {
+      background: rgba(255,255,255,.25);
+      transform: scale(1.1);
+    }
+    
+    .overlay-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .card-content {
+      padding: 16px;
+    }
+    
+    .card-prompt {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.5;
+      margin-bottom: 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted2);
+    }
+    
+    .card-version {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(99,102,241,.15);
+      color: #a5b4fc;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+    }
+    
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 24px;
+    }
+    
+    .empty-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .empty-text {
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    
+    .btn {
+      padding: 14px 28px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-family: inherit;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .btn-primary {
+      background: var(--grad);
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(99,102,241,.25);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(99,102,241,.3);
+    }
+    
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+    }
+    
+    .modal {
+      background: var(--bg1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      max-width: 900px;
+      width: 100%;
+      max-height: 90vh;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.1);
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: all 0.2s;
+    }
+    
+    .modal-close:hover {
+      background: rgba(255,255,255,.2);
+    }
+    
+    .modal-image {
+      width: 100%;
+      max-height: 60vh;
+      object-fit: contain;
+      background: rgba(0,0,0,.5);
+    }
+    
+    .modal-content {
+      padding: 24px;
+    }
+    
+    .modal-prompt {
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    
+    .modal-meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    
+    .btn-secondary {
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,.15);
+      padding: 12px 20px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255,255,255,.12);
+    }
+    
+    .btn-danger {
+      background: rgba(239,68,68,.15);
+      color: #f87171;
+      border-color: rgba(239,68,68,.3);
+    }
+    
+    .btn-danger:hover {
+      background: rgba(239,68,68,.25);
+    }
+    
+    /* Loading */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,.1);
+      border-top-color: #8b5cf6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 16px 24px;
+      background: rgba(16,185,129,.9);
+      color: #fff;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 10px 40px rgba(0,0,0,.3);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1001;
+    }
+    
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .toast.error {
+      background: rgba(239,68,68,.9);
+    }
+    
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-inner">
+      <a href="index.html" class="brand">
+        <div class="logo"></div>
+        <div class="brand-text">
+          <h1>NEORA</h1>
+          <span>Générateur d'image</span>
+        </div>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">Accueil</a>
+        <a href="profil.html" class="nav-link">Profil</a>
+        <a href="historique.html" class="nav-link active">Historique</a>
+        <button class="btn-logout" onclick="logout()">Déconnexion</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main" id="mainContent" style="display:none;">
+    <div class="page-header">
+      <h1 class="page-title">Mes Générations</h1>
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all">Toutes</button>
+        <button class="filter-btn" data-filter="NEORA">NEORA</button>
+        <button class="filter-btn" data-filter="NEORAPRODUITS">PRODUITS</button>
+        <button class="filter-btn" data-filter="NEORAPRO">PRO</button>
+      </div>
+    </div>
+    
+    <div class="grid" id="imageGrid"></div>
+    
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <div class="empty-icon">🎨</div>
+      <h2 class="empty-title">Aucune génération pour le moment</h2>
+      <p class="empty-text">Commencez à créer des images avec NEORA</p>
+      <a href="index.html" class="btn btn-primary">Créer ma première image</a>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loadingState">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Image Modal -->
+  <div class="modal-overlay" id="imageModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+      <img class="modal-image" id="modalImage" src="" alt="">
+      <div class="modal-content">
+        <p class="modal-prompt" id="modalPrompt"></p>
+        <div class="modal-meta">
+          <span id="modalVersion"></span>
+          <span id="modalDate"></span>
+          <span id="modalRatio"></span>
+        </div>
+        <div class="modal-actions">
+          <a class="btn-secondary" id="modalDownload" href="" download>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+            </svg>
+            Télécharger
+          </a>
+          <button class="btn-secondary btn-danger" id="modalDelete" onclick="deleteGeneration()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+            </svg>
+            Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCKPepYjXiY92hZPEdKxqOow9AACfMTOoc",
+      authDomain: "neorastudiosnc.firebaseapp.com",
+      projectId: "neorastudiosnc",
+      storageBucket: "neorastudiosnc.firebasestorage.app",
+      messagingSenderId: "275455765566",
+      appId: "1:275455765566:web:c2cf516fcb8f13de7e356f",
+      measurementId: "G-2HWXD3297V"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    
+    let currentUser = null;
+    let allGenerations = [];
+    let currentFilter = 'all';
+    let selectedGeneration = null;
+    
+    // Auth state listener
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        currentUser = user;
+        await loadGenerations();
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+      } else {
+        window.location.href = 'index.html';
+      }
+    });
+    
+    // Load generations from Firestore
+    async function loadGenerations() {
+      try {
+        const snapshot = await db.collection('generations')
+          .where('userId', '==', currentUser.uid)
+          .orderBy('createdAt', 'desc')
+          .get();
+        
+        allGenerations = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        renderGenerations();
+      } catch (error) {
+        console.error('Error loading generations:', error);
+        showToast('Erreur de chargement', 'error');
+      }
+    }
+    
+    // Render generations grid
+    function renderGenerations() {
+      const grid = document.getElementById('imageGrid');
+      const emptyState = document.getElementById('emptyState');
+      
+      // Filter generations
+      const filtered = currentFilter === 'all' 
+        ? allGenerations 
+        : allGenerations.filter(g => g.version === currentFilter);
+      
+      if (filtered.length === 0) {
+        grid.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      grid.style.display = 'grid';
+      emptyState.style.display = 'none';
+      
+      grid.innerHTML = filtered.map(gen => `
+        <div class="image-card" data-id="${gen.id}">
+          <div class="image-wrapper" onclick="openModal('${gen.id}')">
+            <img src="${gen.imageUrl}" alt="Generated image" loading="lazy">
+            <div class="image-overlay">
+              <button class="overlay-btn" onclick="event.stopPropagation(); openModal('${gen.id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                </svg>
+              </button>
+              <a class="overlay-btn" href="${gen.imageUrl}" download onclick="event.stopPropagation()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div class="card-content">
+            <p class="card-prompt">${gen.prompt || 'Sans prompt'}</p>
+            <div class="card-meta">
+              <span>${formatDate(gen.createdAt)}</span>
+              <span class="card-version">${gen.version || 'NEORA'}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderGenerations();
+      });
+    });
+    
+    // Open modal
+    function openModal(id) {
+      selectedGeneration = allGenerations.find(g => g.id === id);
+      if (!selectedGeneration) return;
+      
+      document.getElementById('modalImage').src = selectedGeneration.imageUrl;
+      document.getElementById('modalPrompt').textContent = selectedGeneration.prompt || 'Sans prompt';
+      document.getElementById('modalVersion').textContent = `Version: ${selectedGeneration.version || 'NEORA'}`;
+      document.getElementById('modalDate').textContent = formatDate(selectedGeneration.createdAt);
+      document.getElementById('modalRatio').textContent = `Ratio: ${selectedGeneration.aspectRatio || '16:9'}`;
+      document.getElementById('modalDownload').href = selectedGeneration.imageUrl;
+      
+      document.getElementById('imageModal').classList.add('active');
+    }
+    
+    // Close modal
+    function closeModal() {
+      document.getElementById('imageModal').classList.remove('active');
+      selectedGeneration = null;
+    }
+    
+    // Close modal on overlay click
+    document.getElementById('imageModal').addEventListener('click', (e) => {
+      if (e.target.id === 'imageModal') closeModal();
+    });
+    
+    // Close modal on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+    
+    // Delete generation
+    async function deleteGeneration() {
+      if (!selectedGeneration) return;
+      
+      if (!confirm('Supprimer cette image ? Cette action est irréversible.')) return;
+      
+      try {
+        await db.collection('generations').doc(selectedGeneration.id).delete();
+        
+        allGenerations = allGenerations.filter(g => g.id !== selectedGeneration.id);
+        renderGenerations();
+        closeModal();
+        showToast('Image supprimée');
+      } catch (error) {
+        console.error('Error deleting generation:', error);
+        showToast('Erreur lors de la suppression', 'error');
+      }
+    }
+    
+    // Logout
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = 'index.html';
+      });
+    }
+    
+    // Helper functions
+    function formatDate(timestamp) {
+      if (!timestamp) return '';
+      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+      return new Intl.DateTimeFormat('fr-FR', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(date);
+    }
+    
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast ' + type;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+  </script>
+</body>
+</html>
