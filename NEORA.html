@@ -623,6 +623,21 @@
   </div>
 
   <script>
+    // Firebase config - doit être initialisé avant tout
+    const firebaseConfig = {
+      apiKey: "AIzaSyCKPepYjXiY92hZPEdKxqOow9AACfMTOoc",
+      authDomain: "neorastudiosnc.firebaseapp.com",
+      projectId: "neorastudiosnc",
+      storageBucket: "neorastudiosnc.firebasestorage.app",
+      messagingSenderId: "275455765566",
+      appId: "1:275455765566:web:c2cf516fcb8f13de7e356f"
+    };
+    
+    // Initialiser Firebase si pas déjà fait
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    
     // Protection: Vérifier si l'utilisateur est connecté
     firebase.auth().onAuthStateChanged((user) => {
       if (!user) {
