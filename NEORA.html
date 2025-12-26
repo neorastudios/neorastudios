@@ -675,6 +675,23 @@
       return false;
     }
     
+    // Fonction pour vérifier si l'utilisateur a un plan payant
+    async function checkPlanAccess(user) {
+      if (!user) return false;
+      
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        const plan = userDoc.data().plan || 'free';
+        if (plan === 'free') {
+          alert('Cette version nécessite un abonnement Pro. Vous allez être redirigé vers la page des tarifs.');
+          window.location.href = 'pricing.html';
+          return false;
+        }
+        return true;
+      }
+      return false;
+    }
+    
     // Protection: Vérifier si l'utilisateur est connecté et non bloqué
     firebase.auth().onAuthStateChanged(async (user) => {
       if (!user) {
@@ -686,7 +703,11 @@
       await ensureUserDocument(user);
       
       // Vérifier si bloqué
-      await checkIfBlocked(user);
+      const isBlocked = await checkIfBlocked(user);
+      if (isBlocked) return;
+      
+      // Vérifier si l'utilisateur a accès (plan payant)
+      await checkPlanAccess(user);
     });
     
     // Initialisation du tracker NEORA
