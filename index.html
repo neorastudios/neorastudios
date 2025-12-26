@@ -1817,6 +1817,7 @@
             email: user.email,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             blocked: false,
+            plan: 'free', // Plan gratuit par défaut
             provider: user.providerData[0]?.providerId || 'email'
           });
           console.log('Nouveau document utilisateur créé:', user.email);
@@ -1826,6 +1827,17 @@
             lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
           });
         }
+      }
+      
+      // Fonction pour récupérer le plan de l'utilisateur
+      async function getUserPlan(user) {
+        if (!user) return 'free';
+        
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        if (userDoc.exists) {
+          return userDoc.data().plan || 'free';
+        }
+        return 'free';
       }
       
       // Auth state listener
@@ -1949,14 +1961,30 @@
         showLanding(); 
       };
       
-      window.goToApp = function() { 
+      window.goToApp = async function() { 
         if (!currentUser) { 
           openModal('login'); 
           return; 
-        } 
-        document.getElementById('landingPage').style.display = 'none'; 
-        document.getElementById('appPage').style.display = 'block'; 
-        document.getElementById('appUserEmail').textContent = currentUser.email; 
+        }
+        
+        // Vérifier le plan de l'utilisateur
+        const plan = await getUserPlan(currentUser);
+        
+        if (plan === 'free') {
+          // Plan gratuit → Redirection directe vers NEORASIMPLE
+          window.location.href = 'NEORASIMPLE.html';
+        } else {
+          // Plan payant → Afficher le sélecteur de versions
+          document.getElementById('landingPage').style.display = 'none'; 
+          document.getElementById('appPage').style.display = 'block'; 
+          document.getElementById('appUserEmail').textContent = currentUser.email;
+          
+          // Mettre à jour le badge selon le plan
+          const badge = document.querySelector('.badge-pro');
+          if (badge) {
+            badge.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+          }
+        }
       };
       
       function showLanding() { 
