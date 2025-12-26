@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Migration utilisateurs - NEORA Admin</title>
+  
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      background: #030308;
+      color: #fff;
+      min-height: 100vh;
+      padding: 40px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #8b5cf6;
+    }
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .btn {
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      color: #fff;
+      margin-top: 16px;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .log {
+      background: rgba(0,0,0,0.4);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 20px;
+      font-family: monospace;
+      font-size: 13px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .log-item { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .log-item.success { color: #10b981; }
+    .log-item.error { color: #ef4444; }
+    .log-item.info { color: #8b5cf6; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .stat {
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-value { font-size: 32px; font-weight: 700; color: #8b5cf6; }
+    .stat-label { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔧 Migration des utilisateurs NEORA</h1>
+    
+    <div class="card">
+      <p>Ce script va ajouter le champ <strong>plan: 'free'</strong> à tous les utilisateurs qui n'ont pas encore ce champ.</p>
+      <p style="margin-top: 12px; color: rgba(255,255,255,0.6);">Les utilisateurs avec un plan existant ne seront pas modifiés.</p>
+      <button class="btn" id="migrateBtn" onclick="runMigration()">🚀 Lancer la migration</button>
+    </div>
+    
+    <div class="stats" id="stats" style="display: none;">
+      <div class="stat">
+        <div class="stat-value" id="totalCount">0</div>
+        <div class="stat-label">Total utilisateurs</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="updatedCount">0</div>
+        <div class="stat-label">Mis à jour</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="skippedCount">0</div>
+        <div class="stat-label">Déjà OK</div>
+      </div>
+    </div>
+    
+    <div class="log" id="log" style="display: none;"></div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCKPepYjXiY92hZPEdKxqOow9AACfMTOoc",
+      authDomain: "neorastudiosnc.firebaseapp.com",
+      projectId: "neorastudiosnc",
+      storageBucket: "neorastudiosnc.firebasestorage.app",
+      messagingSenderId: "275455765566",
+      appId: "1:275455765566:web:c2cf516fcb8f13de7e356f"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    
+    let totalCount = 0;
+    let updatedCount = 0;
+    let skippedCount = 0;
+    
+    function log(message, type = 'info') {
+      const logEl = document.getElementById('log');
+      const item = document.createElement('div');
+      item.className = 'log-item ' + type;
+      item.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+      logEl.appendChild(item);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+    
+    function updateStats() {
+      document.getElementById('totalCount').textContent = totalCount;
+      document.getElementById('updatedCount').textContent = updatedCount;
+      document.getElementById('skippedCount').textContent = skippedCount;
+    }
+    
+    async function runMigration() {
+      const btn = document.getElementById('migrateBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Migration en cours...';
+      
+      document.getElementById('stats').style.display = 'grid';
+      document.getElementById('log').style.display = 'block';
+      
+      log('Démarrage de la migration...', 'info');
+      
+      try {
+        // Récupérer tous les utilisateurs
+        const snapshot = await db.collection('users').get();
+        totalCount = snapshot.size;
+        updateStats();
+        
+        log(`${totalCount} utilisateurs trouvés`, 'info');
+        
+        // Parcourir chaque utilisateur
+        for (const doc of snapshot.docs) {
+          const userData = doc.data();
+          const userId = doc.id;
+          const email = userData.email || 'Email inconnu';
+          
+          if (!userData.plan) {
+            // Pas de champ plan, on l'ajoute
+            await db.collection('users').doc(userId).update({
+              plan: 'free'
+            });
+            updatedCount++;
+            log(`✅ ${email} → plan: 'free' ajouté`, 'success');
+          } else {
+            // Plan déjà existant
+            skippedCount++;
+            log(`⏭️ ${email} → plan: '${userData.plan}' (déjà défini)`, 'info');
+          }
+          
+          updateStats();
+        }
+        
+        log('🎉 Migration terminée !', 'success');
+        btn.textContent = '✅ Migration terminée';
+        
+      } catch (error) {
+        log('❌ Erreur: ' + error.message, 'error');
+        btn.textContent = '❌ Erreur';
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
