@@ -808,21 +808,14 @@
     </section>
   </main>
   
-  <script src="https://js.stripe.com/v3/"></script>
   <script>
-    // Stripe configuration
-    const STRIPE_PUBLIC_KEY = 'pk_live_51Sg6d2IU0tFiqrPV5hraZQbz6mlNjckHFyIMfn3Omj9Ddd7QIAo9lruPGC4C12aI5NPEQ7y1zt9d3EooXA08XCAQ00XSVwofBj';
-    
-    // Price IDs from Stripe
-    const PRICE_IDS = {
-      pro: 'price_1SiYBzIU0tFiqrPVNqj0vhaO',           // Abonnement Pro mensuel
-      starter: 'price_1SiYCbIU0tFiqrPVBFnTFLat',       // Pack Starter 10 crédits
-      proPack: 'price_1SiYD4IU0tFiqrPVKELTsgzo',       // Pack Pro 30 crédits
-      business: 'price_1SiYDmIU0tFiqrPV0io4pCjs'       // Pack Business 100 crédits
+    // Stripe Payment Links
+    const PAYMENT_LINKS = {
+      pro: 'https://buy.stripe.com/6oU5kE19zcgQg6L2pQ7ok00',           // Abonnement Pro mensuel
+      starter: 'https://buy.stripe.com/fZu8wQcSha8I8Eje8y7ok01',       // Pack Starter 10 crédits
+      proPack: 'https://buy.stripe.com/3cIdRa6tT94EdYDe8y7ok02',       // Pack Pro 30 crédits
+      business: 'https://buy.stripe.com/3cI3cw5pP1Cc7Af8Oe7ok03'       // Pack Business 100 crédits
     };
-    
-    // Initialize Stripe
-    const stripe = Stripe(STRIPE_PUBLIC_KEY);
     
     // Firebase config
     const firebaseConfig = {
@@ -889,35 +882,6 @@
       btn.parentElement.classList.toggle('active');
     }
     
-    // Redirect to Stripe Checkout
-    async function redirectToCheckout(priceId, mode) {
-      if (!currentUser) {
-        alert('Veuillez vous connecter pour continuer.');
-        window.location.href = 'index.html';
-        return;
-      }
-      
-      try {
-        // Create checkout session via Stripe
-        const { error } = await stripe.redirectToCheckout({
-          lineItems: [{ price: priceId, quantity: 1 }],
-          mode: mode, // 'subscription' ou 'payment'
-          successUrl: window.location.origin + '/success.html?session_id={CHECKOUT_SESSION_ID}',
-          cancelUrl: window.location.origin + '/pricing.html',
-          customerEmail: currentUser.email,
-          clientReferenceId: currentUser.uid // Pour identifier l'utilisateur après paiement
-        });
-        
-        if (error) {
-          console.error('Stripe error:', error);
-          alert('Erreur lors de la redirection vers le paiement: ' + error.message);
-        }
-      } catch (err) {
-        console.error('Error:', err);
-        alert('Une erreur est survenue. Veuillez réessayer.');
-      }
-    }
-    
     function selectPlan(plan) {
       if (!currentUser) {
         alert('Veuillez vous connecter pour souscrire à un plan.');
@@ -935,7 +899,9 @@
           alert('Vous êtes déjà abonné au plan Pro !');
           return;
         }
-        redirectToCheckout(PRICE_IDS.pro, 'subscription');
+        // Ajouter l'email et l'uid dans l'URL pour identifier l'utilisateur après paiement
+        const url = PAYMENT_LINKS.pro + '?prefilled_email=' + encodeURIComponent(currentUser.email) + '&client_reference_id=' + currentUser.uid;
+        window.location.href = url;
       }
     }
     
@@ -946,14 +912,16 @@
         return;
       }
       
-      const packPriceId = {
-        starter: PRICE_IDS.starter,
-        pro: PRICE_IDS.proPack,
-        business: PRICE_IDS.business
+      const packLinks = {
+        starter: PAYMENT_LINKS.starter,
+        pro: PAYMENT_LINKS.proPack,
+        business: PAYMENT_LINKS.business
       };
       
-      if (packPriceId[pack]) {
-        redirectToCheckout(packPriceId[pack], 'payment');
+      if (packLinks[pack]) {
+        // Ajouter l'email et l'uid dans l'URL
+        const url = packLinks[pack] + '?prefilled_email=' + encodeURIComponent(currentUser.email) + '&client_reference_id=' + currentUser.uid;
+        window.location.href = url;
       }
     }
   </script>
