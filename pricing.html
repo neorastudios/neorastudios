@@ -684,7 +684,7 @@
           
           <ul class="card-features">
             <li><span class="check">✓</span> Accès à NEORA Simple</li>
-            <li><span class="check">✓</span> 5 générations</li>
+            <li><span class="check">✓</span> Générations illimitées</li>
             <li><span class="cross">✗</span> Filigrane sur les images</li>
             <li><span class="cross">✗</span> Pas d'accès aux versions Pro</li>
           </ul>
@@ -706,7 +706,7 @@
           
           <ul class="card-features">
             <li><span class="check">✓</span> NEORA, NEORA PRO, NEORA PRODUITS</li>
-            <li><span class="check">✓</span> 50 générations par mois</li>
+            <li><span class="check">✓</span> 50 générations / mois</li>
             <li><span class="check">✓</span> Sans filigrane</li>
             <li><span class="check">✓</span> Support prioritaire</li>
           </ul>
@@ -808,7 +808,22 @@
     </section>
   </main>
   
+  <script src="https://js.stripe.com/v3/"></script>
   <script>
+    // Stripe configuration
+    const STRIPE_PUBLIC_KEY = 'pk_live_51Sg6d2IU0tFiqrPV5hraZQbz6mlNjckHFyIMfn3Omj9Ddd7QIAo9lruPGC4C12aI5NPEQ7y1zt9d3EooXA08XCAQ00XSVwofBj';
+    
+    // Price IDs from Stripe
+    const PRICE_IDS = {
+      pro: 'price_1SiYBzIU0tFiqrPVNqj0vhaO',           // Abonnement Pro mensuel
+      starter: 'price_1SiYCbIU0tFiqrPVBFnTFLat',       // Pack Starter 10 crédits
+      proPack: 'price_1SiYD4IU0tFiqrPVKELTsgzo',       // Pack Pro 30 crédits
+      business: 'price_1SiYDmIU0tFiqrPV0io4pCjs'       // Pack Business 100 crédits
+    };
+    
+    // Initialize Stripe
+    const stripe = Stripe(STRIPE_PUBLIC_KEY);
+    
     // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCKPepYjXiY92hZPEdKxqOow9AACfMTOoc",
@@ -848,7 +863,7 @@
           planBadge.classList.add('pro');
         }
         
-        // Update Free button if user is on free plan
+        // Update buttons based on plan
         if (userPlan === 'free') {
           document.querySelector('.pricing-card:not(.featured) .btn').textContent = 'Plan actuel';
           document.querySelector('.pricing-card:not(.featured) .btn').disabled = true;
@@ -856,6 +871,7 @@
           document.querySelector('.pricing-card.featured .btn').textContent = 'Plan actuel';
           document.querySelector('.pricing-card.featured .btn').classList.remove('btn-primary');
           document.querySelector('.pricing-card.featured .btn').classList.add('btn-outline');
+          document.querySelector('.pricing-card.featured .btn').disabled = true;
         }
       } else {
         document.getElementById('navButtons').style.display = 'flex';
@@ -873,8 +889,38 @@
       btn.parentElement.classList.toggle('active');
     }
     
+    // Redirect to Stripe Checkout
+    async function redirectToCheckout(priceId, mode) {
+      if (!currentUser) {
+        alert('Veuillez vous connecter pour continuer.');
+        window.location.href = 'index.html';
+        return;
+      }
+      
+      try {
+        // Create checkout session via Stripe
+        const { error } = await stripe.redirectToCheckout({
+          lineItems: [{ price: priceId, quantity: 1 }],
+          mode: mode, // 'subscription' ou 'payment'
+          successUrl: window.location.origin + '/success.html?session_id={CHECKOUT_SESSION_ID}',
+          cancelUrl: window.location.origin + '/pricing.html',
+          customerEmail: currentUser.email,
+          clientReferenceId: currentUser.uid // Pour identifier l'utilisateur après paiement
+        });
+        
+        if (error) {
+          console.error('Stripe error:', error);
+          alert('Erreur lors de la redirection vers le paiement: ' + error.message);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        alert('Une erreur est survenue. Veuillez réessayer.');
+      }
+    }
+    
     function selectPlan(plan) {
       if (!currentUser) {
+        alert('Veuillez vous connecter pour souscrire à un plan.');
         window.location.href = 'index.html';
         return;
       }
@@ -885,27 +931,30 @@
       }
       
       if (plan === 'pro') {
-        // TODO: Intégrer Stripe ici
-        alert('Redirection vers le paiement Stripe... (à implémenter)');
-        // window.location.href = 'STRIPE_CHECKOUT_URL';
+        if (userPlan === 'pro') {
+          alert('Vous êtes déjà abonné au plan Pro !');
+          return;
+        }
+        redirectToCheckout(PRICE_IDS.pro, 'subscription');
       }
     }
     
     function buyCredits(pack) {
       if (!currentUser) {
+        alert('Veuillez vous connecter pour acheter des crédits.');
         window.location.href = 'index.html';
         return;
       }
       
-      // TODO: Intégrer Stripe ici
-      const prices = {
-        starter: '1 990 XPF (10 crédits)',
-        pro: '4 990 XPF (30 crédits)',
-        business: '14 990 XPF (100 crédits)'
+      const packPriceId = {
+        starter: PRICE_IDS.starter,
+        pro: PRICE_IDS.proPack,
+        business: PRICE_IDS.business
       };
       
-      alert(`Achat du pack ${pack}: ${prices[pack]}\nRedirection vers Stripe... (à implémenter)`);
-      // window.location.href = 'STRIPE_CHECKOUT_URL';
+      if (packPriceId[pack]) {
+        redirectToCheckout(packPriceId[pack], 'payment');
+      }
     }
   </script>
 </body>
