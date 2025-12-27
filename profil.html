@@ -577,6 +577,7 @@
       <div class="actions" id="planActions">
         <a href="pricing.html" class="btn btn-primary" id="upgradeBtn">⬆️ Passer à Pro</a>
         <a href="pricing.html" class="btn btn-outline">🛒 Acheter des crédits</a>
+        <button class="btn btn-outline hidden" id="manageSubBtn" onclick="manageSubscription()">⚙️ Gérer mon abonnement</button>
       </div>
     </div>
     
@@ -719,6 +720,7 @@
       const planBadge = document.getElementById('planBadge');
       const planName = document.getElementById('planName');
       const upgradeBtn = document.getElementById('upgradeBtn');
+      const manageSubBtn = document.getElementById('manageSubBtn');
       
       if (plan === 'pro') {
         planBadge.textContent = '⭐ Pro';
@@ -729,11 +731,17 @@
         upgradeBtn.classList.remove('btn-primary');
         upgradeBtn.classList.add('btn-outline');
         upgradeBtn.style.pointerEvents = 'none';
+        
+        // Afficher le bouton de gestion si l'utilisateur a un stripeCustomerId
+        if (data.stripeCustomerId) {
+          manageSubBtn.classList.remove('hidden');
+        }
       } else {
         planBadge.textContent = 'Free';
         planBadge.classList.remove('pro');
         planBadge.classList.add('free');
         planName.textContent = 'Free';
+        manageSubBtn.classList.add('hidden');
       }
       
       // Generations
@@ -837,6 +845,28 @@
         } else {
           alert('Erreur lors de la suppression : ' + error.message);
         }
+      }
+    }
+    
+    // Gérer l'abonnement via le portail Stripe
+    function manageSubscription() {
+      if (!userData || !userData.stripeCustomerId) {
+        alert('Impossible de trouver votre abonnement. Contactez le support.');
+        return;
+      }
+      
+      const choice = confirm(
+        'Vous allez être redirigé vers le portail Stripe pour gérer votre abonnement.\n\n' +
+        'Vous pourrez :\n' +
+        '• Voir vos factures\n' +
+        '• Modifier votre moyen de paiement\n' +
+        '• Annuler votre abonnement\n\n' +
+        'Continuer ?'
+      );
+      
+      if (choice) {
+        // Rediriger vers le portail client Stripe
+        window.location.href = 'https://billing.stripe.com/p/login/6oU5kE19zcgQg6L2pQ7ok00';
       }
     }
   </script>
