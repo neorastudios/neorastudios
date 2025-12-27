@@ -194,6 +194,29 @@
     .stat-change.up { color: var(--green); }
     .stat-change.down { color: var(--red); }
     
+    /* Stats Sections */
+    .stats-section {
+      margin-bottom: 32px;
+    }
+    
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .stat-card.revenue {
+      background: linear-gradient(135deg, rgba(16,185,129,.15), rgba(16,185,129,.05));
+      border-color: rgba(16,185,129,.3);
+    }
+    
+    .stat-card.revenue::before {
+      background: linear-gradient(135deg, #10b981, #34d399);
+    }
+    
     /* Tabs */
     .tabs {
       display: flex;
@@ -330,6 +353,23 @@
     .badge-blocked {
       background: rgba(239,68,68,.15);
       color: var(--red);
+    }
+    
+    .badge-plan {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .badge-free {
+      background: rgba(255,255,255,.1);
+      color: var(--muted);
+    }
+    
+    .badge-pro {
+      background: linear-gradient(135deg, rgba(245,158,11,.2), rgba(234,179,8,.2));
+      color: #fbbf24;
     }
     
     .btn-action {
@@ -551,35 +591,69 @@
     <div class="main">
       <h1 class="page-title">Dashboard Admin</h1>
 
-      <!-- Stats -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">👥</div>
-          <div class="stat-value" id="totalUsers">0</div>
-          <div class="stat-label">Utilisateurs</div>
-          <div class="stat-change up" id="newUsersToday">+0 aujourd'hui</div>
+      <!-- Stats Revenus -->
+      <div class="stats-section">
+        <h2 class="section-title">💰 Revenus & Abonnements</h2>
+        <div class="stats-grid">
+          <div class="stat-card revenue">
+            <div class="stat-icon">💵</div>
+            <div class="stat-value" id="totalRevenue">0 XPF</div>
+            <div class="stat-label">Revenus totaux</div>
+            <div class="stat-change up" id="revenueThisMonth">+0 XPF ce mois</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value" id="proUsers">0</div>
+            <div class="stat-label">Abonnés Pro</div>
+            <div class="stat-change up" id="proPercent">0% des users</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🎁</div>
+            <div class="stat-value" id="totalCredits">0</div>
+            <div class="stat-label">Crédits vendus</div>
+            <div class="stat-change" id="packsSold">0 packs vendus</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value" id="avgRevenue">0 XPF</div>
+            <div class="stat-label">Revenu moyen/user</div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon">🖼️</div>
-          <div class="stat-value" id="totalGenerations">0</div>
-          <div class="stat-label">Générations totales</div>
-          <div class="stat-change up" id="genToday">+0 aujourd'hui</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">📈</div>
-          <div class="stat-value" id="genThisMonth">0</div>
-          <div class="stat-label">Ce mois-ci</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">⭐</div>
-          <div class="stat-value" id="topVersion">-</div>
-          <div class="stat-label">Version populaire</div>
+      </div>
+
+      <!-- Stats Utilisateurs -->
+      <div class="stats-section">
+        <h2 class="section-title">👥 Utilisateurs & Activité</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value" id="totalUsers">0</div>
+            <div class="stat-label">Utilisateurs</div>
+            <div class="stat-change up" id="newUsersToday">+0 aujourd'hui</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🖼️</div>
+            <div class="stat-value" id="totalGenerations">0</div>
+            <div class="stat-label">Générations totales</div>
+            <div class="stat-change up" id="genToday">+0 aujourd'hui</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📈</div>
+            <div class="stat-value" id="genThisMonth">0</div>
+            <div class="stat-label">Ce mois-ci</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-value" id="topVersion">-</div>
+            <div class="stat-label">Version populaire</div>
+          </div>
         </div>
       </div>
 
       <!-- Tabs -->
       <div class="tabs">
         <button class="tab active" onclick="showTab('users')">👥 Utilisateurs</button>
+        <button class="tab" onclick="showTab('pro')">⭐ Abonnés Pro</button>
         <button class="tab" onclick="showTab('generations')">🖼️ Générations</button>
       </div>
 
@@ -593,6 +667,7 @@
           <thead>
             <tr>
               <th>Utilisateur</th>
+              <th>Plan</th>
               <th>Générations</th>
               <th>Dernière activité</th>
               <th>Statut</th>
@@ -605,6 +680,31 @@
         <div class="empty-state hidden" id="usersEmpty">
           <div class="empty-state-icon">👥</div>
           <p>Aucun utilisateur trouvé</p>
+        </div>
+      </div>
+
+      <!-- Pro Users Tab -->
+      <div class="table-container hidden" id="proTab">
+        <div class="table-header">
+          <h2 class="table-title">⭐ Abonnés Pro</h2>
+          <input type="text" class="table-search" placeholder="Rechercher..." id="proSearch" oninput="filterProUsers()">
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Utilisateur</th>
+              <th>Abonné depuis</th>
+              <th>Générations dispo</th>
+              <th>Total généré</th>
+              <th>Stripe ID</th>
+            </tr>
+          </thead>
+          <tbody id="proTableBody">
+          </tbody>
+        </table>
+        <div class="empty-state hidden" id="proEmpty">
+          <div class="empty-state-icon">⭐</div>
+          <p>Aucun abonné Pro</p>
         </div>
       </div>
 
@@ -784,6 +884,128 @@
         const topVersion = Object.keys(versions).reduce((a, b) => versions[a] > versions[b] ? a : b);
         document.getElementById('topVersion').textContent = topVersion;
       }
+      
+      // ====== STATS REVENUS & ABONNÉS ======
+      
+      // Pro users
+      const proUsers = allUsers.filter(u => u.plan === 'pro');
+      document.getElementById('proUsers').textContent = proUsers.length;
+      
+      // Pro percentage
+      const proPercent = allUsers.length > 0 ? Math.round((proUsers.length / allUsers.length) * 100) : 0;
+      document.getElementById('proPercent').textContent = `${proPercent}% des users`;
+      
+      // Calcul revenus (estimé basé sur les données)
+      // Abonnement Pro = 7990 XPF/mois
+      // On compte les abonnés actifs
+      const PRICE_PRO = 7990;
+      const PRICE_PACK_STARTER = 1990; // 10 crédits
+      const PRICE_PACK_PRO = 4990; // 30 crédits
+      const PRICE_PACK_BUSINESS = 14990; // 100 crédits
+      
+      // Revenus abonnements (estimé: tous les Pro actifs = 1 mois minimum)
+      let totalRevenue = proUsers.length * PRICE_PRO;
+      
+      // Revenus packs (estimé à partir des crédits achetés)
+      // Note: Pour un calcul exact, il faudrait tracker les achats dans Firestore
+      let totalCreditsOnAccounts = 0;
+      let packsSold = 0;
+      
+      allUsers.forEach(u => {
+        // Crédits sur les comptes (au-delà des 50 mensuels = achetés)
+        const extraCredits = Math.max(0, (u.generationsAvailable || 0) - 50);
+        totalCreditsOnAccounts += extraCredits;
+        
+        // Estimation des packs vendus
+        if (u.lastCreditPurchase) {
+          packsSold++;
+          // Estimation moyenne d'un pack Pro (30 crédits)
+          totalRevenue += PRICE_PACK_PRO;
+        }
+      });
+      
+      document.getElementById('totalCredits').textContent = totalCreditsOnAccounts;
+      document.getElementById('packsSold').textContent = `${packsSold} pack${packsSold > 1 ? 's' : ''} vendu${packsSold > 1 ? 's' : ''}`;
+      
+      // Format revenue
+      document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
+      
+      // Revenue this month (Pro users who upgraded this month)
+      const proThisMonth = proUsers.filter(u => {
+        const upgraded = u.upgradedAt ? new Date(u.upgradedAt) : null;
+        return upgraded && upgraded >= monthStart;
+      }).length;
+      const revenueThisMonth = proThisMonth * PRICE_PRO;
+      document.getElementById('revenueThisMonth').textContent = `+${formatCurrency(revenueThisMonth)} ce mois`;
+      
+      // Average revenue per user
+      const avgRevenue = allUsers.length > 0 ? Math.round(totalRevenue / allUsers.length) : 0;
+      document.getElementById('avgRevenue').textContent = formatCurrency(avgRevenue);
+      
+      // Render Pro users table
+      renderProUsers();
+    }
+    
+    // Format currency (XPF)
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('fr-FR').format(amount) + ' XPF';
+    }
+    
+    // Render Pro users table
+    function renderProUsers(filtered = null) {
+      const proUsers = filtered || allUsers.filter(u => u.plan === 'pro');
+      const tbody = document.getElementById('proTableBody');
+      const empty = document.getElementById('proEmpty');
+      
+      if (proUsers.length === 0) {
+        tbody.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      
+      empty.classList.add('hidden');
+      
+      tbody.innerHTML = proUsers.map(user => {
+        const initials = getInitials(user.email || '?');
+        const genCount = allGenerations.filter(g => g.userId === user.id).length;
+        const upgradedAt = user.upgradedAt ? new Date(user.upgradedAt) : null;
+        const stripeId = user.stripeCustomerId || '-';
+        const generationsAvailable = user.generationsAvailable || 0;
+        
+        return `
+          <tr>
+            <td>
+              <div class="user-info">
+                <div class="user-avatar" style="background: linear-gradient(135deg, #f59e0b, #eab308);">⭐</div>
+                <div>
+                  <div class="user-email">${user.email || 'N/A'}</div>
+                  <div class="user-date">Inscrit le ${formatDate(user.createdAt)}</div>
+                </div>
+              </div>
+            </td>
+            <td>${upgradedAt ? formatDate({ toDate: () => upgradedAt }) : 'N/A'}</td>
+            <td><span style="color: var(--green);">⚡ ${generationsAvailable}</span></td>
+            <td>${genCount}</td>
+            <td><code style="font-size: 11px; color: var(--muted);">${stripeId.substring(0, 20)}${stripeId.length > 20 ? '...' : ''}</code></td>
+          </tr>
+        `;
+      }).join('');
+    }
+    
+    // Filter Pro users
+    function filterProUsers() {
+      const search = document.getElementById('proSearch').value.toLowerCase();
+      const proUsers = allUsers.filter(u => u.plan === 'pro');
+      
+      if (!search) {
+        renderProUsers(proUsers);
+        return;
+      }
+      
+      const filtered = proUsers.filter(u => 
+        (u.email || '').toLowerCase().includes(search)
+      );
+      renderProUsers(filtered);
     }
     
     // Render users table
@@ -805,6 +1027,7 @@
         const genCount = allGenerations.filter(g => g.userId === user.id).length;
         const lastActivity = user.lastGenerationAt?.toDate?.() || user.createdAt?.toDate?.() || null;
         const isBlocked = user.blocked || false;
+        const plan = user.plan || 'free';
         
         return `
           <tr>
@@ -816,6 +1039,11 @@
                   <div class="user-date">Inscrit le ${formatDate(user.createdAt)}</div>
                 </div>
               </div>
+            </td>
+            <td>
+              <span class="badge-plan ${plan === 'pro' ? 'badge-pro' : 'badge-free'}">
+                ${plan === 'pro' ? '⭐ Pro' : 'Free'}
+              </span>
             </td>
             <td>${genCount}</td>
             <td>${lastActivity ? formatDate(lastActivity) : 'Jamais'}</td>
@@ -916,6 +1144,7 @@
       event.target.classList.add('active');
       
       document.getElementById('usersTab').classList.toggle('hidden', tab !== 'users');
+      document.getElementById('proTab').classList.toggle('hidden', tab !== 'pro');
       document.getElementById('generationsTab').classList.toggle('hidden', tab !== 'generations');
     }
     
