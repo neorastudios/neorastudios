@@ -567,16 +567,16 @@
       return false;
     }
     
-    // ========== LIMITE 50 GÉNÉRATIONS / MOIS ==========
-    const MONTHLY_LIMIT = 50;
-    let currentMonthlyGenerations = 0;
+    // ========== SYSTÈME DE GÉNÉRATIONS ==========
+    const MONTHLY_BONUS = 50;
+    let generationsAvailable = 0;
     
     function getCurrentMonth() {
       const now = new Date();
       return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     }
     
-    async function loadMonthlyGenerations(user) {
+    async function loadGenerations(user) {
       if (!user) return 0;
       
       const userRef = db.collection('users').doc(user.uid);
@@ -586,35 +586,35 @@
         const data = userDoc.data();
         const currentMonth = getCurrentMonth();
         
-        // Si les champs n'existent pas OU si c'est un nouveau mois → initialiser/réinitialiser
-        if (!data.monthlyGenerations || !data.lastGenerationMonth || data.lastGenerationMonth !== currentMonth) {
+        if (data.lastBonusMonth !== currentMonth) {
+          const currentGenerations = data.generationsAvailable || 0;
+          generationsAvailable = currentGenerations + MONTHLY_BONUS;
+          
           await userRef.update({
-            monthlyGenerations: 0,
-            lastGenerationMonth: currentMonth
+            generationsAvailable: generationsAvailable,
+            lastBonusMonth: currentMonth
           });
-          currentMonthlyGenerations = 0;
         } else {
-          currentMonthlyGenerations = data.monthlyGenerations || 0;
+          generationsAvailable = data.generationsAvailable || 0;
         }
         
         updateGenerationCounter();
-        return currentMonthlyGenerations;
+        return generationsAvailable;
       }
       return 0;
     }
     
     function canGenerate() {
-      return currentMonthlyGenerations < MONTHLY_LIMIT;
+      return generationsAvailable > 0;
     }
     
-    async function incrementGenerationCount(user) {
-      if (!user) return;
+    async function decrementGeneration(user) {
+      if (!user || generationsAvailable <= 0) return;
       
-      currentMonthlyGenerations++;
+      generationsAvailable--;
       
       await db.collection('users').doc(user.uid).update({
-        monthlyGenerations: currentMonthlyGenerations,
-        lastGenerationMonth: getCurrentMonth()
+        generationsAvailable: generationsAvailable
       });
       
       updateGenerationCounter();
@@ -623,18 +623,18 @@
     function updateGenerationCounter() {
       const counterEl = document.getElementById('generation-counter');
       if (counterEl) {
-        const remaining = MONTHLY_LIMIT - currentMonthlyGenerations;
-        counterEl.textContent = `${remaining} génération${remaining > 1 ? 's' : ''} restante${remaining > 1 ? 's' : ''} ce mois`;
+        counterEl.textContent = `⚡ ${generationsAvailable} génération${generationsAvailable > 1 ? 's' : ''}`;
         
-        if (remaining <= 10) {
+        if (generationsAvailable > 20) {
+          counterEl.style.color = '#10b981';
+        } else if (generationsAvailable > 5) {
           counterEl.style.color = '#f59e0b';
-        }
-        if (remaining <= 0) {
+        } else {
           counterEl.style.color = '#ef4444';
         }
       }
     }
-    // ========== FIN LIMITE GÉNÉRATIONS ==========
+    // ========== FIN SYSTÈME DE GÉNÉRATIONS ==========
     
     // Protection: Vérifier si l'utilisateur est connecté et non bloqué
     firebase.auth().onAuthStateChanged(async (user) => {
@@ -654,8 +654,8 @@
       const hasAccess = await checkPlanAccess(user);
       if (!hasAccess) return;
       
-      // Charger le compteur de générations mensuelles
-      await loadMonthlyGenerations(user);
+      // Charger les générations disponibles
+      await loadGenerations(user);
     });
     
     // Initialisation du tracker NEORA
@@ -775,8 +775,8 @@
 
       // Vérifier la limite de générations
       if (!canGenerate()) {
-        statusEl.textContent = "❌ Limite atteinte ! Vous avez utilisé vos 50 générations ce mois-ci.";
-        alert('Vous avez atteint votre limite de 50 générations ce mois-ci. Votre compteur sera réinitialisé le mois prochain, ou vous pouvez acheter un pack de crédits.');
+        statusEl.textContent = "❌ Plus de générations disponibles !";
+        alert('Vous n\'avez plus de générations disponibles. Achetez un pack de crédits pour continuer.');
         return;
       }
 
@@ -818,10 +818,10 @@
           statusEl.textContent = "Image générée ✅";
           enablePostGenerationFeatures();
           
-          // Incrémenter le compteur de générations
+          // Décrémenter le compteur de générations
           const user = firebase.auth().currentUser;
           if (user) {
-            await incrementGenerationCount(user);
+            await decrementGeneration(user);
           }
           
           // Sauvegarde dans l'historique
