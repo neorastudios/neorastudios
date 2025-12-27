@@ -418,6 +418,7 @@
             <a href="historique.html" class="nav-link">📁 Historique</a>
           </div>
           <div class="badge">Pro</div>
+          <div class="badge" id="generation-counter" style="background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.3); color: #10b981;">-- générations restantes</div>
         </div>
       </div>
 
@@ -566,6 +567,72 @@
       return false;
     }
     
+    // ========== LIMITE 50 GÉNÉRATIONS / MOIS ==========
+    const MONTHLY_LIMIT = 50;
+    let currentMonthlyGenerations = 0;
+    
+    function getCurrentMonth() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    }
+    
+    async function loadMonthlyGenerations(user) {
+      if (!user) return 0;
+      
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        const data = userDoc.data();
+        const currentMonth = getCurrentMonth();
+        
+        if (data.lastGenerationMonth !== currentMonth) {
+          await db.collection('users').doc(user.uid).update({
+            monthlyGenerations: 0,
+            lastGenerationMonth: currentMonth
+          });
+          currentMonthlyGenerations = 0;
+        } else {
+          currentMonthlyGenerations = data.monthlyGenerations || 0;
+        }
+        
+        updateGenerationCounter();
+        return currentMonthlyGenerations;
+      }
+      return 0;
+    }
+    
+    function canGenerate() {
+      return currentMonthlyGenerations < MONTHLY_LIMIT;
+    }
+    
+    async function incrementGenerationCount(user) {
+      if (!user) return;
+      
+      currentMonthlyGenerations++;
+      
+      await db.collection('users').doc(user.uid).update({
+        monthlyGenerations: currentMonthlyGenerations,
+        lastGenerationMonth: getCurrentMonth()
+      });
+      
+      updateGenerationCounter();
+    }
+    
+    function updateGenerationCounter() {
+      const counterEl = document.getElementById('generation-counter');
+      if (counterEl) {
+        const remaining = MONTHLY_LIMIT - currentMonthlyGenerations;
+        counterEl.textContent = `${remaining} génération${remaining > 1 ? 's' : ''} restante${remaining > 1 ? 's' : ''} ce mois`;
+        
+        if (remaining <= 10) {
+          counterEl.style.color = '#f59e0b';
+        }
+        if (remaining <= 0) {
+          counterEl.style.color = '#ef4444';
+        }
+      }
+    }
+    // ========== FIN LIMITE GÉNÉRATIONS ==========
+    
     // Protection: Vérifier si l'utilisateur est connecté et non bloqué
     firebase.auth().onAuthStateChanged(async (user) => {
       if (!user) {
@@ -581,7 +648,11 @@
       if (isBlocked) return;
       
       // Vérifier si l'utilisateur a accès (plan payant)
-      await checkPlanAccess(user);
+      const hasAccess = await checkPlanAccess(user);
+      if (!hasAccess) return;
+      
+      // Charger le compteur de générations mensuelles
+      await loadMonthlyGenerations(user);
     });
     
     // Initialisation du tracker NEORA
@@ -699,6 +770,13 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
+      // Vérifier la limite de générations
+      if (!canGenerate()) {
+        statusEl.textContent = "❌ Limite atteinte ! Vous avez utilisé vos 50 générations ce mois-ci.";
+        alert('Vous avez atteint votre limite de 50 générations ce mois-ci. Votre compteur sera réinitialisé le mois prochain, ou vous pouvez acheter un pack de crédits.');
+        return;
+      }
+
       const productName = document.getElementById("product_name").value.trim();
       const imageStyle = imageStyleSelect.value;
       const customStyleText = customStyleTextarea ? customStyleTextarea.value.trim() : "";
@@ -730,12 +808,18 @@
 
         statusEl.textContent = "Chargement de l'image générée…";
 
-        previewImgEl.onload = () => {
+        previewImgEl.onload = async () => {
           lockUI(false);
           setOverlay(false);
           setLoading(false);
           statusEl.textContent = "Image générée ✅";
           enablePostGenerationFeatures();
+          
+          // Incrémenter le compteur de générations
+          const user = firebase.auth().currentUser;
+          if (user) {
+            await incrementGenerationCount(user);
+          }
           
           // Sauvegarde dans l'historique
           saveGeneration({
