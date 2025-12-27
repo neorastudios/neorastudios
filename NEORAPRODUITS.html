@@ -579,13 +579,16 @@
     async function loadMonthlyGenerations(user) {
       if (!user) return 0;
       
-      const userDoc = await db.collection('users').doc(user.uid).get();
+      const userRef = db.collection('users').doc(user.uid);
+      const userDoc = await userRef.get();
+      
       if (userDoc.exists) {
         const data = userDoc.data();
         const currentMonth = getCurrentMonth();
         
-        if (data.lastGenerationMonth !== currentMonth) {
-          await db.collection('users').doc(user.uid).update({
+        // Si les champs n'existent pas OU si c'est un nouveau mois → initialiser/réinitialiser
+        if (!data.monthlyGenerations || !data.lastGenerationMonth || data.lastGenerationMonth !== currentMonth) {
+          await userRef.update({
             monthlyGenerations: 0,
             lastGenerationMonth: currentMonth
           });
