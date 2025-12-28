@@ -1417,7 +1417,7 @@
             </div>
             <div class="showcase-info">
               <span class="showcase-category">Cosmétiques</span>
-              <h4 class="showcase-title">Crème NUXE — Style lifestyle</h4>
+              <h4 class="showcase-title">Crème NUXE Nuxuriance Ultra — Packshot vers lifestyle</h4>
             </div>
           </div>
           <div class="showcase-card">
@@ -1427,7 +1427,7 @@
             </div>
             <div class="showcase-info">
               <span class="showcase-category">Mode</span>
-              <h4 class="showcase-title">Nike TN — Ambiance urbaine néon</h4>
+              <h4 class="showcase-title">Nike TN Volt — Ambiance urbaine néon</h4>
             </div>
           </div>
           <div class="showcase-card">
@@ -1437,7 +1437,7 @@
             </div>
             <div class="showcase-info">
               <span class="showcase-category">Boissons</span>
-              <h4 class="showcase-title">Vin Rouge — Ambiance gastronomique</h4>
+              <h4 class="showcase-title">Château Picque Caillou — Ambiance gastronomique</h4>
             </div>
           </div>
           <div class="showcase-card">
@@ -1497,7 +1497,61 @@
           </div>
         </div>
       </div>
-
+    </section>
+    
+    <section class="section" id="pricing">
+      <div class="section-inner">
+        <div class="section-header">
+          <span class="section-label">Tarifs</span>
+          <h2 class="section-title">Un prix simple et transparent</h2>
+          <p class="section-subtitle">Choisissez le plan qui correspond à vos besoins.</p>
+        </div>
+        <div class="pricing-grid">
+          <div class="pricing-card">
+            <h3 class="pricing-name">Starter</h3>
+            <p class="pricing-description">Parfait pour découvrir Neora</p>
+            <div class="pricing-price">Gratuit</div>
+            <p class="pricing-period">5 images / mois</p>
+            <ul class="pricing-features">
+              <li>5 générations par mois</li>
+              <li>Résolution standard</li>
+              <li>Formats basiques</li>
+              <li>Support email</li>
+            </ul>
+            <button class="btn btn-outline pricing-cta" onclick="openModal('signup')">Commencer gratuitement</button>
+          </div>
+          <div class="pricing-card popular">
+            <span class="pricing-badge">Populaire</span>
+            <h3 class="pricing-name">Pro</h3>
+            <p class="pricing-description">Pour les entrepreneurs ambitieux</p>
+            <div class="pricing-price">49€ <span>/ mois</span></div>
+            <p class="pricing-period">100 images / mois</p>
+            <ul class="pricing-features">
+              <li>100 générations par mois</li>
+              <li>Résolution 2K</li>
+              <li>Tous les formats</li>
+              <li>Modifications illimitées</li>
+              <li>Support prioritaire</li>
+            </ul>
+            <button class="btn btn-primary pricing-cta" onclick="openModal('signup')">Démarrer l'essai gratuit</button>
+          </div>
+          <div class="pricing-card">
+            <h3 class="pricing-name">Business</h3>
+            <p class="pricing-description">Pour les équipes et agences</p>
+            <div class="pricing-price">99€ <span>/ mois</span></div>
+            <p class="pricing-period">Illimité</p>
+            <ul class="pricing-features">
+              <li>Générations illimitées</li>
+              <li>Résolution 4K</li>
+              <li>API access</li>
+              <li>Multi-utilisateurs</li>
+              <li>Account manager dédié</li>
+            </ul>
+            <button class="btn btn-outline pricing-cta" onclick="openModal('signup')">Contacter l'équipe de Neora</button>
+          </div>
+        </div>
+      </div>
+    </section>
     
     <section class="section" id="faq">
       <div class="section-inner">
@@ -1572,7 +1626,15 @@
               <li><a href="#how-it-works">Comment ça marche</a></li>
               <li><a href="#faq">FAQ</a></li>
             </ul>
-        
+          </div>
+          <div class="footer-column">
+            <h4>Ressources</h4>
+            <ul class="footer-links">
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Tutoriels</a></li>
+              <li><a href="#">Documentation API</a></li>
+              <li><a href="#">Centre d'aide</a></li>
+            </ul>
           </div>
           <div class="footer-column">
             <h4>Légal</h4>
@@ -1580,7 +1642,7 @@
               <li><a href="#">Conditions d'utilisation</a></li>
               <li><a href="#">Politique de confidentialité</a></li>
               <li><a href="#">Mentions légales</a></li>
-              <li><a href="contact.html" class="nav-link">Contact</a></li>
+              <li><a href="#">Contact</a></li>
             </ul>
           </div>
         </div>
@@ -1751,13 +1813,22 @@
         const userDoc = await userRef.get();
         
         if (!userDoc.exists) {
-          // Créer le document utilisateur s'il n'existe pas
+          // Créer le document utilisateur avec tous les champs
           await userRef.set({
             email: user.email,
+            firstName: '',
+            lastName: '',
+            avatarUrl: user.photoURL || '',
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
             blocked: false,
-            plan: 'free', // Plan gratuit par défaut
-            provider: user.providerData[0]?.providerId || 'email'
+            plan: 'free',
+            provider: user.providerData[0]?.providerId || 'email',
+            generationsAvailable: 0,
+            lastBonusMonth: '',
+            totalGenerations: 0,
+            monthlyGenerations: 0,
+            lastGenerationMonth: ''
           });
           console.log('Nouveau document utilisateur créé:', user.email);
         } else {

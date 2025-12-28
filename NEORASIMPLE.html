@@ -429,7 +429,7 @@
           <div style="font-size:12px;color:rgba(255,255,255,.70);margin-top:4px;">Générateur d'image</div>
         </div>
       </div>
-      <div class="badge">Free</div>
+      <div class="badge">Pro</div>
     </div>
   </div>
 
@@ -557,13 +557,25 @@
       const userDoc = await userRef.get();
       
       if (!userDoc.exists) {
+        // Nouveau utilisateur → créer avec tous les champs
         await userRef.set({
           email: user.email,
+          firstName: '',
+          lastName: '',
+          avatarUrl: user.photoURL || '',
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
           blocked: false,
-          provider: user.providerData[0]?.providerId || 'email'
+          provider: user.providerData[0]?.providerId || 'email',
+          plan: 'free',
+          generationsAvailable: 0,
+          lastBonusMonth: '',
+          totalGenerations: 0,
+          monthlyGenerations: 0,
+          lastGenerationMonth: ''
         });
       } else {
+        // Utilisateur existant → mettre à jour lastLoginAt
         await userRef.update({
           lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
         });
