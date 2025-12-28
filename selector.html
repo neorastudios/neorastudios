@@ -95,6 +95,27 @@
       margin-top: 4px;
     }
     
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.2s;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+    
+    .nav-link:hover {
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.05);
+    }
+    
     .user-section {
       display: flex;
       align-items: center;
@@ -275,6 +296,9 @@
       .user-email {
         display: none;
       }
+      .nav-links {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -290,6 +314,13 @@
             <div class="brand-subtitle">Générateur IA</div>
           </div>
         </a>
+        
+        <nav class="nav-links">
+          <a href="profil.html" class="nav-link">👤 Profil</a>
+          <a href="historique.html" class="nav-link">📁 Historique</a>
+          <a href="contact.html" class="nav-link">📬 Contact</a>
+        </nav>
+        
         <div class="user-section">
           <span class="user-email" id="userEmail"></span>
           <span class="badge-plan" id="userPlan">Pro</span>
