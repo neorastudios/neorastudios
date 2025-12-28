@@ -2300,16 +2300,8 @@
           // Plan gratuit → Redirection directe vers NEORASIMPLE
           window.location.href = 'NEORASIMPLE.html';
         } else {
-          // Plan payant → Afficher le sélecteur de versions
-          document.getElementById('landingPage').style.display = 'none'; 
-          document.getElementById('appPage').style.display = 'block'; 
-          document.getElementById('appUserEmail').textContent = currentUser.email;
-          
-          // Mettre à jour le badge selon le plan
-          const badge = document.querySelector('.badge-pro');
-          if (badge) {
-            badge.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
-          }
+          // Plan payant → Redirection vers le sélecteur de versions
+          window.location.href = 'selector.html';
         }
       };
       
