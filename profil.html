@@ -495,8 +495,10 @@
       
       <div class="nav-links">
         <a href="index.html" class="nav-link">🏠 Accueil</a>
+        <a href="#" class="nav-link" onclick="goToApp()">🚀 App</a>
         <a href="pricing.html" class="nav-link">💎 Tarifs</a>
         <a href="historique.html" class="nav-link">📁 Historique</a>
+        <a href="contact.html" class="nav-link">📬 Contact</a>
       </div>
       
       <button class="btn btn-outline" onclick="logout()">Déconnexion</button>
@@ -516,7 +518,7 @@
       <div class="avatar" id="avatar">?</div>
       <div class="profile-info">
         <h1 id="userName">Utilisateur</h1>
-        <p class="email" id="userEmail">email@example.com</p>
+        <p class="email" id="userEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e3868e828a8fa3869b828e938f86cd808c8e">[email&#160;protected]</a></p>
         <p class="member-since">Membre depuis <span id="memberSince">--</span></p>
       </div>
     </div>
@@ -620,7 +622,7 @@
     </div>
   </main>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCKPepYjXiY92hZPEdKxqOow9AACfMTOoc",
@@ -865,8 +867,25 @@
       );
       
       if (choice) {
-        // Rediriger vers le portail client Stripe
         window.location.href = 'https://billing.stripe.com/p/login/6oU5kE19zcgQg6L2pQ7ok00';
+      }
+    }
+    
+    // Fonction pour aller à l'app selon le plan
+    async function goToApp() {
+      if (!currentUser) {
+        window.location.href = 'index.html';
+        return;
+      }
+      
+      const plan = userData?.plan || 'free';
+      
+      if (plan === 'pro') {
+        // Pro → page de sélection des versions
+        window.location.href = 'index.html#app';
+      } else {
+        // Free → NEORASIMPLE directement
+        window.location.href = 'NEORASIMPLE.html';
       }
     }
   </script>

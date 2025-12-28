@@ -640,8 +640,11 @@
       </a>
       
       <div class="nav-links">
-        <a href="index.html" class="nav-link">Accueil</a>
-        <a href="pricing.html" class="nav-link" style="color: var(--text-primary);">Tarifs</a>
+        <a href="index.html" class="nav-link">🏠 Accueil</a>
+        <a href="#" class="nav-link" onclick="goToApp()">🚀 App</a>
+        <a href="pricing.html" class="nav-link" style="color: var(--text-primary);">💎 Tarifs</a>
+        <a href="profil.html" class="nav-link">👤 Profil</a>
+        <a href="contact.html" class="nav-link">📬 Contact</a>
       </div>
       
       <div class="nav-buttons" id="navButtons">
@@ -922,6 +925,23 @@
         // Ajouter l'email et l'uid dans l'URL
         const url = packLinks[pack] + '?prefilled_email=' + encodeURIComponent(currentUser.email) + '&client_reference_id=' + currentUser.uid;
         window.location.href = url;
+      }
+    }
+    
+    // Fonction pour aller à l'app selon le plan
+    async function goToApp() {
+      if (!currentUser) {
+        window.location.href = 'index.html';
+        return;
+      }
+      
+      const userDoc = await db.collection('users').doc(currentUser.uid).get();
+      const plan = userDoc.exists ? (userDoc.data().plan || 'free') : 'free';
+      
+      if (plan === 'pro') {
+        window.location.href = 'index.html#app';
+      } else {
+        window.location.href = 'NEORASIMPLE.html';
       }
     }
   </script>

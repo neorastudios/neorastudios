@@ -504,9 +504,11 @@
         </div>
       </a>
       <div class="nav-links">
-        <a href="index.html" class="nav-link">Accueil</a>
-        <a href="profil.html" class="nav-link">Profil</a>
-        <a href="historique.html" class="nav-link active">Historique</a>
+        <a href="index.html" class="nav-link">🏠 Accueil</a>
+        <a href="#" class="nav-link" onclick="goToApp()">🚀 App</a>
+        <a href="profil.html" class="nav-link">👤 Profil</a>
+        <a href="historique.html" class="nav-link active">📁 Historique</a>
+        <a href="contact.html" class="nav-link">📬 Contact</a>
         <button class="btn-logout" onclick="logout()">Déconnexion</button>
       </div>
     </div>
@@ -767,6 +769,24 @@
       toast.className = 'toast ' + type;
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+    
+    // Fonction pour aller à l'app selon le plan
+    async function goToApp() {
+      const user = auth.currentUser;
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+      
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      const plan = userDoc.exists ? (userDoc.data().plan || 'free') : 'free';
+      
+      if (plan === 'pro') {
+        window.location.href = 'index.html#app';
+      } else {
+        window.location.href = 'NEORASIMPLE.html';
+      }
     }
   </script>
 </body>
