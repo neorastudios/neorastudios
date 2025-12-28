@@ -69,16 +69,9 @@
     .brand{ display:flex; align-items:center; gap:12px; user-select:none; }
     .logo{
       width:34px; height:34px; border-radius:10px;
-      background: var(--grad);
+      background: url('logo.jpg') center/cover no-repeat;
       box-shadow: 0 14px 40px rgba(99,102,241,.22);
       position:relative;
-    }
-    .logo:after{
-      content:"";
-      position:absolute; inset:1px;
-      border-radius:9px;
-      background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(255,255,255,.08));
-      mix-blend-mode: overlay;
     }
     .brand h1{
       margin:0;
@@ -422,19 +415,16 @@
 <body>
   <div class="topbar">
     <div class="topbar-inner">
-      <div class="brand">
+      <a href="index.html" class="brand" style="text-decoration:none;">
         <div class="logo"></div>
-        <div>
-          <h1>NEORA</h1>
-          <div style="font-size:12px;color:rgba(255,255,255,.70);margin-top:4px;">Générateur d'image</div>
-        </div>
-      </div>
-      <div style="display: flex; align-items: center; gap: 16px;">
+        <div class="logo-text" style="font-size:22px;font-weight:700;">Neora<span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">.ai</span></div>
+      </a>
+      <div style="display: flex; align-items: center; gap: 24px;">
         <a href="index.html" style="color: rgba(255,255,255,.7); text-decoration: none; font-size: 14px;">🏠 Accueil</a>
         <a href="pricing.html" style="color: rgba(255,255,255,.7); text-decoration: none; font-size: 14px;">💎 Tarifs</a>
-        <a href="profil.html" style="color: rgba(255,255,255,.7); text-decoration: none; font-size: 14px;">👤 Profil</a>
+        <a href="historique.html" style="color: rgba(255,255,255,.7); text-decoration: none; font-size: 14px;">📁 Historique</a>
         <a href="contact.html" style="color: rgba(255,255,255,.7); text-decoration: none; font-size: 14px;">📬 Contact</a>
-        <div class="badge">Free</div>
+        <button onclick="logout()" style="padding:10px 20px;font-size:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.9);border-radius:999px;cursor:pointer;font-family:inherit;">Déconnexion</button>
       </div>
     </div>
   </div>
@@ -981,6 +971,12 @@
     setStatus("Ready.");
     updateFileUI(null);
     setModeFromImage("");
+    
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = 'index.html';
+      });
+    }
   </script>
 </body>
 </html>

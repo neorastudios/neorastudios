@@ -80,76 +80,51 @@
       background: url('logo.jpg') center/cover no-repeat;
     }
     
-    .brand-info {}
-    
-    .brand-title {
-      font-size: 15px;
+    .logo-text {
+      font-size: 22px;
       font-weight: 700;
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
+      color: var(--text-primary);
     }
     
-    .brand-subtitle {
-      font-size: 12px;
-      color: rgba(255,255,255,0.7);
-      margin-top: 4px;
+    .logo-text span {
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 24px;
+      gap: 32px;
     }
     
     .nav-link {
       color: var(--text-secondary);
       text-decoration: none;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 500;
       transition: color 0.2s;
-      padding: 8px 12px;
-      border-radius: 8px;
     }
     
     .nav-link:hover {
       color: var(--text-primary);
-      background: rgba(255,255,255,0.05);
-    }
-    
-    .user-section {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    
-    .user-email {
-      font-size: 13px;
-      color: rgba(255,255,255,0.7);
-    }
-    
-    .badge-plan {
-      font-size: 12px;
-      color: rgba(255,255,255,.78);
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.045);
     }
     
     .btn-logout {
-      padding: 8px 16px;
-      font-size: 13px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.14);
-      color: rgba(255,255,255,0.9);
-      border-radius: 999px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      background: transparent;
+      border: 1px solid var(--border-light);
+      color: var(--text-primary);
+      border-radius: var(--radius-full);
       cursor: pointer;
       transition: all 0.2s;
       font-family: var(--font-display);
     }
     
     .btn-logout:hover {
-      background: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
     }
     
     /* Selector Content */
@@ -304,30 +279,25 @@
 </head>
 <body>
   <div class="page-container">
-    <!-- Topbar -->
-    <header class="topbar">
+    <!-- Navigation -->
+    <nav class="topbar">
       <div class="topbar-inner">
         <a href="index.html" class="brand">
           <div class="brand-logo"></div>
-          <div class="brand-info">
-            <div class="brand-title">NEORA</div>
-            <div class="brand-subtitle">Générateur IA</div>
-          </div>
+          <div class="logo-text">Neora<span>.ai</span></div>
         </a>
         
-        <nav class="nav-links">
-          <a href="profil.html" class="nav-link">👤 Profil</a>
+        <div class="nav-links">
+          <a href="index.html" class="nav-link">🏠 Accueil</a>
+          <a href="#" class="nav-link" onclick="goToApp()">🚀 App</a>
+          <a href="pricing.html" class="nav-link">💎 Tarifs</a>
           <a href="historique.html" class="nav-link">📁 Historique</a>
           <a href="contact.html" class="nav-link">📬 Contact</a>
-        </nav>
-        
-        <div class="user-section">
-          <span class="user-email" id="userEmail"></span>
-          <span class="badge-plan" id="userPlan">Pro</span>
-          <button class="btn-logout" onclick="logout()">Déconnexion</button>
         </div>
+        
+        <button class="btn-logout" onclick="logout()">Déconnexion</button>
       </div>
-    </header>
+    </nav>
     
     <!-- Selector -->
     <main class="selector-wrap">
@@ -393,14 +363,10 @@
         return;
       }
       
-      // Afficher l'email
-      document.getElementById('userEmail').textContent = user.email;
-      
       // Récupérer le plan
       const userDoc = await db.collection('users').doc(user.uid).get();
       if (userDoc.exists) {
         const plan = userDoc.data().plan || 'free';
-        document.getElementById('userPlan').textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
         
         // Si plan gratuit, rediriger vers NEORASIMPLE
         if (plan === 'free') {
@@ -413,6 +379,23 @@
       auth.signOut().then(() => {
         window.location.href = 'index.html';
       });
+    }
+    
+    async function goToApp() {
+      const user = auth.currentUser;
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+      
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      const plan = userDoc.exists ? (userDoc.data().plan || 'free') : 'free';
+      
+      if (plan === 'free') {
+        window.location.href = 'NEORASIMPLE.html';
+      } else {
+        window.location.href = 'selector.html';
+      }
     }
   </script>
 </body>

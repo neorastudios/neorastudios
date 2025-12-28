@@ -356,15 +356,18 @@
     <div class="nav-inner">
       <a href="index.html" class="logo">
         <div class="logo-icon"><img src="logo.jpg" alt="NEORA"></div>
-        <div class="logo-text">NEORA<span>.ai</span></div>
+        <div class="logo-text">Neora<span>.ai</span></div>
       </a>
       
       <div class="nav-links">
         <a href="index.html" class="nav-link">🏠 Accueil</a>
-        <a href="selector.html" class="nav-link" onclick="goToApp()">🚀 App</a>
+        <a href="#" class="nav-link" onclick="goToApp()">🚀 App</a>
         <a href="pricing.html" class="nav-link">💎 Tarifs</a>
-        <a href="profil.html" class="nav-link">👤 Profil</a>
+        <a href="historique.html" class="nav-link">📁 Historique</a>
+        <a href="contact.html" class="nav-link">📬 Contact</a>
       </div>
+      
+      <button class="btn btn-outline" onclick="logout()" style="padding:12px 24px;font-size:14px;">Déconnexion</button>
     </div>
   </nav>
   
@@ -420,7 +423,8 @@
     </div>
     
     <div class="contact-info">
-      
+      <p>Vous pouvez aussi nous contacter directement à<br>
+      <a href="/cdn-cgi/l/email-protection#58363d372a392b2c2d3c31372b363b183f35393134763b3735"><span class="__cf_email__" data-cfemail="d2bcb7bda0b3a1a6a7b6bbbda192b5bfb3bbbefcb1bdbf">[email&#160;protected]</span></a></p>
     </div>
   </main>
 
@@ -519,6 +523,12 @@
       } else {
         window.location.href = 'NEORASIMPLE.html';
       }
+    }
+    
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = 'index.html';
+      });
     }
   </script>
 </body>
