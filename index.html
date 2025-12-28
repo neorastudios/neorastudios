@@ -31,6 +31,115 @@
     
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
+    /* ========== ANIMATIONS ========== */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4);
+      }
+      50% {
+        box-shadow: 0 0 0 15px rgba(139, 92, 246, 0);
+      }
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes glow {
+      0%, 100% {
+        box-shadow: 0 5px 30px rgba(139, 92, 246, 0.3);
+      }
+      50% {
+        box-shadow: 0 5px 50px rgba(236, 72, 153, 0.5);
+      }
+    }
+    
+    /* Éléments animés - état initial (cachés) */
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    
+    .animate-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Délais d'animation pour les éléments en séquence */
+    .animate-delay-1 { transition-delay: 0.1s; }
+    .animate-delay-2 { transition-delay: 0.2s; }
+    .animate-delay-3 { transition-delay: 0.3s; }
+    .animate-delay-4 { transition-delay: 0.4s; }
+    
+    /* Animation de la navbar au scroll */
+    .nav {
+      transition: all 0.3s ease;
+    }
+    
+    .nav.scrolled {
+      padding: 10px 24px;
+      background: rgba(3,3,8,0.95);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    
+    .nav.scrolled .logo-icon {
+      width: 32px;
+      height: 32px;
+    }
+    
+    /* ========== FIN ANIMATIONS ==========  */
+    
     body {
       font-family: var(--font-display);
       background: var(--bg-primary);
@@ -150,11 +259,35 @@
       background: var(--gradient-main);
       color: #fff;
       box-shadow: 0 4px 20px rgba(139,92,246,0.3);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s ease;
+      z-index: -1;
+    }
+    
+    .btn-primary:hover::before {
+      left: 100%;
     }
     
     .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(139,92,246,0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(139,92,246,0.5);
+    }
+    
+    /* Bouton avec effet glow pulsant */
+    .btn-glow {
+      animation: glow 3s ease-in-out infinite;
     }
     
     .btn-outline {
@@ -302,19 +435,31 @@
       border: 1px solid var(--border-light);
       border-radius: var(--radius-lg);
       padding: 32px;
-      transition: all 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
     .feature-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(139,92,246,0.3);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      transform: translateY(-8px) scale(1.02);
+      border-color: rgba(139,92,246,0.4);
+      box-shadow: 0 25px 50px rgba(139,92,246,0.15), 0 10px 20px rgba(0,0,0,0.3);
+    }
+    
+    .feature-card:hover .feature-icon {
+      transform: scale(1.1) rotate(5deg);
     }
     
     .feature-icon {
       width: 56px;
       height: 56px;
       border-radius: 16px;
+      background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(236,72,153,0.2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
       background: var(--gradient-main);
       display: flex;
       align-items: center;
@@ -347,6 +492,19 @@
       background: rgba(255,255,255,0.02);
       border-radius: var(--radius-lg);
       border: 1px solid var(--border-subtle);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .step-card:hover {
+      transform: translateY(-8px);
+      background: rgba(255,255,255,0.04);
+      border-color: rgba(139,92,246,0.3);
+      box-shadow: 0 20px 40px rgba(139,92,246,0.15);
+    }
+    
+    .step-card:hover .step-number {
+      transform: scale(1.1);
+      box-shadow: 0 10px 30px rgba(139,92,246,0.4);
     }
     
     .step-number {
@@ -360,6 +518,7 @@
       font-size: 20px;
       font-weight: 700;
       margin: 0 auto 24px;
+      transition: all 0.4s ease;
     }
     
     .step-title {
@@ -510,17 +669,21 @@
       border-radius: var(--radius-lg);
       padding: 40px 32px;
       position: relative;
-      transition: all 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
     .pricing-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      transform: translateY(-12px) scale(1.02);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.4);
     }
     
     .pricing-card.popular {
       border-color: var(--accent-violet);
       background: linear-gradient(180deg, rgba(139,92,246,0.1), rgba(139,92,246,0.02));
+    }
+    
+    .pricing-card.popular:hover {
+      box-shadow: 0 30px 60px rgba(139,92,246,0.3);
     }
     
     .pricing-badge {
@@ -1551,16 +1714,16 @@
     </nav>
     
     <section class="hero">
-      <div class="hero-badge">✨ Créer vos images produits en un click</div>
-      <h1 class="hero-title">Photos produits <span class="gradient">magiques</span><br>en quelques secondes</h1>
-      <p class="hero-subtitle">Créez des visuels e-commerce professionnels avec l'IA. Packshots, mises en scène, publicités — sans photographe, sans studio.</p>
-      <div class="hero-cta">
-        <button class="btn btn-primary btn-large" onclick="openModal('signup')">Commencer gratuitement →</button>
+      <div class="hero-badge animate-on-scroll">✨ Créer vos images produits en un click</div>
+      <h1 class="hero-title animate-on-scroll animate-delay-1">Photos produits <span class="gradient">magiques</span><br>en quelques secondes</h1>
+      <p class="hero-subtitle animate-on-scroll animate-delay-2">Créez des visuels e-commerce professionnels avec l'IA. Packshots, mises en scène, publicités — sans photographe, sans studio.</p>
+      <div class="hero-cta animate-on-scroll animate-delay-3">
+        <button class="btn btn-primary btn-large btn-glow" onclick="openModal('signup')">Commencer gratuitement →</button>
         <button class="btn btn-outline btn-large" onclick="openModal('login')">J'ai déjà un compte</button>
       </div>
     </section>
     
-    <section class="logos-section">
+    <section class="logos-section animate-on-scroll">
       <p class="logos-title">Utilisé par des marques innovantes</p>
       <div class="logos-grid">
         <span class="logo-item">MC Ecom</span>
@@ -1572,38 +1735,38 @@
     
     <section class="section" id="features">
       <div class="section-inner">
-        <div class="section-header">
+        <div class="section-header animate-on-scroll">
           <span class="section-label">Fonctionnalités</span>
           <h2 class="section-title">Tout ce dont vous avez besoin</h2>
           <p class="section-subtitle">Des outils puissants pour créer des visuels produits qui convertissent.</p>
         </div>
         <div class="features-grid">
-          <div class="feature-card">
+          <div class="feature-card animate-on-scroll animate-delay-1">
             <div class="feature-icon">🎨</div>
             <h3 class="feature-title">Génération par IA</h3>
             <p class="feature-description">Décrivez simplement votre vision et laissez notre IA créer des visuels photoréalistes en quelques secondes.</p>
           </div>
-          <div class="feature-card">
+          <div class="feature-card animate-on-scroll animate-delay-2">
             <div class="feature-icon">📸</div>
             <h3 class="feature-title">Transformation d'images</h3>
             <p class="feature-description">Uploadez vos photos existantes et transformez-les en visuels marketing professionnels.</p>
           </div>
-          <div class="feature-card">
+          <div class="feature-card animate-on-scroll animate-delay-3">
             <div class="feature-icon">🎯</div>
             <h3 class="feature-title">Mises en scène contextuelles</h3>
             <p class="feature-description">Placez vos produits dans des environnements lifestyle réalistes qui parlent à votre audience.</p>
           </div>
-          <div class="feature-card">
+          <div class="feature-card animate-on-scroll animate-delay-1">
             <div class="feature-icon">⚡</div>
             <h3 class="feature-title">Résolution 2K</h3>
             <p class="feature-description">Des images en haute définition prêtes pour l'impression, les réseaux sociaux et votre e-commerce.</p>
           </div>
-          <div class="feature-card">
+          <div class="feature-card animate-on-scroll animate-delay-2">
             <div class="feature-icon">🔄</div>
             <h3 class="feature-title">Modifications illimitées</h3>
             <p class="feature-description">Ajustez vos créations avec des instructions simples : changez les couleurs, l'éclairage, le fond...</p>
           </div>
-          <div class="feature-card">
+          <div class="feature-card animate-on-scroll animate-delay-3">
             <div class="feature-icon">📐</div>
             <h3 class="feature-title">Formats multiples</h3>
             <p class="feature-description">Exportez dans tous les ratios : carré pour Instagram, vertical pour Stories, 16:9 pour les pubs...</p>
@@ -1614,23 +1777,23 @@
     
     <section class="section" id="how-it-works">
       <div class="section-inner">
-        <div class="section-header">
+        <div class="section-header animate-on-scroll">
           <span class="section-label">Comment ça marche</span>
           <h2 class="section-title">Simple comme 1, 2, 3</h2>
           <p class="section-subtitle">Créez des visuels professionnels en moins d'une minute.</p>
         </div>
         <div class="steps-container">
-          <div class="step-card">
+          <div class="step-card animate-on-scroll animate-delay-1">
             <div class="step-number">1</div>
             <h3 class="step-title">Décrivez votre vision</h3>
             <p class="step-description">Écrivez un prompt décrivant le visuel souhaité. Ajoutez une photo de votre produit si vous en avez une.</p>
           </div>
-          <div class="step-card">
+          <div class="step-card animate-on-scroll animate-delay-2">
             <div class="step-number">2</div>
             <h3 class="step-title">L'IA génère</h3>
             <p class="step-description">Notre IA analyse votre demande et crée un visuel professionnel en quelques secondes.</p>
           </div>
-          <div class="step-card">
+          <div class="step-card animate-on-scroll animate-delay-3">
             <div class="step-number">3</div>
             <h3 class="step-title">Téléchargez et utilisez</h3>
             <p class="step-description">Récupérez votre image en haute résolution, prête pour votre e-commerce ou vos campagnes marketing.</p>
@@ -1641,7 +1804,7 @@
     
     <section class="section showcase-section">
       <div class="section-inner">
-        <div class="section-header">
+        <div class="section-header animate-on-scroll">
           <span class="section-label">Exemples</span>
           <h2 class="section-title">Avant / Après</h2>
           <p class="section-subtitle">Voyez la transformation de photos basiques en visuels marketing premium.</p>
@@ -1664,7 +1827,7 @@
         </div>
         
         <!-- Slider Container -->
-        <div class="ba-slider-container">
+        <div class="ba-slider-container animate-on-scroll">
           <!-- Slide 1: Cosmétique -->
           <div class="ba-slide active" data-index="0">
             <div class="ba-comparison">
@@ -1883,9 +2046,9 @@
     
     <section class="section cta-section">
       <div class="section-inner">
-        <h2 class="cta-title">Prêt à créer des visuels <span class="gradient">magiques</span> ?</h2>
-        <p class="cta-subtitle">Rejoignez des milliers d'entrepreneurs qui utilisent Neora pour booster leurs ventes.</p>
-        <button class="btn btn-primary btn-large" onclick="openModal('signup')">Commencer gratuitement →</button>
+        <h2 class="cta-title animate-on-scroll">Prêt à créer des visuels <span class="gradient">magiques</span> ?</h2>
+        <p class="cta-subtitle animate-on-scroll animate-delay-1">Rejoignez des milliers d'entrepreneurs qui utilisent Neora pour booster leurs ventes.</p>
+        <button class="btn btn-primary btn-large btn-glow animate-on-scroll animate-delay-2" onclick="openModal('signup')">Commencer gratuitement →</button>
       </div>
     </section>
     
@@ -2381,6 +2544,51 @@
       
       // Initialize slider
       initBeforeAfterSliders();
+      
+      // ========== ANIMATIONS AU SCROLL ==========
+      
+      // Navbar scroll effect
+      const nav = document.querySelector('.nav');
+      let lastScroll = 0;
+      
+      window.addEventListener('scroll', () => {
+        const currentScroll = window.pageYOffset;
+        
+        if (currentScroll > 50) {
+          nav.classList.add('scrolled');
+        } else {
+          nav.classList.remove('scrolled');
+        }
+        
+        lastScroll = currentScroll;
+      });
+      
+      // Animate elements on scroll
+      const animateOnScroll = () => {
+        const elements = document.querySelectorAll('.animate-on-scroll');
+        
+        elements.forEach(element => {
+          const elementTop = element.getBoundingClientRect().top;
+          const elementBottom = element.getBoundingClientRect().bottom;
+          const windowHeight = window.innerHeight;
+          
+          // Element is in viewport
+          if (elementTop < windowHeight - 100 && elementBottom > 0) {
+            element.classList.add('visible');
+          }
+        });
+      };
+      
+      // Run on scroll and on load
+      window.addEventListener('scroll', animateOnScroll);
+      window.addEventListener('load', animateOnScroll);
+      
+      // Initial hero animation
+      setTimeout(() => {
+        document.querySelectorAll('.hero .animate-on-scroll').forEach(el => {
+          el.classList.add('visible');
+        });
+      }, 100);
     });
   </script>
 </body>
