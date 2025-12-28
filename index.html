@@ -1361,6 +1361,23 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      -o-user-drag: none;
+      user-drag: none;
+      user-select: none;
+      -webkit-user-select: none;
+      pointer-events: none;
+    }
+    
+    .ba-image-container {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
     }
     
     .ba-before {
@@ -1652,8 +1669,8 @@
           <div class="ba-slide active" data-index="0">
             <div class="ba-comparison">
               <div class="ba-image-container">
-                <img src="1.jpg" alt="Avant - Crème cosmétique" class="ba-image ba-before">
-                <img src="1.png" alt="Après - Crème cosmétique stylisée" class="ba-image ba-after">
+                <img src="1.jpg" alt="Avant - Crème cosmétique" class="ba-image ba-before" draggable="false">
+                <img src="1.png" alt="Après - Crème cosmétique stylisée" class="ba-image ba-after" draggable="false">
                 <div class="ba-slider-handle">
                   <div class="ba-slider-line"></div>
                   <div class="ba-slider-circle">
@@ -1678,8 +1695,8 @@
           <div class="ba-slide" data-index="1">
             <div class="ba-comparison">
               <div class="ba-image-container">
-                <img src="2.jpg" alt="Avant - Sneaker orange" class="ba-image ba-before">
-                <img src="2.png" alt="Après - Sneaker en action" class="ba-image ba-after">
+                <img src="2.jpg" alt="Avant - Sneaker orange" class="ba-image ba-before" draggable="false">
+                <img src="2.png" alt="Après - Sneaker en action" class="ba-image ba-after" draggable="false">
                 <div class="ba-slider-handle">
                   <div class="ba-slider-line"></div>
                   <div class="ba-slider-circle">
@@ -1704,8 +1721,8 @@
           <div class="ba-slide" data-index="2">
             <div class="ba-comparison">
               <div class="ba-image-container">
-                <img src="3.jpg" alt="Avant - Canette Monster" class="ba-image ba-before">
-                <img src="3.png" alt="Après - Monster cosmic" class="ba-image ba-after">
+                <img src="3.jpg" alt="Avant - Canette Monster" class="ba-image ba-before" draggable="false">
+                <img src="3.png" alt="Après - Monster cosmic" class="ba-image ba-after" draggable="false">
                 <div class="ba-slider-handle">
                   <div class="ba-slider-line"></div>
                   <div class="ba-slider-circle">
@@ -1730,8 +1747,8 @@
           <div class="ba-slide" data-index="3">
             <div class="ba-comparison">
               <div class="ba-image-container">
-                <img src="4.jpg" alt="Avant - Montre LIGE" class="ba-image ba-before">
-                <img src="4.png" alt="Après - Montre luxe" class="ba-image ba-after">
+                <img src="4.jpg" alt="Avant - Montre LIGE" class="ba-image ba-before" draggable="false">
+                <img src="4.png" alt="Après - Montre luxe" class="ba-image ba-after" draggable="false">
                 <div class="ba-slider-handle">
                   <div class="ba-slider-line"></div>
                   <div class="ba-slider-circle">
@@ -1815,7 +1832,59 @@
       </div>
     </section>
     
-    
+    <section class="section" id="pricing">
+      <div class="section-inner">
+        <div class="section-header">
+          <span class="section-label">Tarifs</span>
+          <h2 class="section-title">Un prix simple et transparent</h2>
+          <p class="section-subtitle">Choisissez le plan qui correspond à vos besoins.</p>
+        </div>
+        <div class="pricing-grid">
+          <div class="pricing-card">
+            <h3 class="pricing-name">Starter</h3>
+            <p class="pricing-description">Parfait pour découvrir Neora</p>
+            <div class="pricing-price">Gratuit</div>
+            <p class="pricing-period">5 images / mois</p>
+            <ul class="pricing-features">
+              <li>5 générations par mois</li>
+              <li>Résolution standard</li>
+              <li>Formats basiques</li>
+              <li>Support email</li>
+            </ul>
+            <button class="btn btn-outline pricing-cta" onclick="openModal('signup')">Commencer gratuitement</button>
+          </div>
+          <div class="pricing-card popular">
+            <span class="pricing-badge">Populaire</span>
+            <h3 class="pricing-name">Pro</h3>
+            <p class="pricing-description">Pour les entrepreneurs ambitieux</p>
+            <div class="pricing-price">49€ <span>/ mois</span></div>
+            <p class="pricing-period">100 images / mois</p>
+            <ul class="pricing-features">
+              <li>100 générations par mois</li>
+              <li>Résolution 2K</li>
+              <li>Tous les formats</li>
+              <li>Modifications illimitées</li>
+              <li>Support prioritaire</li>
+            </ul>
+            <button class="btn btn-primary pricing-cta" onclick="openModal('signup')">Démarrer l'essai gratuit</button>
+          </div>
+          <div class="pricing-card">
+            <h3 class="pricing-name">Business</h3>
+            <p class="pricing-description">Pour les équipes et agences</p>
+            <div class="pricing-price">99€ <span>/ mois</span></div>
+            <p class="pricing-period">Illimité</p>
+            <ul class="pricing-features">
+              <li>Générations illimitées</li>
+              <li>Résolution 4K</li>
+              <li>API access</li>
+              <li>Multi-utilisateurs</li>
+              <li>Account manager dédié</li>
+            </ul>
+            <button class="btn btn-outline pricing-cta" onclick="openModal('signup')">Contacter l'équipe de Neora</button>
+          </div>
+        </div>
+      </div>
+    </section>
     
     <section class="section" id="faq">
       <div class="section-inner">
@@ -2329,6 +2398,7 @@
           }
           
           container.addEventListener('mousedown', (e) => {
+            e.preventDefault();
             isDragging = true;
             updateSliderPosition(e.clientX);
           });
