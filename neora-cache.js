@@ -12,12 +12,13 @@
   
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
+      navigator.serviceWorker.register('./sw.js')
         .then(registration => {
           console.log('✅ NEORA Cache actif');
         })
         .catch(error => {
-          console.log('❌ Service Worker non enregistré:', error);
+          // Pas grave si ça marche pas, le reste du cache fonctionne quand même
+          console.log('ℹ️ Service Worker non disponible (le cache local fonctionne quand même)');
         });
     });
   }
@@ -90,19 +91,8 @@
   // ============================================
   
   function preloadCriticalImages() {
-    const criticalImages = [
-      '/logo.jpg',
-      '/1.jpg', '/1.png',  // Slider avant/après
-      '/2.jpg', '/2.png'
-    ];
-
-    criticalImages.forEach(src => {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'image';
-      link.href = src;
-      document.head.appendChild(link);
-    });
+    // Désactivé - les images seront chargées normalement
+    // Ajoute tes propres images ici si besoin
   }
 
   // ============================================
