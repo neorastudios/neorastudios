@@ -538,6 +538,274 @@
       line-height: 1.6;
     }
     
+    /* ========== DEMO ANIMATION STYLES ========== */
+    .demo-section {
+      padding: 80px 24px;
+      background: linear-gradient(180deg, var(--bg-primary) 0%, rgba(139,92,246,0.05) 50%, var(--bg-primary) 100%);
+      overflow: hidden;
+    }
+
+    .demo-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .demo-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .demo-title {
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 700;
+      margin-bottom: 16px;
+      margin-top: 16px;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.8) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .demo-subtitle {
+      color: rgba(255,255,255,0.6);
+      font-size: 18px;
+    }
+
+    .demo-showcase {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 20px 80px rgba(0,0,0,0.4);
+    }
+
+    .demo-slides {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/10;
+    }
+
+    .demo-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    .demo-slide.active {
+      opacity: 1;
+    }
+
+    .demo-compare {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+    }
+
+    .demo-before, .demo-after {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .demo-before {
+      left: 0;
+      clip-path: inset(0 50% 0 0);
+      z-index: 1;
+    }
+
+    .demo-after {
+      left: 0;
+      z-index: 0;
+    }
+
+    .demo-before img, .demo-after img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .demo-slide.active .demo-before {
+      animation: revealBefore 4s ease-in-out infinite;
+    }
+
+    @keyframes revealBefore {
+      0%, 10% { clip-path: inset(0 0% 0 0); }
+      40%, 60% { clip-path: inset(0 100% 0 0); }
+      90%, 100% { clip-path: inset(0 0% 0 0); }
+    }
+
+    .demo-label {
+      position: absolute;
+      bottom: 20px;
+      padding: 8px 20px;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(10px);
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      z-index: 10;
+      transition: opacity 0.3s ease;
+    }
+
+    .demo-label.before {
+      left: 20px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .demo-label.after {
+      right: 20px;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      color: white;
+    }
+
+    .demo-slide.active .demo-label.before {
+      animation: labelBefore 4s ease-in-out infinite;
+    }
+
+    .demo-slide.active .demo-label.after {
+      animation: labelAfter 4s ease-in-out infinite;
+    }
+
+    @keyframes labelBefore {
+      0%, 10% { opacity: 1; }
+      40%, 60% { opacity: 0; }
+      90%, 100% { opacity: 1; }
+    }
+
+    @keyframes labelAfter {
+      0%, 10% { opacity: 0; }
+      40%, 60% { opacity: 1; }
+      90%, 100% { opacity: 0; }
+    }
+
+    .demo-divider {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: white;
+      z-index: 5;
+      box-shadow: 0 0 20px rgba(255,255,255,0.5);
+    }
+
+    .demo-slide.active .demo-divider {
+      animation: dividerMove 4s ease-in-out infinite;
+    }
+
+    @keyframes dividerMove {
+      0%, 10% { left: 100%; }
+      40%, 60% { left: 0%; }
+      90%, 100% { left: 100%; }
+    }
+
+    .demo-dots {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      padding: 24px;
+    }
+
+    .demo-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+    }
+
+    .demo-dot:hover {
+      background: rgba(255,255,255,0.4);
+    }
+
+    .demo-dot.active {
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      transform: scale(1.2);
+    }
+
+    .demo-product-name {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 24px;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      z-index: 10;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .demo-sparkle {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 6;
+      opacity: 0;
+    }
+
+    .demo-slide.active .demo-sparkle {
+      animation: sparkle 4s ease-in-out infinite;
+    }
+
+    @keyframes sparkle {
+      0%, 35% { opacity: 0; }
+      38%, 42% { opacity: 1; }
+      45%, 100% { opacity: 0; }
+    }
+
+    .sparkle-icon {
+      position: absolute;
+      font-size: 24px;
+      animation: floatSparkle 2s ease-in-out infinite;
+    }
+
+    .sparkle-icon:nth-child(1) { top: 20%; left: 30%; animation-delay: 0s; }
+    .sparkle-icon:nth-child(2) { top: 40%; left: 60%; animation-delay: 0.2s; }
+    .sparkle-icon:nth-child(3) { top: 60%; left: 40%; animation-delay: 0.4s; }
+    .sparkle-icon:nth-child(4) { top: 30%; left: 70%; animation-delay: 0.1s; }
+    .sparkle-icon:nth-child(5) { top: 70%; left: 55%; animation-delay: 0.3s; }
+
+    @keyframes floatSparkle {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-10px) scale(1.2); }
+    }
+
+    .demo-cta {
+      text-align: center;
+      margin-top: 32px;
+    }
+
+    @media (max-width: 768px) {
+      .demo-section {
+        padding: 60px 16px;
+      }
+      
+      .demo-label {
+        font-size: 11px;
+        padding: 6px 14px;
+      }
+      
+      .demo-product-name {
+        font-size: 12px;
+        padding: 8px 16px;
+      }
+    }
+    /* ========== END DEMO ANIMATION ========== */
+    
     .showcase-section {
       background: linear-gradient(180deg, rgba(139,92,246,0.05) 0%, transparent 100%);
     }
@@ -1807,154 +2075,103 @@
       </div>
     </section>
     
-    <section class="section showcase-section">
-      <div class="section-inner">
-        <div class="section-header animate-on-scroll">
-          <span class="section-label">Exemples</span>
-          <h2 class="section-title">Avant / Après</h2>
-          <p class="section-subtitle">Voyez la transformation de photos basiques en visuels marketing premium.</p>
+    <!-- DEMO ANIMATION SECTION -->
+    <section class="demo-section" id="demo">
+      <div class="demo-container">
+        <div class="demo-header">
+          <span class="section-label animate-on-scroll">Exemples</span>
+          <h2 class="demo-title animate-on-scroll">✨ La magie NEORA en action</h2>
+          <p class="demo-subtitle animate-on-scroll">Regarde la transformation en temps réel</p>
         </div>
         
-        <!-- Slider Navigation -->
-        <div class="slider-nav">
-          <button class="slider-nav-btn active" data-slide="0">
-            <span class="nav-category">Cosmétique</span>
-          </button>
-          <button class="slider-nav-btn" data-slide="1">
-            <span class="nav-category">Sneakers</span>
-          </button>
-          <button class="slider-nav-btn" data-slide="2">
-            <span class="nav-category">Boisson</span>
-          </button>
-          <button class="slider-nav-btn" data-slide="3">
-            <span class="nav-category">Montre</span>
-          </button>
-        </div>
-        
-        <!-- Slider Container -->
-        <div class="ba-slider-container animate-on-scroll">
-          <!-- Slide 1: Cosmétique -->
-          <div class="ba-slide active" data-index="0">
-            <div class="ba-comparison">
-              <div class="ba-image-container">
-                <img src="1.jpg" alt="Avant - Crème cosmétique" class="ba-image ba-before" draggable="false">
-                <img src="1.png" alt="Après - Crème cosmétique stylisée" class="ba-image ba-after" draggable="false">
-                <div class="ba-slider-handle">
-                  <div class="ba-slider-line"></div>
-                  <div class="ba-slider-circle">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <path d="M8 5L3 12L8 19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M16 5L21 12L16 19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </div>
+        <div class="demo-showcase animate-on-scroll">
+          <div class="demo-slides">
+            <!-- Slide 1: Dior -->
+            <div class="demo-slide active" data-index="0">
+              <div class="demo-product-name">Dior Sauvage</div>
+              <div class="demo-compare">
+                <div class="demo-before">
+                  <img src="demo-dior-before.jpg" alt="Dior Avant">
                 </div>
-                <div class="ba-label ba-label-before">AVANT</div>
-                <div class="ba-label ba-label-after">APRÈS</div>
+                <div class="demo-after">
+                  <img src="demo-dior-after.png" alt="Dior Après">
+                </div>
+                <div class="demo-divider"></div>
+              </div>
+              <span class="demo-label before">📷 Avant</span>
+              <span class="demo-label after">✨ Après NEORA</span>
+              <div class="demo-sparkle">
+                <span class="sparkle-icon">✨</span>
+                <span class="sparkle-icon">⭐</span>
+                <span class="sparkle-icon">💫</span>
+                <span class="sparkle-icon">✨</span>
+                <span class="sparkle-icon">⭐</span>
               </div>
             </div>
-            <div class="ba-info">
-              <span class="ba-category">Cosmétique</span>
-              <h4 class="ba-title">La Cosmétique d'Ici — Mise en scène Périgord</h4>
-              <p class="ba-description">Photo produit basique transformée en visuel lifestyle premium avec paysage et éléments naturels.</p>
+            
+            <!-- Slide 2: New Balance -->
+            <div class="demo-slide" data-index="1">
+              <div class="demo-product-name">New Balance 530</div>
+              <div class="demo-compare">
+                <div class="demo-before">
+                  <img src="demo-newbalance-before.jpg" alt="New Balance Avant">
+                </div>
+                <div class="demo-after">
+                  <img src="demo-newbalance-after.png" alt="New Balance Après">
+                </div>
+                <div class="demo-divider"></div>
+              </div>
+              <span class="demo-label before">📷 Avant</span>
+              <span class="demo-label after">✨ Après NEORA</span>
+              <div class="demo-sparkle">
+                <span class="sparkle-icon">✨</span>
+                <span class="sparkle-icon">⭐</span>
+                <span class="sparkle-icon">💫</span>
+                <span class="sparkle-icon">✨</span>
+                <span class="sparkle-icon">⭐</span>
+              </div>
+            </div>
+            
+            <!-- Slide 3: Rolex -->
+            <div class="demo-slide" data-index="2">
+              <div class="demo-product-name">Rolex Datejust</div>
+              <div class="demo-compare">
+                <div class="demo-before">
+                  <img src="demo-rolex-before.jpg" alt="Rolex Avant">
+                </div>
+                <div class="demo-after">
+                  <img src="demo-rolex-after.png" alt="Rolex Après">
+                </div>
+                <div class="demo-divider"></div>
+              </div>
+              <span class="demo-label before">📷 Avant</span>
+              <span class="demo-label after">✨ Après NEORA</span>
+              <div class="demo-sparkle">
+                <span class="sparkle-icon">✨</span>
+                <span class="sparkle-icon">⭐</span>
+                <span class="sparkle-icon">💫</span>
+                <span class="sparkle-icon">✨</span>
+                <span class="sparkle-icon">⭐</span>
+              </div>
             </div>
           </div>
           
-          <!-- Slide 2: Sneakers -->
-          <div class="ba-slide" data-index="1">
-            <div class="ba-comparison">
-              <div class="ba-image-container">
-                <img src="2.jpg" alt="Avant - Sneaker orange" class="ba-image ba-before" draggable="false">
-                <img src="2.png" alt="Après - Sneaker en action" class="ba-image ba-after" draggable="false">
-                <div class="ba-slider-handle">
-                  <div class="ba-slider-line"></div>
-                  <div class="ba-slider-circle">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <path d="M8 5L3 12L8 19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M16 5L21 12L16 19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </div>
-                </div>
-                <div class="ba-label ba-label-before">AVANT</div>
-                <div class="ba-label ba-label-after">APRÈS</div>
-              </div>
-            </div>
-            <div class="ba-info">
-              <span class="ba-category">Sport</span>
-              <h4 class="ba-title">Nike Free Flyknit — Action dynamique</h4>
-              <p class="ba-description">Simple photo détourée convertie en visuel publicitaire sportif avec athlète et stade.</p>
-            </div>
-          </div>
-          
-          <!-- Slide 3: Boisson -->
-          <div class="ba-slide" data-index="2">
-            <div class="ba-comparison">
-              <div class="ba-image-container">
-                <img src="3.jpg" alt="Avant - Canette Monster" class="ba-image ba-before" draggable="false">
-                <img src="3.png" alt="Après - Monster cosmic" class="ba-image ba-after" draggable="false">
-                <div class="ba-slider-handle">
-                  <div class="ba-slider-line"></div>
-                  <div class="ba-slider-circle">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <path d="M8 5L3 12L8 19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M16 5L21 12L16 19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </div>
-                </div>
-                <div class="ba-label ba-label-before">AVANT</div>
-                <div class="ba-label ba-label-after">APRÈS</div>
-              </div>
-            </div>
-            <div class="ba-info">
-              <span class="ba-category">Boisson</span>
-              <h4 class="ba-title">Monster Nitro — Explosion cosmique</h4>
-              <p class="ba-description">Packshot simple transformé en visuel publicitaire explosif avec effets cosmiques.</p>
-            </div>
-          </div>
-          
-          <!-- Slide 4: Montre -->
-          <div class="ba-slide" data-index="3">
-            <div class="ba-comparison">
-              <div class="ba-image-container">
-                <img src="4.jpg" alt="Avant - Montre LIGE" class="ba-image ba-before" draggable="false">
-                <img src="4.png" alt="Après - Montre luxe" class="ba-image ba-after" draggable="false">
-                <div class="ba-slider-handle">
-                  <div class="ba-slider-line"></div>
-                  <div class="ba-slider-circle">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <path d="M8 5L3 12L8 19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M16 5L21 12L16 19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </div>
-                </div>
-                <div class="ba-label ba-label-before">AVANT</div>
-                <div class="ba-label ba-label-after">APRÈS</div>
-              </div>
-            </div>
-            <div class="ba-info">
-              <span class="ba-category">Luxe</span>
-              <h4 class="ba-title">LIGE Watch — Élégance intemporelle</h4>
-              <p class="ba-description">Photo e-commerce basique sublimée en visuel haute horlogerie avec écrin premium.</p>
-            </div>
+          <!-- Navigation Dots -->
+          <div class="demo-dots">
+            <button class="demo-dot active" data-index="0"></button>
+            <button class="demo-dot" data-index="1"></button>
+            <button class="demo-dot" data-index="2"></button>
           </div>
         </div>
         
-        <!-- Arrow Navigation -->
-        <div class="slider-arrows">
-          <button class="slider-arrow slider-prev">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <button class="slider-arrow slider-next">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
+        <div class="demo-cta animate-on-scroll">
+          <a href="#" class="btn-primary btn-glow" onclick="openAuthModal('register')">
+            🚀 Essayer gratuitement
+          </a>
         </div>
-        
       </div>
     </section>
-    
+
     <section class="section" id="testimonials">
       <div class="section-inner">
         <div class="section-header">
@@ -2594,6 +2811,57 @@
           el.classList.add('visible');
         });
       }, 100);
+      
+      // ========== DEMO ANIMATION CONTROLLER ==========
+      const demoSlides = document.querySelectorAll('.demo-slide');
+      const demoDots = document.querySelectorAll('.demo-dot');
+      let currentDemoSlide = 0;
+      let demoAutoPlayInterval;
+      
+      function showDemoSlide(index) {
+        demoSlides.forEach((slide, i) => {
+          slide.classList.toggle('active', i === index);
+        });
+        demoDots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === index);
+        });
+        currentDemoSlide = index;
+      }
+      
+      function nextDemoSlide() {
+        const next = (currentDemoSlide + 1) % demoSlides.length;
+        showDemoSlide(next);
+      }
+      
+      function startDemoAutoPlay() {
+        demoAutoPlayInterval = setInterval(nextDemoSlide, 5000);
+      }
+      
+      function stopDemoAutoPlay() {
+        clearInterval(demoAutoPlayInterval);
+      }
+      
+      // Click on dots
+      demoDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          stopDemoAutoPlay();
+          showDemoSlide(index);
+          startDemoAutoPlay();
+        });
+      });
+      
+      // Start autoplay
+      if (demoSlides.length > 0) {
+        startDemoAutoPlay();
+      }
+      
+      // Pause on hover
+      const demoShowcase = document.querySelector('.demo-showcase');
+      if (demoShowcase) {
+        demoShowcase.addEventListener('mouseenter', stopDemoAutoPlay);
+        demoShowcase.addEventListener('mouseleave', startDemoAutoPlay);
+      }
+      // ========== END DEMO ANIMATION ==========
     });
   </script>
 <script src="neora-cache.js"></script>
