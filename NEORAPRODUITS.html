@@ -454,6 +454,8 @@
 
             <div class="field" id="custom-style-field" style="display:none;">
               <label for="custom_style">Style personnalisé</label>
+              <!-- Templates de prompts -->
+              <div id="promptTemplates"></div>
               <textarea id="custom_style" placeholder="Ex: fond noir, néons violets, ambiance futuriste, lumière dramatique..."></textarea>
               <div class="tiny">Sois précis : ambiance, couleurs, type de lumière, mood.</div>
             </div>
@@ -947,5 +949,13 @@
       }
     });
   </script>
+<script src="neora-templates.js"></script>
+<script>
+  // Initialiser les templates pour le champ custom_style
+  document.addEventListener('DOMContentLoaded', function() {
+    NeoraTemplates.init('promptTemplates', 'custom_style');
+  });
+</script>
+<script src="neora-cache.js"></script>
 </body>
 </html>
