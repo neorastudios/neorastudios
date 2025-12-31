@@ -485,6 +485,27 @@
       margin-top:10px;
       flex-wrap:wrap;
     }
+
+    /* ✅ NEW: Templates toggle UI */
+    .templates-head{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .templates-hint{
+      font-size:12px;
+      color: var(--muted2);
+      line-height:1.35;
+    }
+    .templates-box{
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    }
   </style>
 </head>
 
@@ -518,9 +539,14 @@
           <p class="subtitle">Décris ce que tu veux. Ajoute une image seulement si tu veux transformer un produit existant.</p>
         </div>
         <div class="body">
-          <!-- Templates de prompts -->
-          <div id="promptTemplates"></div>
-          
+
+          <!-- ✅ Templates (bouton toggle) -->
+          <div class="templates-head">
+            <button type="button" class="btn-small" id="toggleTemplatesBtn">✨ Templates</button>
+            <span class="templates-hint">Clique pour afficher / masquer</span>
+          </div>
+          <div id="promptTemplates" class="templates-box" style="display:none;"></div>
+
           <label for="prompt_user">Prompt</label>
           <textarea id="prompt_user" placeholder="Ex: Visuel marketing premium, éclairage studio, rendu photoréaliste, fond sombre minimal..."></textarea>
 
@@ -825,6 +851,15 @@
     const N8N_MODIFY_STATUS_URL = ""; // optionnel (sinon N8N_STATUS_URL est utilisé)
 
     const $ = (id) => document.getElementById(id);
+
+    // ✅ Toggle Templates
+    const toggleTemplatesBtn = $("toggleTemplatesBtn");
+    const promptTemplatesBox = $("promptTemplates");
+    toggleTemplatesBtn?.addEventListener("click", () => {
+      const isHidden = promptTemplatesBox.style.display === "none" || !promptTemplatesBox.style.display;
+      promptTemplatesBox.style.display = isHidden ? "block" : "none";
+      toggleTemplatesBtn.textContent = isHidden ? "✖ Fermer templates" : "✨ Templates";
+    });
 
     const promptEl = $("prompt_user");
     const fileInput = $("product_image");
@@ -1301,7 +1336,8 @@
     updateFileUI(null);
     setModeFromImage("");
   </script>
-<script src="neora-templates.js"></script>
-<script src="neora-cache.js"></script>
+
+  <script src="neora-templates.js"></script>
+  <script src="neora-cache.js"></script>
 </body>
 </html>
