@@ -1,338 +1,71 @@
 /**
- * NEORA Prompt Templates
- * Système de prompts pré-faits cliquables
+ * NEORA Prompt Templates - Version avec Images
+ * Système de prompts pré-faits avec preview visuel
  */
 
 const NeoraTemplates = {
   
   // ============================================
-  // CATÉGORIES DE TEMPLATES
+  // TEMPLATES AVEC IMAGES
   // ============================================
   
-  categories: [
-    { id: 'product', name: '📦 Produit', icon: '📦' },
-    { id: 'lifestyle', name: '🌿 Lifestyle', icon: '🌿' },
-    { id: 'luxury', name: '💎 Luxe', icon: '💎' },
-    { id: 'creative', name: '🎨 Créatif', icon: '🎨' },
-    { id: 'food', name: '🍽️ Food', icon: '🍽️' },
-    { id: 'fashion', name: '👗 Mode', icon: '👗' },
-    { id: 'tech', name: '📱 Tech', icon: '📱' },
-    { id: 'beauty', name: '💄 Beauté', icon: '💄' }
+  templates: [
+    {
+      id: 'food-gourmet',
+      name: 'Food Gourmet',
+      image: 'template-food.jpg',
+      prompt: 'gourmet burger photography, melting cheddar cheese dripping, warm brown and yellow tones, chocolate drip effect background, appetizing fast food commercial, dramatic studio lighting, bold typography space, 8k quality'
+    },
+    {
+      id: 'sneaker-float',
+      name: 'Sneaker Float',
+      image: 'template-sneaker.jpg',
+      prompt: 'floating sneaker product shot, levitating at angle, smooth gradient brown mocha background, minimalist layout, brand logo placement, premium shoe commercial, soft diffused shadows, clean typography, 8k quality'
+    },
+    {
+      id: 'tech-minimal',
+      name: 'Tech Minimal',
+      image: 'template-tech.jpg',
+      prompt: 'tech product photography, headphones floating, monochromatic blue background, large typography behind product, modern minimalist apple style, price tag layout, clean commercial design, soft studio lighting, 8k quality'
+    },
+    {
+      id: 'old-money',
+      name: 'Old Money',
+      image: 'template-oldmoney.jpg',
+      prompt: 'old money aesthetic photography, tennis court setting, vintage film grain texture, editorial fashion campaign, luxury lifestyle, muted earth tones, elegant serif typography overlay, summer collection vibes, 8k quality'
+    },
+    {
+      id: 'beauty-fresh',
+      name: 'Beauty Fresh',
+      image: 'template-beauty.jpg',
+      prompt: 'cosmetic serum product photography, diagonal floating bottle, geometric blue and white split background, water droplets texture, fresh hydrating skincare feel, clinical clean aesthetic, pharmaceutical luxury, 8k quality'
+    },
+    {
+      id: 'drink-fresh',
+      name: 'Drink Fresh',
+      image: 'template-drink.jpg',
+      prompt: 'refreshing beverage commercial, soda can with condensation droplets, fresh lime and lemon slices flying, mint leaves, bold green typography background, summer fresh feeling, dynamic composition, 8k quality'
+    },
+    {
+      id: 'fun-bold',
+      name: 'Fun & Bold',
+      image: 'template-bold.jpg',
+      prompt: 'bold vibrant advertising, hot pink magenta wavy background, energetic model holding product, playful yellow and white bold typography, dynamic fun composition, gen-z style commercial, eye-catching social media ad, 8k quality'
+    }
   ],
-  
-  // ============================================
-  // TEMPLATES PAR CATÉGORIE
-  // ============================================
-  
-  templates: {
-    
-    // 📦 PRODUIT
-    product: [
-      {
-        id: 'packshot-white',
-        name: 'Packshot Fond Blanc',
-        preview: '🤍',
-        prompt: 'professional product photography, clean white background, soft shadows, studio lighting, commercial packshot, high-end catalog style, sharp focus, 8k quality',
-        description: 'Fond blanc classique e-commerce'
-      },
-      {
-        id: 'packshot-gradient',
-        name: 'Packshot Dégradé',
-        preview: '🌈',
-        prompt: 'professional product photography, smooth gradient background, soft pastel colors, studio lighting, modern minimalist style, floating product, subtle shadows, 8k quality',
-        description: 'Fond dégradé moderne'
-      },
-      {
-        id: 'floating-product',
-        name: 'Produit Flottant',
-        preview: '✨',
-        prompt: 'levitating product photography, floating in air, dynamic angle, soft shadow below, clean minimal background, dramatic studio lighting, 3D render style, 8k quality',
-        description: 'Effet lévitation dynamique'
-      },
-      {
-        id: 'hero-shot',
-        name: 'Hero Shot',
-        preview: '🦸',
-        prompt: 'hero product shot, dramatic lighting, low angle, powerful presence, dark moody background, rim lighting, cinematic commercial photography, 8k quality',
-        description: 'Shot impactant pour homepage'
-      },
-      {
-        id: 'flat-lay',
-        name: 'Flat Lay',
-        preview: '📐',
-        prompt: 'flat lay product photography, top-down view, organized composition, complementary props, clean background, soft natural lighting, instagram style, 8k quality',
-        description: 'Vue du dessus stylisée'
-      }
-    ],
-    
-    // 🌿 LIFESTYLE
-    lifestyle: [
-      {
-        id: 'nature-outdoor',
-        name: 'Nature & Outdoor',
-        preview: '🏞️',
-        prompt: 'lifestyle product photography, natural outdoor setting, golden hour sunlight, organic environment, rocks and plants, authentic feel, warm tones, 8k quality',
-        description: 'Ambiance nature extérieure'
-      },
-      {
-        id: 'cozy-interior',
-        name: 'Intérieur Cosy',
-        preview: '🛋️',
-        prompt: 'lifestyle product photography, cozy home interior, warm ambient lighting, soft textures, wooden elements, hygge atmosphere, comfortable setting, 8k quality',
-        description: 'Ambiance intérieur chaleureux'
-      },
-      {
-        id: 'urban-street',
-        name: 'Urban Street',
-        preview: '🏙️',
-        prompt: 'lifestyle product photography, urban street setting, city background, concrete and metal, modern architecture, street style vibes, natural daylight, 8k quality',
-        description: 'Ambiance urbaine street'
-      },
-      {
-        id: 'beach-summer',
-        name: 'Beach & Summer',
-        preview: '🏖️',
-        prompt: 'lifestyle product photography, beach setting, sand and ocean, summer vibes, bright sunlight, tropical feel, fresh and vibrant colors, 8k quality',
-        description: 'Ambiance plage été'
-      },
-      {
-        id: 'cafe-mood',
-        name: 'Coffee Shop',
-        preview: '☕',
-        prompt: 'lifestyle product photography, coffee shop setting, warm wood tones, morning light through window, cozy cafe atmosphere, bokeh background, 8k quality',
-        description: 'Ambiance café cosy'
-      }
-    ],
-    
-    // 💎 LUXE
-    luxury: [
-      {
-        id: 'black-elegance',
-        name: 'Black Elegance',
-        preview: '🖤',
-        prompt: 'luxury product photography, pure black background, dramatic rim lighting, elegant reflections, high-end aesthetic, premium feel, sophisticated, 8k quality',
-        description: 'Fond noir premium'
-      },
-      {
-        id: 'marble-gold',
-        name: 'Marbre & Or',
-        preview: '🏛️',
-        prompt: 'luxury product photography, white marble surface, gold accents, elegant composition, soft reflections, high-end jewelry style, opulent feel, 8k quality',
-        description: 'Marbre blanc et touches dorées'
-      },
-      {
-        id: 'velvet-premium',
-        name: 'Velours Premium',
-        preview: '👑',
-        prompt: 'luxury product photography, rich velvet fabric background, deep jewel tones, dramatic lighting, premium texture, royal aesthetic, sophisticated elegance, 8k quality',
-        description: 'Texture velours luxueuse'
-      },
-      {
-        id: 'crystal-shine',
-        name: 'Crystal Shine',
-        preview: '💠',
-        prompt: 'luxury product photography, crystal and glass elements, light refractions, sparkling highlights, transparent elegance, premium perfume style, 8k quality',
-        description: 'Effets cristal et lumière'
-      },
-      {
-        id: 'minimalist-luxury',
-        name: 'Luxe Minimaliste',
-        preview: '◽',
-        prompt: 'minimalist luxury photography, clean composition, subtle shadows, muted elegant tones, negative space, understated sophistication, gallery style, 8k quality',
-        description: 'Luxe épuré et minimaliste'
-      }
-    ],
-    
-    // 🎨 CRÉATIF
-    creative: [
-      {
-        id: 'neon-glow',
-        name: 'Neon Glow',
-        preview: '💜',
-        prompt: 'creative product photography, neon lights, purple and blue glow, cyberpunk aesthetic, futuristic vibes, dark background with color splash, 8k quality',
-        description: 'Néons violet/bleu cyberpunk'
-      },
-      {
-        id: 'splash-water',
-        name: 'Water Splash',
-        preview: '💦',
-        prompt: 'creative product photography, dynamic water splash, frozen motion, droplets in air, fresh and clean feel, high speed photography style, 8k quality',
-        description: 'Éclaboussures d\'eau dynamiques'
-      },
-      {
-        id: 'color-explosion',
-        name: 'Explosion de Couleurs',
-        preview: '🎨',
-        prompt: 'creative product photography, colorful powder explosion, vibrant holi colors, dynamic movement, energetic composition, bold and playful, 8k quality',
-        description: 'Poudre colorée explosive'
-      },
-      {
-        id: 'smoke-mystery',
-        name: 'Smoke & Mystery',
-        preview: '🌫️',
-        prompt: 'creative product photography, flowing smoke effects, mysterious atmosphere, dramatic lighting, dark and moody, ethereal feel, artistic composition, 8k quality',
-        description: 'Fumée mystérieuse'
-      },
-      {
-        id: 'holographic',
-        name: 'Holographique',
-        preview: '🌈',
-        prompt: 'creative product photography, holographic reflections, iridescent colors, futuristic chrome, rainbow light effects, Y2K aesthetic, 8k quality',
-        description: 'Effets holographiques Y2K'
-      },
-      {
-        id: 'surreal-float',
-        name: 'Surréaliste',
-        preview: '🎭',
-        prompt: 'surreal product photography, dreamlike composition, impossible physics, floating elements, artistic and abstract, salvador dali inspired, 8k quality',
-        description: 'Composition surréaliste'
-      }
-    ],
-    
-    // 🍽️ FOOD
-    food: [
-      {
-        id: 'gourmet-dark',
-        name: 'Gourmet Dark',
-        preview: '🍽️',
-        prompt: 'professional food photography, dark moody background, dramatic side lighting, gourmet restaurant style, appetizing, rich colors, michelin star presentation, 8k quality',
-        description: 'Style gastronomique sombre'
-      },
-      {
-        id: 'fresh-bright',
-        name: 'Fresh & Bright',
-        preview: '🥗',
-        prompt: 'food photography, bright natural lighting, fresh ingredients, healthy vibes, clean white background, vibrant colors, farm to table aesthetic, 8k quality',
-        description: 'Style frais et lumineux'
-      },
-      {
-        id: 'rustic-wood',
-        name: 'Rustique',
-        preview: '🪵',
-        prompt: 'rustic food photography, wooden table surface, natural ingredients around, warm earthy tones, artisanal feel, homemade aesthetic, cozy atmosphere, 8k quality',
-        description: 'Style rustique artisanal'
-      },
-      {
-        id: 'splash-drink',
-        name: 'Drink Splash',
-        preview: '🥤',
-        prompt: 'beverage photography, dynamic liquid splash, frozen motion, refreshing feel, droplets and ice, advertising style, crisp and fresh, 8k quality',
-        description: 'Boisson avec splash dynamique'
-      }
-    ],
-    
-    // 👗 MODE
-    fashion: [
-      {
-        id: 'editorial-high',
-        name: 'Editorial',
-        preview: '📸',
-        prompt: 'high fashion product photography, editorial style, vogue aesthetic, dramatic lighting, artistic composition, runway inspired, avant-garde, 8k quality',
-        description: 'Style éditorial magazine'
-      },
-      {
-        id: 'streetwear',
-        name: 'Streetwear',
-        preview: '🧢',
-        prompt: 'streetwear product photography, urban backdrop, concrete textures, hypebeast aesthetic, bold angles, street culture vibes, authentic feel, 8k quality',
-        description: 'Style streetwear urbain'
-      },
-      {
-        id: 'minimal-fashion',
-        name: 'Mode Minimaliste',
-        preview: '🤍',
-        prompt: 'minimalist fashion photography, clean scandinavian aesthetic, neutral tones, simple composition, elegant simplicity, timeless style, 8k quality',
-        description: 'Style mode épuré'
-      }
-    ],
-    
-    // 📱 TECH
-    tech: [
-      {
-        id: 'tech-futuristic',
-        name: 'Futuriste',
-        preview: '🚀',
-        prompt: 'tech product photography, futuristic setting, blue LED accents, sleek and modern, sci-fi aesthetic, holographic elements, cutting-edge feel, 8k quality',
-        description: 'Style tech futuriste'
-      },
-      {
-        id: 'tech-minimal',
-        name: 'Tech Minimal',
-        preview: '⬜',
-        prompt: 'minimalist tech photography, clean white surface, soft gradient background, apple style aesthetic, premium feel, simple and elegant, 8k quality',
-        description: 'Style Apple minimaliste'
-      },
-      {
-        id: 'tech-workspace',
-        name: 'Workspace',
-        preview: '💻',
-        prompt: 'tech product in workspace setting, modern desk setup, productivity aesthetic, clean organization, professional environment, lifestyle tech, 8k quality',
-        description: 'Style bureau moderne'
-      }
-    ],
-    
-    // 💄 BEAUTÉ
-    beauty: [
-      {
-        id: 'beauty-glow',
-        name: 'Beauty Glow',
-        preview: '✨',
-        prompt: 'beauty product photography, soft glowing light, dewy fresh aesthetic, pastel tones, skincare vibes, luminous and radiant, spa feeling, 8k quality',
-        description: 'Style beauté lumineux'
-      },
-      {
-        id: 'beauty-luxe',
-        name: 'Beauté Luxe',
-        preview: '💄',
-        prompt: 'luxury beauty photography, gold and black accents, rich textures, high-end cosmetics style, glamorous, sophisticated elegance, 8k quality',
-        description: 'Style cosmétique luxe'
-      },
-      {
-        id: 'beauty-natural',
-        name: 'Beauté Naturelle',
-        preview: '🌸',
-        prompt: 'natural beauty photography, organic elements, flowers and plants, soft earthy tones, clean beauty aesthetic, botanical vibes, 8k quality',
-        description: 'Style beauté naturelle'
-      }
-    ]
-  },
   
   // ============================================
   // MÉTHODES
   // ============================================
   
-  // Récupérer tous les templates d'une catégorie
-  getByCategory(categoryId) {
-    return this.templates[categoryId] || [];
-  },
-  
   // Récupérer un template par son ID
   getById(templateId) {
-    for (const category of Object.values(this.templates)) {
-      const template = category.find(t => t.id === templateId);
-      if (template) return template;
-    }
-    return null;
+    return this.templates.find(t => t.id === templateId) || null;
   },
   
   // Récupérer tous les templates
   getAll() {
-    const all = [];
-    for (const category of Object.values(this.templates)) {
-      all.push(...category);
-    }
-    return all;
-  },
-  
-  // Appliquer un template au prompt utilisateur
-  applyTemplate(templateId, userPrompt = '') {
-    const template = this.getById(templateId);
-    if (!template) return userPrompt;
-    
-    if (userPrompt.trim()) {
-      return `${userPrompt.trim()}, ${template.prompt}`;
-    }
-    return template.prompt;
+    return this.templates;
   },
   
   // Générer le HTML du sélecteur de templates
@@ -341,66 +74,34 @@ const NeoraTemplates = {
     if (!container) return;
     
     let html = `
-      <div class="neora-templates">
-        <div class="templates-header">
-          <span class="templates-icon">✨</span>
-          <span class="templates-title">Templates</span>
+      <div class="neora-templates-v2">
+        <div class="templates-header-v2">
+          <span class="templates-icon-v2">✨</span>
+          <span class="templates-title-v2">Choisis un style</span>
         </div>
-        <div class="templates-categories">
+        <div class="templates-grid-v2">
     `;
     
-    // Boutons catégories
-    this.categories.forEach((cat, index) => {
+    this.templates.forEach(template => {
       html += `
-        <button class="template-cat-btn ${index === 0 ? 'active' : ''}" data-category="${cat.id}">
-          ${cat.icon}
-        </button>
+        <div class="template-card-v2" data-template-id="${template.id}" title="${template.name}">
+          <div class="template-image-v2">
+            <img src="${template.image}" alt="${template.name}" loading="lazy">
+            <div class="template-overlay-v2">
+              <span class="template-select-btn">Utiliser</span>
+            </div>
+          </div>
+          <span class="template-name-v2">${template.name}</span>
+        </div>
       `;
-    });
-    
-    html += `</div><div class="templates-list" id="templatesList">`;
-    
-    // Templates de la première catégorie par défaut
-    const firstCategory = this.categories[0].id;
-    this.templates[firstCategory].forEach(template => {
-      html += this._renderTemplateCard(template);
     });
     
     html += `</div></div>`;
     
     container.innerHTML = html;
     
-    // Event listeners
-    container.querySelectorAll('.template-cat-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        // Active state
-        container.querySelectorAll('.template-cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
-        // Charger les templates de cette catégorie
-        const categoryId = btn.dataset.category;
-        const list = container.querySelector('#templatesList');
-        list.innerHTML = this.templates[categoryId].map(t => this._renderTemplateCard(t)).join('');
-        
-        // Re-bind click events
-        this._bindTemplateClicks(container, onSelect);
-      });
-    });
-    
-    this._bindTemplateClicks(container, onSelect);
-  },
-  
-  _renderTemplateCard(template) {
-    return `
-      <div class="template-card" data-template-id="${template.id}" title="${template.description}">
-        <span class="template-preview">${template.preview}</span>
-        <span class="template-name">${template.name}</span>
-      </div>
-    `;
-  },
-  
-  _bindTemplateClicks(container, onSelect) {
-    container.querySelectorAll('.template-card').forEach(card => {
+    // Bind click events
+    container.querySelectorAll('.template-card-v2').forEach(card => {
       card.addEventListener('click', () => {
         const templateId = card.dataset.templateId;
         const template = this.getById(templateId);
@@ -409,7 +110,7 @@ const NeoraTemplates = {
         }
         
         // Visual feedback
-        container.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+        container.querySelectorAll('.template-card-v2').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
       });
     });
@@ -417,12 +118,12 @@ const NeoraTemplates = {
   
   // Injecter les styles CSS
   injectStyles() {
-    if (document.getElementById('neora-templates-styles')) return;
+    if (document.getElementById('neora-templates-v2-styles')) return;
     
     const style = document.createElement('style');
-    style.id = 'neora-templates-styles';
+    style.id = 'neora-templates-v2-styles';
     style.textContent = `
-      .neora-templates {
+      .neora-templates-v2 {
         background: rgba(255,255,255,0.03);
         border: 1px solid rgba(255,255,255,0.1);
         border-radius: 16px;
@@ -430,94 +131,115 @@ const NeoraTemplates = {
         margin-bottom: 20px;
       }
       
-      .templates-header {
+      .templates-header-v2 {
         display: flex;
         align-items: center;
         gap: 8px;
-        margin-bottom: 12px;
+        margin-bottom: 16px;
         font-weight: 600;
         font-size: 14px;
         color: rgba(255,255,255,0.9);
       }
       
-      .templates-icon {
+      .templates-icon-v2 {
         font-size: 16px;
       }
       
-      .templates-categories {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 16px;
-        flex-wrap: wrap;
-      }
-      
-      .template-cat-btn {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 10px;
-        padding: 8px 12px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-      
-      .template-cat-btn:hover {
-        background: rgba(255,255,255,0.1);
-        transform: translateY(-2px);
-      }
-      
-      .template-cat-btn.active {
-        background: linear-gradient(135deg, rgba(139,92,246,0.3), rgba(236,72,153,0.3));
-        border-color: rgba(139,92,246,0.5);
-      }
-      
-      .templates-list {
+      .templates-grid-v2 {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap: 10px;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 12px;
       }
       
-      .template-card {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 12px;
-        padding: 12px 10px;
-        text-align: center;
+      .template-card-v2 {
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
       }
       
-      .template-card:hover {
-        background: rgba(255,255,255,0.1);
-        border-color: rgba(139,92,246,0.4);
-        transform: translateY(-3px);
-        box-shadow: 0 10px 30px rgba(139,92,246,0.2);
+      .template-card-v2:hover {
+        transform: translateY(-4px);
       }
       
-      .template-card.selected {
-        background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(236,72,153,0.2));
-        border-color: rgba(139,92,246,0.6);
+      .template-card-v2:hover .template-overlay-v2 {
+        opacity: 1;
       }
       
-      .template-preview {
-        font-size: 24px;
+      .template-card-v2.selected .template-image-v2 {
+        border-color: #8b5cf6;
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
       }
       
-      .template-name {
-        font-size: 11px;
+      .template-card-v2.selected .template-name-v2 {
+        color: #8b5cf6;
+      }
+      
+      .template-image-v2 {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 2px solid rgba(255,255,255,0.1);
+        transition: all 0.3s ease;
+      }
+      
+      .template-image-v2 img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+      
+      .template-card-v2:hover .template-image-v2 img {
+        transform: scale(1.1);
+      }
+      
+      .template-overlay-v2 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      
+      .template-select-btn {
+        background: linear-gradient(135deg, #8b5cf6, #ec4899);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 100px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      
+      .template-name-v2 {
+        font-size: 12px;
         color: rgba(255,255,255,0.7);
-        line-height: 1.2;
+        text-align: center;
+        transition: color 0.3s ease;
       }
       
       @media (max-width: 600px) {
-        .templates-list {
+        .templates-grid-v2 {
           grid-template-columns: repeat(3, 1fr);
+          gap: 10px;
         }
-        .template-name {
+        
+        .template-name-v2 {
+          font-size: 10px;
+        }
+        
+        .template-select-btn {
+          padding: 6px 12px;
           font-size: 10px;
         }
       }
@@ -533,42 +255,28 @@ const NeoraTemplates = {
     
     this.renderSelector(containerId, (template) => {
       if (promptInput) {
-        // Ajouter le template au prompt existant ou le remplacer
-        const currentPrompt = promptInput.value.trim();
-        
-        // Si le prompt contient déjà des tags de style, on les remplace
-        const styleKeywords = ['photography', 'lighting', 'background', 'aesthetic', 'quality'];
-        const hasStyleTags = styleKeywords.some(kw => currentPrompt.toLowerCase().includes(kw));
-        
-        if (hasStyleTags || currentPrompt === '') {
-          promptInput.value = template.prompt;
-        } else {
-          promptInput.value = `${currentPrompt}, ${template.prompt}`;
-        }
+        // Remplacer le prompt par celui du template
+        promptInput.value = template.prompt;
         
         // Focus sur l'input
         promptInput.focus();
         
         // Feedback visuel
         promptInput.style.borderColor = 'rgba(139,92,246,0.6)';
+        promptInput.style.boxShadow = '0 0 20px rgba(139,92,246,0.2)';
         setTimeout(() => {
           promptInput.style.borderColor = '';
+          promptInput.style.boxShadow = '';
         }, 1000);
       }
     });
   }
 };
 
-// Export pour Node.js
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = NeoraTemplates;
-}
-
 // Auto-init si l'élément existe
 document.addEventListener('DOMContentLoaded', () => {
-  // Cherche automatiquement un container de templates
   const container = document.getElementById('promptTemplates');
-  const promptInput = document.getElementById('prompt_user') || document.getElementById('prompt');
+  const promptInput = document.getElementById('prompt_user') || document.getElementById('prompt') || document.getElementById('custom_style');
   
   if (container && promptInput) {
     NeoraTemplates.init('promptTemplates', promptInput.id);
