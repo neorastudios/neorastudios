@@ -198,6 +198,16 @@
     }
     
     .hidden { display: none; }
+    
+    .info-message {
+      background: rgba(139,92,246,0.1);
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
   </style>
 </head>
 
@@ -209,6 +219,9 @@
     <div class="loading">
       <div class="spinner"></div>
       <p>Validation de votre paiement...</p>
+      <p style="font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 8px;">
+        Cela peut prendre quelques secondes
+      </p>
     </div>
   </div>
   
@@ -217,7 +230,7 @@
     <div class="success-icon">✓</div>
     <h1 class="success-title">Paiement <span class="gradient">réussi</span> !</h1>
     <p class="success-message">
-      Merci pour votre achat ! Votre compte a été mis à jour et vous avez maintenant accès à toutes les fonctionnalités.
+      Merci pour votre achat ! Votre compte a été mis à jour avec succès.
     </p>
     
     <div class="success-details">
@@ -230,26 +243,35 @@
         <span class="detail-value" id="userPlan">-</span>
       </div>
       <div class="detail-row">
+        <span class="detail-label">Générations disponibles</span>
+        <span class="detail-value" id="userGenerations">-</span>
+      </div>
+      <div class="detail-row">
         <span class="detail-label">Statut</span>
         <span class="detail-value" style="color: #10b981;">✓ Actif</span>
       </div>
     </div>
     
-    <a href="index.html" class="btn btn-primary" onclick="goToApp()">
+    <button class="btn btn-primary" onclick="goToApp()">
       Accéder à NEORA →
-    </a>
+    </button>
   </div>
   
-  <!-- Error state -->
-  <div class="success-container hidden" id="errorState">
-    <div class="success-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">✗</div>
-    <h1 class="success-title">Une erreur est survenue</h1>
+  <!-- Timeout state -->
+  <div class="success-container hidden" id="timeoutState">
+    <div class="success-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">⏱</div>
+    <h1 class="success-title">Paiement en cours de traitement</h1>
     <p class="success-message">
-      Nous n'avons pas pu valider votre paiement. Si vous avez été débité, contactez notre support.
+      Votre paiement a été reçu mais prend un peu plus de temps que prévu à être traité.
     </p>
-    <a href="pricing.html" class="btn btn-primary">
-      Retour aux tarifs
-    </a>
+    
+    <div class="info-message">
+      Pas d'inquiétude ! Vos crédits seront ajoutés à votre compte dans quelques instants. Vous pouvez déjà accéder à l'application.
+    </div>
+    
+    <button class="btn btn-primary" onclick="goToApp()">
+      Accéder à NEORA →
+    </button>
   </div>
 
   <script>
@@ -267,46 +289,105 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
     
-    // Check payment and update user
+    let checkAttempts = 0;
+    const MAX_ATTEMPTS = 15; // 15 secondes maximum
+    
+    // Wait for webhook to update Firebase
+    async function waitForWebhookUpdate(user) {
+      try {
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        const userData = userDoc.data();
+        
+        // Check if user data has been updated recently (within last 2 minutes)
+        const now = Date.now();
+        const upgradedAt = userData.upgradedAt?.toMillis();
+        const lastCreditPurchase = userData.lastCreditPurchase ? new Date(userData.lastCreditPurchase).getTime() : 0;
+        
+        const recentUpdate = (upgradedAt && (now - upgradedAt) < 120000) || 
+                            (lastCreditPurchase && (now - lastCreditPurchase) < 120000);
+        
+        if (recentUpdate) {
+          // Webhook has updated the user!
+          showSuccess(user, userData);
+          return true;
+        }
+        
+        // Not updated yet, try again
+        checkAttempts++;
+        
+        if (checkAttempts < MAX_ATTEMPTS) {
+          setTimeout(() => waitForWebhookUpdate(user), 1000);
+        } else {
+          // Timeout - show timeout state
+          showTimeout(user);
+        }
+        
+        return false;
+      } catch (error) {
+        console.error('Error checking user data:', error);
+        checkAttempts++;
+        
+        if (checkAttempts < MAX_ATTEMPTS) {
+          setTimeout(() => waitForWebhookUpdate(user), 1000);
+        } else {
+          showTimeout(user);
+        }
+      }
+    }
+    
+    function showSuccess(user, userData) {
+      document.getElementById('loadingState').classList.add('hidden');
+      document.getElementById('successState').classList.remove('hidden');
+      
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('userPlan').textContent = 
+        userData.plan ? userData.plan.charAt(0).toUpperCase() + userData.plan.slice(1) : 'Gratuit';
+      document.getElementById('userGenerations').textContent = 
+        userData.generationsAvailable || 0;
+    }
+    
+    function showTimeout(user) {
+      document.getElementById('loadingState').classList.add('hidden');
+      document.getElementById('timeoutState').classList.remove('hidden');
+    }
+    
+    // Check payment and wait for webhook
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
         window.location.href = 'index.html';
         return;
       }
       
-      try {
-        // Get URL params
-        const urlParams = new URLSearchParams(window.location.search);
-        const sessionId = urlParams.get('session_id');
-        
-        if (sessionId) {
-          // Update user plan to 'pro' in Firestore
-          // Note: In production, you should verify the session with your backend
-          await db.collection('users').doc(user.uid).update({
-            plan: 'pro',
-            stripeSessionId: sessionId,
-            upgradedAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          
-          // Show success
-          document.getElementById('loadingState').classList.add('hidden');
-          document.getElementById('successState').classList.remove('hidden');
-          document.getElementById('userEmail').textContent = user.email;
-          document.getElementById('userPlan').textContent = 'Pro';
-        } else {
-          // No session ID, show error
-          document.getElementById('loadingState').classList.add('hidden');
-          document.getElementById('errorState').classList.remove('hidden');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('loadingState').classList.add('hidden');
-        document.getElementById('errorState').classList.remove('hidden');
+      // Get URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get('session_id');
+      
+      if (!sessionId) {
+        // No session ID, redirect to pricing
+        window.location.href = 'pricing.html';
+        return;
       }
+      
+      // Wait for webhook to update Firebase
+      // The webhook should update the user within a few seconds
+      setTimeout(() => waitForWebhookUpdate(user), 2000); // Wait 2 seconds before first check
     });
     
-    function goToApp() {
-      window.location.href = 'index.html';
+    async function goToApp() {
+      const user = auth.currentUser;
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+      
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      const plan = userDoc.exists ? (userDoc.data().plan || 'free') : 'free';
+      
+      if (plan === 'pro') {
+        window.location.href = 'selector.html';
+      } else {
+        window.location.href = 'NEORASIMPLE.html';
+      }
     }
   </script>
 </body>
