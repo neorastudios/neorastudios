@@ -14,43 +14,43 @@ const NeoraTemplates = {
       id: 'food-gourmet',
       name: 'Food Gourmet',
       image: 'template-food.jpg',
-      prompt: 'gourmet burger photography, melting cheddar cheese dripping, warm brown and yellow tones, chocolate drip effect background, appetizing fast food commercial, dramatic studio lighting, bold typography space, 8k quality'
+      prompt: 'gourmet food photography, warm appetizing tones, dripping sauce effect, dramatic studio lighting, commercial food advertising style, bold typography space, 8k quality'
     },
     {
       id: 'sneaker-float',
-      name: 'Sneaker Float',
+      name: 'Floating Product',
       image: 'template-sneaker.jpg',
-      prompt: 'floating sneaker product shot, levitating at angle, smooth gradient brown mocha background, minimalist layout, brand logo placement, premium shoe commercial, soft diffused shadows, clean typography, 8k quality'
+      prompt: 'floating product shot, levitating at dynamic angle, smooth gradient background, minimalist layout, premium commercial style, soft diffused shadows, 8k quality'
     },
     {
       id: 'tech-minimal',
       name: 'Tech Minimal',
       image: 'template-tech.jpg',
-      prompt: 'tech product photography, headphones floating, monochromatic blue background, large typography behind product, modern minimalist apple style, price tag layout, clean commercial design, soft studio lighting, 8k quality'
+      prompt: 'minimalist tech product photography, monochromatic background, large typography behind product, modern apple style aesthetic, clean commercial design, soft studio lighting, 8k quality'
     },
     {
       id: 'old-money',
       name: 'Old Money',
       image: 'template-oldmoney.jpg',
-      prompt: 'old money aesthetic photography, tennis court setting, vintage film grain texture, editorial fashion campaign, luxury lifestyle, muted earth tones, elegant serif typography overlay, summer collection vibes, 8k quality'
+      prompt: 'old money aesthetic, vintage film grain texture, editorial luxury campaign, muted earth tones, elegant serif typography overlay, sophisticated lifestyle, 8k quality'
     },
     {
       id: 'beauty-fresh',
       name: 'Beauty Fresh',
       image: 'template-beauty.jpg',
-      prompt: 'cosmetic serum product photography, diagonal floating bottle, geometric blue and white split background, water droplets texture, fresh hydrating skincare feel, clinical clean aesthetic, pharmaceutical luxury, 8k quality'
+      prompt: 'fresh cosmetic photography, geometric split background, water droplets texture, hydrating skincare feel, clean clinical aesthetic, pharmaceutical luxury, 8k quality'
     },
     {
       id: 'drink-fresh',
       name: 'Drink Fresh',
       image: 'template-drink.jpg',
-      prompt: 'refreshing beverage commercial, soda can with condensation droplets, fresh lime and lemon slices flying, mint leaves, bold green typography background, summer fresh feeling, dynamic composition, 8k quality'
+      prompt: 'refreshing beverage photography, condensation droplets, fresh fruits flying around, mint leaves, bold typography background, summer fresh feeling, dynamic composition, 8k quality'
     },
     {
       id: 'fun-bold',
       name: 'Fun & Bold',
       image: 'template-bold.jpg',
-      prompt: 'bold vibrant advertising, hot pink magenta wavy background, energetic model holding product, playful yellow and white bold typography, dynamic fun composition, gen-z style commercial, eye-catching social media ad, 8k quality'
+      prompt: 'bold vibrant advertising, colorful wavy background, energetic dynamic composition, playful bold typography, gen-z style, eye-catching social media ad, 8k quality'
     }
   ],
   
