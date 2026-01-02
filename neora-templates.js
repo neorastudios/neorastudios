@@ -146,9 +146,30 @@ const NeoraTemplates = {
       }
       
       .templates-grid-v2 {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        display: flex;
         gap: 12px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      .templates-grid-v2::-webkit-scrollbar {
+        height: 6px;
+      }
+      
+      .templates-grid-v2::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.05);
+        border-radius: 10px;
+      }
+      
+      .templates-grid-v2::-webkit-scrollbar-thumb {
+        background: rgba(139, 92, 246, 0.5);
+        border-radius: 10px;
+      }
+      
+      .templates-grid-v2::-webkit-scrollbar-thumb:hover {
+        background: rgba(139, 92, 246, 0.8);
       }
       
       .template-card-v2 {
@@ -158,6 +179,7 @@ const NeoraTemplates = {
         flex-direction: column;
         align-items: center;
         gap: 8px;
+        flex-shrink: 0;
       }
       
       .template-card-v2:hover {
@@ -179,8 +201,8 @@ const NeoraTemplates = {
       
       .template-image-v2 {
         position: relative;
-        width: 100%;
-        aspect-ratio: 1;
+        width: 120px;
+        height: 120px;
         border-radius: 12px;
         overflow: hidden;
         border: 2px solid rgba(255,255,255,0.1);
@@ -217,21 +239,22 @@ const NeoraTemplates = {
         color: white;
         padding: 8px 16px;
         border-radius: 100px;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 600;
       }
       
       .template-name-v2 {
-        font-size: 12px;
+        font-size: 11px;
         color: rgba(255,255,255,0.7);
         text-align: center;
         transition: color 0.3s ease;
+        white-space: nowrap;
       }
       
       @media (max-width: 600px) {
-        .templates-grid-v2 {
-          grid-template-columns: repeat(3, 1fr);
-          gap: 10px;
+        .template-image-v2 {
+          width: 100px;
+          height: 100px;
         }
         
         .template-name-v2 {
