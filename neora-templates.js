@@ -14,43 +14,43 @@ const NeoraTemplates = {
       id: 'food-gourmet',
       name: 'Food Gourmet',
       image: 'template-food.jpg',
-      prompt: 'gourmet food photography, warm appetizing tones, dripping sauce effect, dramatic studio lighting, commercial food advertising style, with product name and details displayed as bold chunky playful typography on the image, 8k quality,The details are :'
+      prompt: 'gourmet food photography, warm appetizing tones, dripping sauce effect, dramatic studio lighting, commercial food advertising style, with product name and details displayed as bold chunky playful typography on the image, 8k quality'
     },
     {
       id: 'sneaker-float',
       name: 'Floating Product',
       image: 'template-sneaker.jpg',
-      prompt: 'floating product shot, levitating at dynamic angle, smooth gradient background, minimalist layout, premium commercial style, soft diffused shadows, with product name and details displayed as clean minimal sans-serif typography on the image, 8k quality The details are :'
+      prompt: 'floating product shot, levitating at dynamic angle, smooth gradient background, minimalist layout, premium commercial style, soft diffused shadows, with product name and details displayed as clean minimal sans-serif typography on the image, 8k quality'
     },
     {
       id: 'tech-minimal',
       name: 'Tech Minimal',
       image: 'template-tech.jpg',
-      prompt: 'minimalist tech product photography, monochromatic background, large typography behind product, modern apple style aesthetic, clean commercial design, soft studio lighting, with product name and details displayed as modern sleek helvetica-style typography on the image, 8k quality The details are :'
+      prompt: 'minimalist tech product photography, monochromatic background, large typography behind product, modern apple style aesthetic, clean commercial design, soft studio lighting, with product name and details displayed as modern sleek helvetica-style typography on the image, 8k quality'
     },
     {
       id: 'old-money',
       name: 'Old Money',
       image: 'template-oldmoney.jpg',
-      prompt: 'old money aesthetic, vintage film grain texture, editorial luxury campaign, muted earth tones, sophisticated lifestyle, with product name and details displayed as elegant classic serif typography on the image, 8k quality The details are :'
+      prompt: 'old money aesthetic, vintage film grain texture, editorial luxury campaign, muted earth tones, sophisticated lifestyle, with product name and details displayed as elegant classic serif typography on the image, 8k quality'
     },
     {
       id: 'beauty-fresh',
       name: 'Beauty Fresh',
       image: 'template-beauty.jpg',
-      prompt: 'fresh cosmetic photography, geometric split background, water droplets texture, hydrating skincare feel, clean clinical aesthetic, pharmaceutical luxury, with product name and details displayed as light clean pharmaceutical typography on the image, 8k quality The details are :'
+      prompt: 'fresh cosmetic photography, geometric split background, water droplets texture, hydrating skincare feel, clean clinical aesthetic, pharmaceutical luxury, with product name and details displayed as light clean pharmaceutical typography on the image, 8k quality'
     },
     {
       id: 'drink-fresh',
       name: 'Drink Fresh',
       image: 'template-drink.jpg',
-      prompt: 'refreshing beverage photography, condensation droplets, fresh fruits flying around, mint leaves, bold typography background, summer fresh feeling, dynamic composition, with product name and details displayed as bold energetic dynamic angled typography on the image, 8k quality The details are :'
+      prompt: 'refreshing beverage photography, condensation droplets, fresh fruits flying around, mint leaves, bold typography background, summer fresh feeling, dynamic composition, with product name and details displayed as bold energetic dynamic angled typography on the image, 8k quality'
     },
     {
       id: 'fun-bold',
       name: 'Fun & Bold',
       image: 'template-bold.jpg',
-      prompt: 'bold vibrant advertising, colorful wavy background, energetic dynamic composition, gen-z style, eye-catching social media ad, with product name and details displayed as playful colorful hand-drawn style typography on the image, 8k quality The details are : '
+      prompt: 'bold vibrant advertising, colorful wavy background, energetic dynamic composition, gen-z style, eye-catching social media ad, with product name and details displayed as playful colorful hand-drawn style typography on the image, 8k quality'
     }
   ],
   
