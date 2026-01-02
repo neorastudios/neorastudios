@@ -44,6 +44,17 @@
     
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
+    /* Cacher les boutons nav jusqu'à ce que l'auth soit vérifiée */
+    #navButtons, #userMenu {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    body.auth-ready #navButtons,
+    body.auth-ready #userMenu {
+      opacity: 1;
+    }
+    
     body {
       font-family: var(--font-display);
       background: var(--bg-primary);
@@ -842,6 +853,8 @@
     let userPlan = 'free';
     
     // Auth state listener
+    let authChecked = false;
+    
     auth.onAuthStateChanged(async (user) => {
       currentUser = user;
       
@@ -865,17 +878,29 @@
         
         // Update buttons based on plan
         if (userPlan === 'free') {
-          document.querySelector('.pricing-card:not(.featured) .btn').textContent = 'Plan actuel';
-          document.querySelector('.pricing-card:not(.featured) .btn').disabled = true;
+          const freeBtn = document.querySelector('.pricing-card:not(.featured) .btn');
+          if (freeBtn) {
+            freeBtn.textContent = 'Plan actuel';
+            freeBtn.disabled = true;
+          }
         } else if (userPlan === 'pro') {
-          document.querySelector('.pricing-card.featured .btn').textContent = 'Plan actuel';
-          document.querySelector('.pricing-card.featured .btn').classList.remove('btn-primary');
-          document.querySelector('.pricing-card.featured .btn').classList.add('btn-outline');
-          document.querySelector('.pricing-card.featured .btn').disabled = true;
+          const proBtn = document.querySelector('.pricing-card.featured .btn');
+          if (proBtn) {
+            proBtn.textContent = 'Plan actuel';
+            proBtn.classList.remove('btn-primary');
+            proBtn.classList.add('btn-outline');
+            proBtn.disabled = true;
+          }
         }
       } else {
         document.getElementById('navButtons').style.display = 'flex';
         document.getElementById('userMenu').style.display = 'none';
+      }
+      
+      // Marquer l'auth comme vérifiée et afficher le contenu
+      if (!authChecked) {
+        authChecked = true;
+        document.body.classList.add('auth-ready');
       }
     });
     
