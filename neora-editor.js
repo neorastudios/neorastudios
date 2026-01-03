@@ -261,11 +261,26 @@ const NeoraEditor = {
     const wrapper = document.getElementById('neCanvasWrapper');
     
     fabric.Image.fromURL(imageUrl, (img) => {
-      const maxWidth = wrapper.clientWidth - 80;
-      const maxHeight = wrapper.clientHeight - 80;
-      const scale = Math.min(maxWidth / img.width, maxHeight / img.height, 1);
-      const width = img.width * scale;
-      const height = img.height * scale;
+      // Prendre plus de place - 90% de l'espace disponible
+      const maxWidth = wrapper.clientWidth - 40;
+      const maxHeight = wrapper.clientHeight - 40;
+      
+      let width = img.width;
+      let height = img.height;
+      
+      // Calculer le scale pour remplir au max l'espace
+      const scale = Math.min(maxWidth / width, maxHeight / height);
+      
+      // Appliquer le scale seulement si l'image est plus grande que l'espace
+      if (scale < 1) {
+        width = width * scale;
+        height = height * scale;
+      } else {
+        // Si l'image est petite, l'agrandir pour remplir l'espace (max 2x)
+        const upscale = Math.min(scale, 2);
+        width = width * upscale;
+        height = height * upscale;
+      }
       
       this.canvas = new fabric.Canvas('neoraEditorCanvas', {
         width, height,
@@ -274,6 +289,7 @@ const NeoraEditor = {
         preserveObjectStacking: true
       });
       
+      // Mettre l'image à la taille du canvas
       img.scaleToWidth(width);
       img.set({ selectable: false, evented: false });
       this.canvas.setBackgroundImage(img, this.canvas.renderAll.bind(this.canvas));
@@ -454,14 +470,36 @@ const NeoraEditor = {
     document.getElementById('neRedoBtn').disabled = this.historyIndex >= this.history.length - 1;
   },
   
-  zoomIn() { this.zoom = Math.min(this.zoom + 0.1, 3); this.applyZoom(); },
-  zoomOut() { this.zoom = Math.max(this.zoom - 0.1, 0.3); this.applyZoom(); },
-  resetZoom() { this.zoom = 1; this.applyZoom(); },
+  zoomIn() { 
+    if (!this.canvas) return;
+    this.zoom = Math.min(this.zoom + 0.25, 3); 
+    this.canvas.setZoom(this.zoom);
+    this.canvas.setWidth(this.displayWidth * this.zoom);
+    this.canvas.setHeight(this.displayHeight * this.zoom);
+    this.canvas.renderAll();
+    this.updateZoomDisplay(); 
+  },
+  zoomOut() { 
+    if (!this.canvas) return;
+    this.zoom = Math.max(this.zoom - 0.25, 0.5); 
+    this.canvas.setZoom(this.zoom);
+    this.canvas.setWidth(this.displayWidth * this.zoom);
+    this.canvas.setHeight(this.displayHeight * this.zoom);
+    this.canvas.renderAll();
+    this.updateZoomDisplay(); 
+  },
+  resetZoom() { 
+    if (!this.canvas) return;
+    this.zoom = 1; 
+    this.canvas.setZoom(this.zoom);
+    this.canvas.setWidth(this.displayWidth);
+    this.canvas.setHeight(this.displayHeight);
+    this.canvas.renderAll();
+    this.updateZoomDisplay(); 
+  },
   
   applyZoom() {
-    const canvas = document.querySelector('#neCanvasWrapper .canvas-container');
-    if (canvas) canvas.style.transform = `scale(${this.zoom})`;
-    this.updateZoomDisplay();
+    // Plus utilisé - zoom géré nativement par Fabric
   },
   
   updateZoomDisplay() {
@@ -470,8 +508,28 @@ const NeoraEditor = {
   
   download() {
     if (!this.canvas) return;
+    
+    // Remettre le zoom à 1 pour l'export
+    const currentZoom = this.zoom;
+    this.canvas.setZoom(1);
+    this.canvas.setWidth(this.displayWidth);
+    this.canvas.setHeight(this.displayHeight);
+    
+    // Calculer le scale pour exporter à la taille originale
     const scale = this.originalWidth / this.displayWidth;
-    const dataURL = this.canvas.toDataURL({ format: 'png', quality: 1, multiplier: scale });
+    
+    const dataURL = this.canvas.toDataURL({ 
+      format: 'png', 
+      quality: 1, 
+      multiplier: scale 
+    });
+    
+    // Restaurer le zoom
+    this.canvas.setZoom(currentZoom);
+    this.canvas.setWidth(this.displayWidth * currentZoom);
+    this.canvas.setHeight(this.displayHeight * currentZoom);
+    this.canvas.renderAll();
+    
     const link = document.createElement('a');
     link.download = 'neora-edited-' + Date.now() + '.png';
     link.href = dataURL;
