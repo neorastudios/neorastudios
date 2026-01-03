@@ -12,6 +12,7 @@ const NeoraEditor = {
   historyIndex: -1,
   maxHistory: 30,
   zoom: 1,
+  previewText: null,
   
   fonts: [
     'Inter', 'Poppins', 'Montserrat', 'Playfair Display', 'Bebas Neue',
@@ -164,7 +165,10 @@ const NeoraEditor = {
                 <label>Opacité: <span id="neTextOpacityVal">100%</span></label>
                 <input type="range" id="neTextOpacity" min="0" max="100" value="100">
               </div>
-              <button class="ne-btn ne-btn-primary ne-btn-full" onclick="NeoraEditor.addText()">Ajouter le texte</button>
+              <div class="ne-row" style="gap:8px;">
+                <button class="ne-btn ne-btn-ghost" style="flex:1;" onclick="NeoraEditor.cancelTextPreview()">Annuler</button>
+                <button class="ne-btn ne-btn-primary" style="flex:1;" onclick="NeoraEditor.addText()">✓ Valider</button>
+              </div>
             </div>
             
             <div class="ne-panel-content" id="nePanelImage" style="display:none;">
@@ -221,6 +225,7 @@ const NeoraEditor = {
     
     document.getElementById('neTextOpacity').addEventListener('input', (e) => {
       document.getElementById('neTextOpacityVal').textContent = e.target.value + '%';
+      this.updateTextPreview();
     });
     document.getElementById('neImageOpacity').addEventListener('input', (e) => {
       document.getElementById('neImageOpacityVal').textContent = e.target.value + '%';
@@ -229,6 +234,14 @@ const NeoraEditor = {
       document.getElementById('neSelOpacityVal').textContent = e.target.value + '%';
       this.updateSelectedOpacity(e.target.value);
     });
+    
+    // Preview en temps réel du texte
+    document.getElementById('neTextInput').addEventListener('input', () => this.updateTextPreview());
+    document.getElementById('neFontSize').addEventListener('input', () => this.updateTextPreview());
+    document.getElementById('neTextColor').addEventListener('input', () => this.updateTextPreview());
+    document.getElementById('neShadowEnabled').addEventListener('change', () => this.updateTextPreview());
+    document.getElementById('neShadowColor').addEventListener('input', () => this.updateTextPreview());
+    document.getElementById('neShadowBlur').addEventListener('input', () => this.updateTextPreview());
     
     document.addEventListener('keydown', (e) => {
       if (!this.isOpen) return;
@@ -328,6 +341,11 @@ const NeoraEditor = {
   },
   
   setTool(tool) {
+    // Annuler le preview texte si on quitte l'outil texte
+    if (tool !== 'text' && this.previewText) {
+      this.cancelTextPreview();
+    }
+    
     document.querySelectorAll('.ne-tool-btn[data-tool]').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tool === tool);
     });
@@ -337,9 +355,36 @@ const NeoraEditor = {
   },
   
   addText() {
+    if (!this.canvas || !this.previewText) return;
+    
+    // Le texte preview devient définitif
+    this.previewText.set({
+      cornerStyle: 'circle',
+      cornerColor: '#8b5cf6',
+      borderColor: '#8b5cf6',
+      cornerSize: 10,
+      transparentCorners: false,
+      padding: 10,
+      selectable: true,
+      evented: true
+    });
+    
+    this.canvas.setActiveObject(this.previewText);
+    this.canvas.requestRenderAll();
+    
+    // Reset le preview
+    this.previewText = null;
+    document.getElementById('neTextInput').value = '';
+    this.setTool('select');
+    
+    console.log('Text confirmed');
+  },
+  
+  // Preview en temps réel
+  updateTextPreview() {
     if (!this.canvas) return;
     
-    const text = document.getElementById('neTextInput').value || 'Texte';
+    const text = document.getElementById('neTextInput').value || '';
     const fontFamily = document.getElementById('neFontFamily').value || 'Inter';
     const fontSize = parseInt(document.getElementById('neFontSize').value) || 48;
     const textColor = document.getElementById('neTextColor').value || '#ffffff';
@@ -351,42 +396,80 @@ const NeoraEditor = {
     const shadowColor = document.getElementById('neShadowColor').value;
     const shadowBlur = parseInt(document.getElementById('neShadowBlur').value);
     
-    // Position au centre (en tenant compte du zoom)
-    const centerX = this.displayWidth / 2;
-    const centerY = this.displayHeight / 2;
+    // Si pas de texte, supprimer le preview
+    if (!text) {
+      if (this.previewText) {
+        this.canvas.remove(this.previewText);
+        this.previewText = null;
+        this.canvas.requestRenderAll();
+      }
+      return;
+    }
     
-    const textObj = new fabric.IText(text, {
-      left: centerX,
-      top: centerY,
-      originX: 'center',
-      originY: 'center',
-      fontFamily: fontFamily,
-      fontSize: fontSize,
-      fill: textColor,
-      opacity: opacity,
-      fontWeight: isBold ? 'bold' : 'normal',
-      fontStyle: isItalic ? 'italic' : 'normal',
-      underline: isUnderline,
-      shadow: shadowEnabled ? new fabric.Shadow({ color: shadowColor, blur: shadowBlur, offsetX: 2, offsetY: 2 }) : null,
-      cornerStyle: 'circle',
-      cornerColor: '#8b5cf6',
-      borderColor: '#8b5cf6',
-      cornerSize: 10,
-      transparentCorners: false,
-      padding: 10
-    });
+    const shadow = shadowEnabled ? new fabric.Shadow({ 
+      color: shadowColor, 
+      blur: shadowBlur, 
+      offsetX: 2, 
+      offsetY: 2 
+    }) : null;
     
-    this.canvas.add(textObj);
-    this.canvas.setActiveObject(textObj);
-    this.canvas.requestRenderAll();
+    // Si preview existe, mettre à jour
+    if (this.previewText) {
+      this.previewText.set({
+        text: text,
+        fontFamily: fontFamily,
+        fontSize: fontSize,
+        fill: textColor,
+        opacity: opacity,
+        fontWeight: isBold ? 'bold' : 'normal',
+        fontStyle: isItalic ? 'italic' : 'normal',
+        underline: isUnderline,
+        shadow: shadow
+      });
+      this.canvas.requestRenderAll();
+    } else {
+      // Créer le preview
+      this.previewText = new fabric.IText(text, {
+        left: this.displayWidth / 2,
+        top: this.displayHeight / 2,
+        originX: 'center',
+        originY: 'center',
+        fontFamily: fontFamily,
+        fontSize: fontSize,
+        fill: textColor,
+        opacity: opacity,
+        fontWeight: isBold ? 'bold' : 'normal',
+        fontStyle: isItalic ? 'italic' : 'normal',
+        underline: isUnderline,
+        shadow: shadow,
+        // Style preview (bordure pointillée)
+        cornerStyle: 'circle',
+        cornerColor: '#8b5cf6',
+        borderColor: '#8b5cf6',
+        borderDashArray: [5, 5],
+        cornerSize: 10,
+        transparentCorners: false,
+        padding: 10
+      });
+      this.canvas.add(this.previewText);
+      this.canvas.setActiveObject(this.previewText);
+      this.canvas.requestRenderAll();
+    }
+  },
+  
+  // Annuler le preview
+  cancelTextPreview() {
+    if (this.previewText && this.canvas) {
+      this.canvas.remove(this.previewText);
+      this.previewText = null;
+      this.canvas.requestRenderAll();
+    }
     document.getElementById('neTextInput').value = '';
-    this.setTool('select');
-    
-    console.log('Text added:', text, 'at', centerX, centerY, 'font:', fontFamily, 'size:', fontSize, 'color:', textColor);
   },
   
   toggleStyle(style) {
     document.getElementById('ne' + style.charAt(0).toUpperCase() + style.slice(1)).classList.toggle('active');
+    this.updateTextPreview();
   },
   
   toggleFontDropdown() {
@@ -406,6 +489,9 @@ const NeoraEditor = {
     document.querySelectorAll('.ne-font-option').forEach(opt => {
       opt.classList.toggle('selected', opt.dataset.font === font);
     });
+    
+    // Mettre à jour le preview
+    this.updateTextPreview();
   },
   
   addImage(file) {
