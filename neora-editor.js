@@ -912,4 +912,9 @@ const NeoraEditor = {
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => NeoraEditor.init());
+// Initialisation - fonctionne même si DOM déjà chargé
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => NeoraEditor.init());
+} else {
+  NeoraEditor.init();
+}

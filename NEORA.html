@@ -1325,12 +1325,26 @@
     // Fonction pour ouvrir l'éditeur
     function openEditor() {
       if (currentFinalImageUrl) {
-        NeoraEditor.open(currentFinalImageUrl);
+        console.log('Opening editor with URL:', currentFinalImageUrl);
+        if (typeof NeoraEditor !== 'undefined') {
+          NeoraEditor.open(currentFinalImageUrl);
+        } else {
+          console.error('NeoraEditor not loaded');
+          alert('Éditeur non chargé. Veuillez rafraîchir la page.');
+        }
+      } else {
+        console.error('No image URL available');
       }
     }
   </script>
 <script src="neora-editor.js"></script>
 <script src="neora-templates.js"></script>
 <script src="neora-cache.js"></script>
+<script>
+  // Initialiser l'éditeur une fois chargé
+  if (typeof NeoraEditor !== 'undefined' && typeof NeoraEditor.init === 'function') {
+    NeoraEditor.init();
+  }
+</script>
 </body>
 </html>
