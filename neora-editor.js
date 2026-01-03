@@ -10,16 +10,27 @@ const NeoraEditor = {
   history: [],
   historyIndex: -1,
   zoom: 1,
-  previewText: null,
+  currentTextObj: null,
   displayWidth: 0,
   displayHeight: 0,
   originalWidth: 0,
   originalHeight: 0,
   
   fonts: [
-    'Inter', 'Poppins', 'Montserrat', 'Playfair Display', 'Bebas Neue',
-    'Oswald', 'Raleway', 'Roboto', 'Open Sans', 'Lato',
-    'Anton', 'Righteous', 'Permanent Marker', 'Pacifico', 'Lobster'
+    // Sans-serif modernes
+    'Inter', 'Poppins', 'Montserrat', 'Roboto', 'Open Sans', 'Lato', 'Nunito', 'Raleway', 'Work Sans', 'DM Sans', 'Plus Jakarta Sans', 'Space Grotesk', 'Outfit', 'Sora', 'Manrope',
+    // Display & Titres tendances
+    'Bebas Neue', 'Oswald', 'Anton', 'Righteous', 'Staatliches', 'Russo One', 'Archivo Black', 'Bowlby One SC', 'Bungee', 'Monoton',
+    // Élégantes & Luxe
+    'Playfair Display', 'Cormorant Garamond', 'Libre Baskerville', 'Crimson Text', 'DM Serif Display', 'Bodoni Moda', 'Italiana',
+    // Manuscrites & Créatives
+    'Pacifico', 'Lobster', 'Permanent Marker', 'Caveat', 'Dancing Script', 'Satisfy', 'Great Vibes', 'Sacramento', 'Kaushan Script', 'Shadows Into Light',
+    // Futuristes & Tech
+    'Orbitron', 'Rajdhani', 'Exo 2', 'Audiowide', 'Michroma', 'Oxanium', 'Electrolize',
+    // Rétro & Vintage
+    'Abril Fatface', 'Alfa Slab One', 'Fredoka One', 'Titan One', 'Rubik Mono One', 'Bungee Shade',
+    // Minimalistes
+    'Quicksand', 'Comfortaa', 'Varela Round', 'Karla', 'Urbanist', 'Lexend'
   ],
   
   init() {
@@ -122,10 +133,7 @@ const NeoraEditor = {
                   <input type="range" id="neShadowBlur" min="0" max="30" value="10" style="flex:1">
                 </div>
               </div>
-              <div class="ne-row" style="gap:8px;margin-top:16px;">
-                <button class="ne-btn ne-btn-ghost" style="flex:1" onclick="NeoraEditor.cancelTextPreview()">Annuler</button>
-                <button class="ne-btn ne-btn-primary" style="flex:1" onclick="NeoraEditor.confirmText()">✓ Valider</button>
-              </div>
+              <button class="ne-btn ne-btn-primary ne-btn-full" style="margin-top:16px;" onclick="NeoraEditor.addNewText()">+ Ajouter un autre texte</button>
             </div>
             
             <!-- Panel Image -->
@@ -349,8 +357,9 @@ const NeoraEditor = {
   // ===== TOOLS =====
   
   setTool(tool) {
-    if (tool !== 'text' && this.previewText) {
-      this.cancelTextPreview();
+    // Si on quitte l'outil texte, finaliser le texte actuel
+    if (tool !== 'text') {
+      this.finalizeCurrentText();
     }
     
     document.querySelectorAll('.ne-tool-btn[data-tool]').forEach(btn => {
@@ -369,9 +378,10 @@ const NeoraEditor = {
     
     const text = document.getElementById('neTextInput').value;
     if (!text) {
-      if (this.previewText) {
-        this.canvas.remove(this.previewText);
-        this.previewText = null;
+      // Si on efface tout le texte, supprimer l'objet actuel
+      if (this.currentTextObj) {
+        this.canvas.remove(this.currentTextObj);
+        this.currentTextObj = null;
         this.canvas.renderAll();
       }
       return;
@@ -398,11 +408,13 @@ const NeoraEditor = {
       shadow: shadowEnabled ? new fabric.Shadow({ color: shadowColor, blur: shadowBlur, offsetX: 2, offsetY: 2 }) : null
     };
     
-    if (this.previewText) {
-      this.previewText.set(props);
+    if (this.currentTextObj) {
+      // Mettre à jour le texte existant
+      this.currentTextObj.set(props);
       this.canvas.renderAll();
     } else {
-      this.previewText = new fabric.IText(text, {
+      // Créer un nouveau texte
+      this.currentTextObj = new fabric.IText(text, {
         ...props,
         left: this.displayWidth / 2,
         top: this.displayHeight / 2,
@@ -412,8 +424,8 @@ const NeoraEditor = {
         borderColor: '#8b5cf6',
         cornerSize: 10
       });
-      this.canvas.add(this.previewText);
-      this.canvas.setActiveObject(this.previewText);
+      this.canvas.add(this.currentTextObj);
+      this.canvas.setActiveObject(this.currentTextObj);
       this.canvas.renderAll();
     }
   },
@@ -424,21 +436,25 @@ const NeoraEditor = {
     this.updateTextPreview();
   },
   
-  confirmText() {
-    if (!this.previewText) return;
-    this.previewText = null;
+  // Ajouter un nouveau texte (reset le champ et crée un nouvel objet)
+  addNewText() {
+    // Sauvegarder l'historique pour le texte actuel
+    if (this.currentTextObj) {
+      this.saveHistory();
+    }
+    // Reset
+    this.currentTextObj = null;
     document.getElementById('neTextInput').value = '';
-    this.saveHistory();
-    this.setTool('select');
+    document.getElementById('neTextInput').focus();
   },
   
-  cancelTextPreview() {
-    if (this.previewText && this.canvas) {
-      this.canvas.remove(this.previewText);
-      this.previewText = null;
-      this.canvas.renderAll();
+  // Quand on quitte l'outil texte, on sauvegarde
+  finalizeCurrentText() {
+    if (this.currentTextObj) {
+      this.saveHistory();
+      this.currentTextObj = null;
+      document.getElementById('neTextInput').value = '';
     }
-    document.getElementById('neTextInput').value = '';
   },
   
   // ===== IMAGE =====
