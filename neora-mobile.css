@@ -1,0 +1,723 @@
+/**
+ * NEORA Mobile Responsive CSS
+ * Ajoute ce fichier à toutes tes pages : <link rel="stylesheet" href="neora-mobile.css">
+ * Ou copie le contenu dans tes fichiers HTML existants
+ */
+
+/* ============================================
+   VARIABLES MOBILE
+   ============================================ */
+:root {
+  --mobile-padding: 16px;
+  --mobile-radius: 16px;
+  --mobile-gap: 12px;
+}
+
+/* ============================================
+   RESET MOBILE
+   ============================================ */
+@media (max-width: 768px) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Empêcher le zoom sur les inputs iOS */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
+
+/* ============================================
+   TOPBAR / NAVIGATION
+   ============================================ */
+@media (max-width: 768px) {
+  .topbar-inner {
+    padding: 12px var(--mobile-padding) !important;
+    flex-wrap: wrap;
+  }
+  
+  .nav-links {
+    display: none !important;
+  }
+  
+  .brand h1 {
+    font-size: 13px !important;
+    letter-spacing: 0.2em !important;
+  }
+  
+  .logo {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  
+  .badge {
+    display: none !important;
+  }
+  
+  /* Boutons header */
+  .btn-logout,
+  .topbar .btn,
+  .topbar button {
+    padding: 8px 14px !important;
+    font-size: 12px !important;
+  }
+  
+  /* User email dans header */
+  .user-email,
+  .email-display {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   LAYOUT PRINCIPAL - 2 COLONNES → 1 COLONNE
+   ============================================ */
+@media (max-width: 900px) {
+  .main,
+  .main-content,
+  .app-layout,
+  .two-col {
+    flex-direction: column !important;
+    padding: var(--mobile-padding) !important;
+    gap: var(--mobile-gap) !important;
+  }
+  
+  .panel,
+  .sidebar,
+  .left-panel,
+  .right-panel,
+  .col,
+  .column {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
+/* ============================================
+   PANELS / CARTES
+   ============================================ */
+@media (max-width: 768px) {
+  .panel,
+  .card,
+  .box,
+  .section {
+    padding: var(--mobile-padding) !important;
+    border-radius: var(--mobile-radius) !important;
+    margin-bottom: var(--mobile-gap) !important;
+  }
+  
+  .panel .head,
+  .panel-header,
+  .card-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+  
+  .title,
+  .panel-title,
+  h2 {
+    font-size: 16px !important;
+  }
+  
+  .hint,
+  .subtitle,
+  .description {
+    font-size: 12px !important;
+  }
+}
+
+/* ============================================
+   FORMULAIRES / INPUTS
+   ============================================ */
+@media (max-width: 768px) {
+  .field,
+  .form-group,
+  .input-group {
+    margin-bottom: 12px !important;
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="url"],
+  textarea,
+  select {
+    width: 100% !important;
+    padding: 14px !important;
+    font-size: 16px !important;
+    border-radius: 12px !important;
+  }
+  
+  textarea {
+    min-height: 100px !important;
+  }
+  
+  label {
+    font-size: 13px !important;
+    margin-bottom: 6px !important;
+  }
+  
+  /* Range sliders */
+  input[type="range"] {
+    width: 100% !important;
+    height: 8px !important;
+  }
+  
+  /* Aspect ratio select */
+  #aspectRatio,
+  .aspect-select,
+  select.aspect {
+    width: 100% !important;
+  }
+}
+
+/* ============================================
+   BOUTONS
+   ============================================ */
+@media (max-width: 768px) {
+  .btn,
+  button,
+  .button,
+  .cta {
+    width: 100% !important;
+    padding: 14px 20px !important;
+    font-size: 14px !important;
+    border-radius: 12px !important;
+    justify-content: center !important;
+  }
+  
+  .btn-row,
+  .button-group,
+  .actions {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+  
+  /* Bouton Generate */
+  .gen-btn,
+  #generateBtn,
+  .generate-button {
+    padding: 16px !important;
+    font-size: 15px !important;
+  }
+  
+  /* Petits boutons inline */
+  .btn-sm,
+  .btn-small,
+  .btn-icon {
+    width: auto !important;
+    padding: 10px 14px !important;
+  }
+}
+
+/* ============================================
+   GRILLES
+   ============================================ */
+@media (max-width: 768px) {
+  .grid,
+  .version-grid,
+  .pricing-grid,
+  .features-grid,
+  .cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--mobile-gap) !important;
+  }
+  
+  .row,
+  .flex-row {
+    flex-direction: column !important;
+    gap: var(--mobile-gap) !important;
+  }
+}
+
+/* ============================================
+   IMAGES / PREVIEW
+   ============================================ */
+@media (max-width: 768px) {
+  .frame,
+  .preview-frame,
+  .image-container {
+    min-height: 250px !important;
+    border-radius: var(--mobile-radius) !important;
+  }
+  
+  .preview-image,
+  #preview-image,
+  .result-img {
+    max-height: 350px !important;
+    object-fit: contain !important;
+  }
+  
+  /* Preview head avec boutons */
+  .preview-head {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+  
+  .result-actions {
+    width: 100% !important;
+    display: flex !important;
+    gap: 10px !important;
+  }
+  
+  .result-actions .btn,
+  .result-actions button,
+  .result-actions a {
+    flex: 1 !important;
+  }
+  
+  /* Bouton éditer */
+  .btn-edit,
+  #editBtn {
+    width: 100% !important;
+    margin-right: 0 !important;
+  }
+}
+
+/* ============================================
+   UPLOAD ZONE
+   ============================================ */
+@media (max-width: 768px) {
+  .upload-box,
+  .drop-zone,
+  .upload-area {
+    padding: 24px var(--mobile-padding) !important;
+    min-height: 120px !important;
+  }
+  
+  .upload-box .hint,
+  .drop-zone p {
+    font-size: 13px !important;
+  }
+  
+  .file-name,
+  .filename {
+    font-size: 12px !important;
+    word-break: break-all !important;
+  }
+}
+
+/* ============================================
+   TEMPLATES / STYLES SELECTOR
+   ============================================ */
+@media (max-width: 768px) {
+  .neora-templates-v2 {
+    padding: 12px !important;
+  }
+  
+  .templates-grid-v2 {
+    gap: 10px !important;
+  }
+  
+  .template-image-v2 {
+    width: 90px !important;
+    height: 90px !important;
+  }
+  
+  .template-name-v2 {
+    font-size: 10px !important;
+  }
+}
+
+/* ============================================
+   MODAL / POPUPS
+   ============================================ */
+@media (max-width: 768px) {
+  .modal,
+  .popup,
+  .overlay-content {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    max-height: 90vh !important;
+    margin: auto !important;
+    border-radius: var(--mobile-radius) !important;
+    padding: var(--mobile-padding) !important;
+  }
+  
+  .modal-header,
+  .popup-header {
+    font-size: 16px !important;
+  }
+}
+
+/* ============================================
+   HISTORIQUE
+   ============================================ */
+@media (max-width: 768px) {
+  .history-grid,
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  
+  .history-item,
+  .gallery-item {
+    border-radius: 12px !important;
+  }
+  
+  .history-item img {
+    height: 120px !important;
+  }
+}
+
+/* ============================================
+   PRICING PAGE
+   ============================================ */
+@media (max-width: 768px) {
+  .pricing-card,
+  .plan-card {
+    padding: 20px !important;
+  }
+  
+  .price,
+  .plan-price {
+    font-size: 28px !important;
+  }
+  
+  .plan-features,
+  .features-list {
+    font-size: 13px !important;
+  }
+  
+  .plan-features li {
+    padding: 8px 0 !important;
+  }
+}
+
+/* ============================================
+   PROFIL PAGE
+   ============================================ */
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+  
+  .profile-avatar,
+  .avatar {
+    width: 80px !important;
+    height: 80px !important;
+  }
+  
+  .profile-stats,
+  .stats-row {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  
+  .stat-item,
+  .stat-card {
+    width: 100% !important;
+  }
+}
+
+/* ============================================
+   CONTACT PAGE
+   ============================================ */
+@media (max-width: 768px) {
+  .contact-form {
+    padding: var(--mobile-padding) !important;
+  }
+  
+  .contact-info {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+}
+
+/* ============================================
+   SELECTOR PAGE (Choix version)
+   ============================================ */
+@media (max-width: 768px) {
+  .selector-wrap {
+    padding: 20px var(--mobile-padding) !important;
+    min-height: calc(100vh - 60px) !important;
+  }
+  
+  .selector-logo {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  
+  .selector-title {
+    font-size: 28px !important;
+  }
+  
+  .selector-subtitle {
+    font-size: 14px !important;
+    margin-bottom: 30px !important;
+  }
+  
+  .version-grid {
+    grid-template-columns: 1fr !important;
+    max-width: 100% !important;
+    gap: 16px !important;
+  }
+  
+  .version-card {
+    padding: 24px 20px !important;
+  }
+  
+  .version-icon {
+    font-size: 36px !important;
+  }
+  
+  .version-name {
+    font-size: 18px !important;
+  }
+  
+  .version-desc {
+    font-size: 13px !important;
+  }
+}
+
+/* ============================================
+   LANDING PAGE (index.html)
+   ============================================ */
+@media (max-width: 768px) {
+  .hero {
+    padding: 40px var(--mobile-padding) !important;
+    min-height: auto !important;
+  }
+  
+  .hero-title,
+  .hero h1 {
+    font-size: 32px !important;
+    line-height: 1.2 !important;
+  }
+  
+  .hero-subtitle,
+  .hero p {
+    font-size: 15px !important;
+  }
+  
+  .hero-cta,
+  .hero-buttons {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  
+  .demo-grid,
+  .showcase-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  
+  .demo-item img {
+    height: 100px !important;
+  }
+  
+  .features-section {
+    padding: 40px var(--mobile-padding) !important;
+  }
+  
+  .feature-card {
+    padding: 20px !important;
+  }
+  
+  .feature-icon {
+    font-size: 32px !important;
+  }
+  
+  .feature-title {
+    font-size: 16px !important;
+  }
+}
+
+/* ============================================
+   NEORA EDITOR MODAL (Mobile)
+   ============================================ */
+@media (max-width: 768px) {
+  .ne-modal .ne-container {
+    height: 100% !important;
+  }
+  
+  .ne-header {
+    padding: 10px 12px !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  
+  .ne-header-left,
+  .ne-header-center,
+  .ne-header-right {
+    gap: 8px !important;
+  }
+  
+  .ne-logo {
+    font-size: 14px !important;
+  }
+  
+  .ne-zoom-controls {
+    display: none !important; /* Cacher sur mobile, zoom tactile suffit */
+  }
+  
+  .ne-body {
+    flex-direction: column !important;
+  }
+  
+  .ne-toolbar {
+    width: 100% !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    padding: 8px !important;
+    gap: 6px !important;
+    order: 2 !important;
+    border-right: none !important;
+    border-top: 1px solid rgba(255,255,255,0.1) !important;
+  }
+  
+  .ne-tool-btn {
+    width: 44px !important;
+    height: 44px !important;
+  }
+  
+  .ne-tool-sep {
+    width: 1px !important;
+    height: 30px !important;
+    margin: 0 4px !important;
+  }
+  
+  .ne-canvas-area {
+    order: 1 !important;
+    min-height: 300px !important;
+    flex: 1 !important;
+  }
+  
+  .ne-panel {
+    width: 100% !important;
+    max-height: 45vh !important;
+    order: 3 !important;
+    border-left: none !important;
+    border-top: 1px solid rgba(255,255,255,0.1) !important;
+  }
+  
+  .ne-panel-content {
+    padding: 14px !important;
+  }
+  
+  .ne-panel-content h4 {
+    font-size: 13px !important;
+    margin-bottom: 12px !important;
+  }
+  
+  .ne-field {
+    margin-bottom: 10px !important;
+  }
+  
+  .ne-btn {
+    padding: 12px 16px !important;
+  }
+  
+  .ne-btn-primary {
+    padding: 14px 20px !important;
+  }
+}
+
+/* ============================================
+   SCROLLBAR MOBILE
+   ============================================ */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px !important;
+    height: 4px !important;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.4) !important;
+    border-radius: 4px !important;
+  }
+}
+
+/* ============================================
+   ANIMATIONS MOBILE (réduites)
+   ============================================ */
+@media (max-width: 768px) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.2s !important;
+    transition-duration: 0.2s !important;
+  }
+}
+
+/* ============================================
+   TOUCH-FRIENDLY
+   ============================================ */
+@media (max-width: 768px) {
+  /* Taille minimum des éléments cliquables */
+  a, button, .btn, input[type="checkbox"], input[type="radio"], .clickable {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+  
+  /* Espacement pour les doigts */
+  .nav-links a,
+  .menu-item,
+  .list-item {
+    padding: 12px !important;
+  }
+}
+
+/* ============================================
+   SAFE AREA (iPhone X+)
+   ============================================ */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .topbar {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .main,
+  .content,
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* ============================================
+   LANDSCAPE MOBILE
+   ============================================ */
+@media (max-width: 900px) and (orientation: landscape) {
+  .ne-panel {
+    max-height: 35vh !important;
+  }
+  
+  .ne-canvas-area {
+    min-height: 200px !important;
+  }
+  
+  .hero {
+    min-height: auto !important;
+    padding: 20px !important;
+  }
+}
+
+/* ============================================
+   TRÈS PETITS ÉCRANS (< 360px)
+   ============================================ */
+@media (max-width: 360px) {
+  :root {
+    --mobile-padding: 12px;
+  }
+  
+  .brand h1 {
+    font-size: 11px !important;
+  }
+  
+  .version-card {
+    padding: 16px !important;
+  }
+  
+  .hero-title,
+  .hero h1 {
+    font-size: 26px !important;
+  }
+}

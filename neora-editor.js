@@ -694,7 +694,46 @@ const NeoraEditor = {
       .ne-upload-zone:hover{border-color:#8b5cf6;background:rgba(139,92,246,0.1)}
       .ne-upload-zone p{color:rgba(255,255,255,0.5);font-size:13px;margin:0}
       .ne-empty-state{text-align:center;padding:30px 10px;color:rgba(255,255,255,0.4);font-size:13px}
-      @media(max-width:768px){.ne-panel{width:100%;max-height:40vh}.ne-body{flex-direction:column}.ne-toolbar{width:100%;flex-direction:row;justify-content:center}}
+      
+      /* MOBILE RESPONSIVE */
+      @media(max-width:768px){
+        .ne-header{padding:10px 12px;flex-wrap:wrap;gap:8px}
+        .ne-header-left,.ne-header-center,.ne-header-right{gap:6px}
+        .ne-logo{font-size:13px}
+        .ne-zoom-controls{padding:4px 8px;gap:4px}
+        .ne-zoom-level{font-size:11px;min-width:40px}
+        .ne-icon-btn{padding:6px 8px;font-size:14px}
+        .ne-btn{padding:10px 14px;font-size:13px}
+        .ne-divider{display:none}
+        .ne-body{flex-direction:column}
+        .ne-toolbar{width:100%;flex-direction:row;justify-content:center;padding:10px;gap:6px;order:2;border-right:none;border-top:1px solid rgba(255,255,255,0.1)}
+        .ne-tool-btn{width:44px;height:44px;font-size:18px}
+        .ne-tool-sep{width:1px;height:28px;margin:0 4px}
+        .ne-canvas-area{order:1;flex:1;min-height:250px}
+        .ne-canvas-wrapper{padding:10px}
+        .ne-panel{width:100%;max-height:45vh;order:3;border-left:none;border-top:1px solid rgba(255,255,255,0.1)}
+        .ne-panel-content{padding:14px}
+        .ne-panel-content h4{font-size:13px;margin-bottom:12px}
+        .ne-field{margin-bottom:10px}
+        .ne-field label{font-size:11px}
+        .ne-field input,.ne-field textarea,.ne-field select{padding:12px;font-size:16px}
+        .ne-row{flex-wrap:wrap}
+        .ne-style-btns{flex-wrap:wrap}
+        .ne-style-btn{width:40px;height:40px}
+        .ne-upload-zone{padding:20px}
+        .ne-btn-full{padding:14px}
+      }
+      
+      @media(max-width:480px){
+        .ne-header-center{display:none}
+        .ne-logo{font-size:12px}
+        .ne-btn{padding:8px 12px;font-size:12px}
+      }
+      
+      @media(max-height:600px) and (orientation:landscape){
+        .ne-panel{max-height:35vh}
+        .ne-canvas-area{min-height:180px}
+      }
     `;
     document.head.appendChild(style);
   }
