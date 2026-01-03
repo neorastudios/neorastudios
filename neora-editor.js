@@ -123,7 +123,16 @@ const NeoraEditor = {
               </div>
               <div class="ne-field">
                 <label>Police</label>
-                <select id="neFontFamily">${this.fonts.map(f => `<option value="${f}">${f}</option>`).join('')}</select>
+                <div class="ne-font-dropdown" id="neFontDropdown">
+                  <div class="ne-font-selected" id="neFontSelected" onclick="NeoraEditor.toggleFontDropdown()">
+                    <span style="font-family:'Inter'">Inter</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                  </div>
+                  <div class="ne-font-options" id="neFontOptions">
+                    ${this.fonts.map(f => `<div class="ne-font-option" data-font="${f}" onclick="NeoraEditor.selectFont('${f}')" style="font-family:'${f}'">${f}</div>`).join('')}
+                  </div>
+                </div>
+                <input type="hidden" id="neFontFamily" value="Inter">
               </div>
               <div class="ne-row">
                 <div class="ne-field ne-field-half">
@@ -231,6 +240,14 @@ const NeoraEditor = {
         if (e.key === 'z') { e.preventDefault(); this.undo(); }
         if (e.key === 'y') { e.preventDefault(); this.redo(); }
         if (e.key === 'd') { e.preventDefault(); this.duplicateSelected(); }
+      }
+    });
+    
+    // Fermer le dropdown police quand on clique ailleurs
+    document.addEventListener('click', (e) => {
+      const dropdown = document.getElementById('neFontDropdown');
+      if (dropdown && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('open');
       }
     });
   },
@@ -363,6 +380,25 @@ const NeoraEditor = {
   
   toggleStyle(style) {
     document.getElementById('ne' + style.charAt(0).toUpperCase() + style.slice(1)).classList.toggle('active');
+  },
+  
+  toggleFontDropdown() {
+    const dropdown = document.getElementById('neFontDropdown');
+    dropdown.classList.toggle('open');
+  },
+  
+  selectFont(font) {
+    document.getElementById('neFontFamily').value = font;
+    document.getElementById('neFontSelected').innerHTML = `
+      <span style="font-family:'${font}'">${font}</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    `;
+    document.getElementById('neFontDropdown').classList.remove('open');
+    
+    // Highlight selected
+    document.querySelectorAll('.ne-font-option').forEach(opt => {
+      opt.classList.toggle('selected', opt.dataset.font === font);
+    });
   },
   
   addImage(file) {
@@ -594,6 +630,22 @@ const NeoraEditor = {
       .ne-upload-zone svg{color:rgba(255,255,255,0.3);margin-bottom:12px}
       .ne-upload-zone p{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.5}
       .ne-upload-zone span{color:#8b5cf6}
+      .ne-font-dropdown{position:relative}
+      .ne-font-selected{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;cursor:pointer;transition:all .2s}
+      .ne-font-selected:hover{border-color:rgba(255,255,255,0.2)}
+      .ne-font-selected span{color:#fff;font-size:14px}
+      .ne-font-selected svg{color:rgba(255,255,255,0.5);transition:transform .2s}
+      .ne-font-dropdown.open .ne-font-selected{border-color:#8b5cf6}
+      .ne-font-dropdown.open .ne-font-selected svg{transform:rotate(180deg)}
+      .ne-font-options{position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:8px;margin-top:4px;max-height:250px;overflow-y:auto;opacity:0;visibility:hidden;transform:translateY(-10px);transition:all .2s;z-index:100}
+      .ne-font-dropdown.open .ne-font-options{opacity:1;visibility:visible;transform:translateY(0)}
+      .ne-font-option{padding:12px 14px;color:rgba(255,255,255,0.8);font-size:16px;cursor:pointer;transition:all .15s;border-bottom:1px solid rgba(255,255,255,0.05)}
+      .ne-font-option:last-child{border-bottom:none}
+      .ne-font-option:hover{background:rgba(139,92,246,0.15);color:#fff}
+      .ne-font-option.selected{background:rgba(139,92,246,0.25);color:#8b5cf6}
+      .ne-font-options::-webkit-scrollbar{width:6px}
+      .ne-font-options::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);border-radius:3px}
+      .ne-font-options::-webkit-scrollbar-thumb{background:rgba(139,92,246,0.5);border-radius:3px}
       .ne-empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center}
       .ne-empty-state svg{color:rgba(255,255,255,0.2);margin-bottom:16px}
       .ne-empty-state p{font-size:13px;color:rgba(255,255,255,0.4);line-height:1.5}
