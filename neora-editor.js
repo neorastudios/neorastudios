@@ -300,8 +300,8 @@ const NeoraEditor = {
       const imgWidth = imgEl.width;
       const imgHeight = imgEl.height;
       
-      // Calculer le scale
-      const scale = Math.min(maxWidth / imgWidth, maxHeight / imgHeight, 1.5);
+      // Calculer le scale - on utilise 0.85 de l'espace disponible pour un bon confort visuel
+      const scale = Math.min((maxWidth * 0.85) / imgWidth, (maxHeight * 0.85) / imgHeight);
       const canvasWidth = Math.round(imgWidth * scale);
       const canvasHeight = Math.round(imgHeight * scale);
       
@@ -588,11 +588,21 @@ const NeoraEditor = {
   resetZoom() { this.zoom = 1; this.applyZoom(); },
   
   applyZoom() {
-    const container = document.querySelector('#neCanvasWrapper .canvas-container');
-    if (container) {
-      container.style.transform = `scale(${this.zoom})`;
-      container.style.transformOrigin = 'center center';
-    }
+    if (!this.canvas) return;
+    
+    // Recalculer les dimensions du canvas en fonction du zoom
+    const newWidth = Math.round(this.displayWidth * this.zoom);
+    const newHeight = Math.round(this.displayHeight * this.zoom);
+    
+    // Redimensionner le canvas Fabric
+    this.canvas.setDimensions({ width: newWidth, height: newHeight });
+    
+    // Mettre à jour le zoom de Fabric pour garder les objets à la bonne échelle
+    this.canvas.setZoom(this.zoom);
+    
+    // Re-rendre pour une image nette
+    this.canvas.renderAll();
+    
     this.updateZoomDisplay();
   },
   
@@ -645,8 +655,8 @@ const NeoraEditor = {
       .ne-tool-btn:hover{background:rgba(255,255,255,0.1);color:#fff}
       .ne-tool-btn.active{background:rgba(139,92,246,0.2);color:#8b5cf6}
       .ne-tool-sep{width:30px;height:1px;background:rgba(255,255,255,0.1);margin:4px 0}
-      .ne-canvas-area{flex:1;display:flex;align-items:center;justify-content:center;background:#050508;overflow:auto}
-      .ne-canvas-wrapper{display:flex;align-items:center;justify-content:center;padding:20px}
+      .ne-canvas-area{flex:1;display:flex;align-items:center;justify-content:center;background:#050508;overflow:auto;min-height:0}
+      .ne-canvas-wrapper{display:flex;align-items:center;justify-content:center;padding:20px;width:100%;height:100%}
       .ne-canvas-wrapper .canvas-container{border-radius:8px;box-shadow:0 10px 40px rgba(0,0,0,0.5)}
       .ne-panel{width:280px;background:#0d0d15;border-left:1px solid rgba(255,255,255,0.1);overflow-y:auto}
       .ne-panel-content{padding:20px}
@@ -654,6 +664,8 @@ const NeoraEditor = {
       .ne-field{margin-bottom:14px}
       .ne-field label{display:block;font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:6px}
       .ne-field input,.ne-field textarea,.ne-field select{width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:14px}
+      .ne-field select option{background:#1a1a2e;color:#fff;padding:8px}
+      .ne-field select optgroup{background:#0d0d15;color:rgba(255,255,255,0.6)}
       .ne-field input:focus,.ne-field textarea:focus,.ne-field select:focus{border-color:#8b5cf6;outline:none}
       .ne-field input[type="color"]{width:50px;height:40px;padding:2px;cursor:pointer}
       .ne-field input[type="range"]{accent-color:#8b5cf6}
