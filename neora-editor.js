@@ -340,9 +340,9 @@ const NeoraEditor = {
     if (!this.canvas) return;
     
     const text = document.getElementById('neTextInput').value || 'Texte';
-    const fontFamily = document.getElementById('neFontFamily').value;
+    const fontFamily = document.getElementById('neFontFamily').value || 'Inter';
     const fontSize = parseInt(document.getElementById('neFontSize').value) || 48;
-    const textColor = document.getElementById('neTextColor').value;
+    const textColor = document.getElementById('neTextColor').value || '#ffffff';
     const opacity = parseInt(document.getElementById('neTextOpacity').value) / 100;
     const isBold = document.getElementById('neBold').classList.contains('active');
     const isItalic = document.getElementById('neItalic').classList.contains('active');
@@ -351,14 +351,19 @@ const NeoraEditor = {
     const shadowColor = document.getElementById('neShadowColor').value;
     const shadowBlur = parseInt(document.getElementById('neShadowBlur').value);
     
+    // Position au centre (en tenant compte du zoom)
+    const centerX = this.displayWidth / 2;
+    const centerY = this.displayHeight / 2;
+    
     const textObj = new fabric.IText(text, {
-      left: this.canvas.width / 2,
-      top: this.canvas.height / 2,
+      left: centerX,
+      top: centerY,
       originX: 'center',
       originY: 'center',
-      fontFamily, fontSize,
+      fontFamily: fontFamily,
+      fontSize: fontSize,
       fill: textColor,
-      opacity,
+      opacity: opacity,
       fontWeight: isBold ? 'bold' : 'normal',
       fontStyle: isItalic ? 'italic' : 'normal',
       underline: isUnderline,
@@ -373,9 +378,11 @@ const NeoraEditor = {
     
     this.canvas.add(textObj);
     this.canvas.setActiveObject(textObj);
-    this.canvas.renderAll();
+    this.canvas.requestRenderAll();
     document.getElementById('neTextInput').value = '';
     this.setTool('select');
+    
+    console.log('Text added:', text, 'at', centerX, centerY, 'font:', fontFamily, 'size:', fontSize, 'color:', textColor);
   },
   
   toggleStyle(style) {
@@ -509,33 +516,27 @@ const NeoraEditor = {
   zoomIn() { 
     if (!this.canvas) return;
     this.zoom = Math.min(this.zoom + 0.25, 3); 
-    this.canvas.setZoom(this.zoom);
-    this.canvas.setWidth(this.displayWidth * this.zoom);
-    this.canvas.setHeight(this.displayHeight * this.zoom);
-    this.canvas.renderAll();
-    this.updateZoomDisplay(); 
+    this.applyZoom();
   },
   zoomOut() { 
     if (!this.canvas) return;
     this.zoom = Math.max(this.zoom - 0.25, 0.5); 
-    this.canvas.setZoom(this.zoom);
-    this.canvas.setWidth(this.displayWidth * this.zoom);
-    this.canvas.setHeight(this.displayHeight * this.zoom);
-    this.canvas.renderAll();
-    this.updateZoomDisplay(); 
+    this.applyZoom();
   },
   resetZoom() { 
     if (!this.canvas) return;
     this.zoom = 1; 
-    this.canvas.setZoom(this.zoom);
-    this.canvas.setWidth(this.displayWidth);
-    this.canvas.setHeight(this.displayHeight);
-    this.canvas.renderAll();
-    this.updateZoomDisplay(); 
+    this.applyZoom();
   },
   
   applyZoom() {
-    // Plus utilisé - zoom géré nativement par Fabric
+    // Utiliser CSS transform pour le zoom (plus simple et fiable)
+    const container = document.querySelector('#neCanvasWrapper .canvas-container');
+    if (container) {
+      container.style.transform = `scale(${this.zoom})`;
+      container.style.transformOrigin = 'center center';
+    }
+    this.updateZoomDisplay();
   },
   
   updateZoomDisplay() {
@@ -545,12 +546,6 @@ const NeoraEditor = {
   download() {
     if (!this.canvas) return;
     
-    // Remettre le zoom à 1 pour l'export
-    const currentZoom = this.zoom;
-    this.canvas.setZoom(1);
-    this.canvas.setWidth(this.displayWidth);
-    this.canvas.setHeight(this.displayHeight);
-    
     // Calculer le scale pour exporter à la taille originale
     const scale = this.originalWidth / this.displayWidth;
     
@@ -559,12 +554,6 @@ const NeoraEditor = {
       quality: 1, 
       multiplier: scale 
     });
-    
-    // Restaurer le zoom
-    this.canvas.setZoom(currentZoom);
-    this.canvas.setWidth(this.displayWidth * currentZoom);
-    this.canvas.setHeight(this.displayHeight * currentZoom);
-    this.canvas.renderAll();
     
     const link = document.createElement('a');
     link.download = 'neora-edited-' + Date.now() + '.png';
