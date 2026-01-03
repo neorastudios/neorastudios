@@ -640,6 +640,7 @@
           <div class="meta">
             <span class="pill">Mode: <span id="mode" class="mono">text-to-image</span></span>
             <span class="pill" id="taskPill" style="display:none;">Task: <span id="taskId" class="mono"></span></span>
+            <button class="btn-small" id="editImageBtn" style="display:none;" title="Ouvrir l'éditeur d'image">✏️ Éditer</button>
           </div>
 
           <!-- Modifications -->
@@ -948,16 +949,20 @@
       img.style.display = "block";
       img.src = url;
 
+      const editImageBtn = document.getElementById('editImageBtn');
+      
       if(generated){
         lastGeneratedUrl = url;
         downloadLink.href = url;
         downloadLink.style.display = "inline-block";
+        if(editImageBtn) editImageBtn.style.display = "inline-flex";
 
         showEditSection(true);
         editBaseEl.textContent = "generated";
         setEditStatus("Prêt à modifier ✅");
       } else {
         downloadLink.style.display = "none";
+        if(editImageBtn) editImageBtn.style.display = "none";
         showEditSection(false);
       }
     }
@@ -970,6 +975,8 @@
       downloadLink.href = "#";
       lastGeneratedUrl = "";
       showEditSection(false);
+      const editImageBtn = document.getElementById('editImageBtn');
+      if(editImageBtn) editImageBtn.style.display = "none";
     }
 
     function normalizeResponse(data){
@@ -1303,5 +1310,24 @@
 
   <script src="neora-templates.js"></script>
   <script src="neora-cache.js"></script>
+  <script src="neora-editor.js"></script>
+  <script>
+    // Initialiser l'éditeur
+    if (typeof NeoraEditor !== 'undefined' && typeof NeoraEditor.init === 'function') {
+      NeoraEditor.init();
+    }
+    
+    // Bouton éditer
+    const editImageBtn = document.getElementById('editImageBtn');
+    if (editImageBtn) {
+      editImageBtn.addEventListener('click', () => {
+        if (lastGeneratedUrl && typeof NeoraEditor !== 'undefined') {
+          NeoraEditor.open(lastGeneratedUrl);
+        } else {
+          alert('Aucune image à éditer ou éditeur non chargé.');
+        }
+      });
+    }
+  </script>
 </body>
 </html>

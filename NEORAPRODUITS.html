@@ -538,6 +538,7 @@
 
             <div class="actions-row">
               <button type="button" id="download-btn" class="btn-secondary" disabled>Télécharger</button>
+              <button type="button" id="editImageBtn" class="btn-secondary" disabled>✏️ Éditer</button>
             </div>
           </div>
         </div>
@@ -796,6 +797,8 @@
       submitBtn.disabled = lock;
       editBtn.disabled = lock || !currentImageUrl;
       downloadBtn.disabled = lock || !currentImageUrl;
+      const editImageBtn = document.getElementById('editImageBtn');
+      if(editImageBtn) editImageBtn.disabled = lock || !currentImageUrl;
       setLoading(lock, loaderText || "Traitement en cours…");
       setOverlay(lock, loaderText ? loaderText.replace("…","") : "Génération…");
     }
@@ -804,6 +807,8 @@
       editSection.style.display = "block";
       editBtn.disabled = false;
       downloadBtn.disabled = false;
+      const editImageBtn = document.getElementById('editImageBtn');
+      if(editImageBtn) editImageBtn.disabled = false;
     }
 
     // 1) Génération initiale
@@ -964,5 +969,24 @@
   <!-- Si tu utilises tes templates sur cette page -->
   <script src="neora-templates.js"></script>
   <script src="neora-cache.js"></script>
+  <script src="neora-editor.js"></script>
+  <script>
+    // Initialiser l'éditeur
+    if (typeof NeoraEditor !== 'undefined' && typeof NeoraEditor.init === 'function') {
+      NeoraEditor.init();
+    }
+    
+    // Bouton éditer
+    const editImageBtn = document.getElementById('editImageBtn');
+    if (editImageBtn) {
+      editImageBtn.addEventListener('click', () => {
+        if (currentImageUrl && typeof NeoraEditor !== 'undefined') {
+          NeoraEditor.open(currentImageUrl);
+        } else {
+          alert('Aucune image à éditer ou éditeur non chargé.');
+        }
+      });
+    }
+  </script>
 </body>
 </html>
