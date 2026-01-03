@@ -190,10 +190,56 @@ const NeoraEditor = {
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
                 <p>Sélectionnez un élément pour modifier ses propriétés</p>
               </div>
-              <div class="ne-selection-props" id="neSelectionProps" style="display:none;">
+              
+              <!-- Propriétés texte sélectionné -->
+              <div class="ne-selection-props" id="neSelectionTextProps" style="display:none;">
                 <div class="ne-field">
-                  <label>Opacité: <span id="neSelOpacityVal">100%</span></label>
-                  <input type="range" id="neSelOpacity" min="0" max="100" value="100">
+                  <label>Texte</label>
+                  <textarea id="neSelTextInput" rows="2" onchange="NeoraEditor.updateSelectedText()"></textarea>
+                </div>
+                <div class="ne-field">
+                  <label>Police</label>
+                  <div class="ne-font-dropdown" id="neSelFontDropdown">
+                    <div class="ne-font-selected" id="neSelFontSelected" onclick="NeoraEditor.toggleSelFontDropdown()">
+                      <span id="neSelFontLabel" style="font-family:'Inter'">Inter</span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                    <div class="ne-font-options" id="neSelFontOptions"></div>
+                  </div>
+                </div>
+                <div class="ne-row">
+                  <div class="ne-field ne-field-half">
+                    <label>Taille</label>
+                    <input type="number" id="neSelFontSize" value="48" min="8" max="300" onchange="NeoraEditor.updateSelectedText()">
+                  </div>
+                  <div class="ne-field ne-field-half">
+                    <label>Couleur</label>
+                    <input type="color" id="neSelTextColor" value="#ffffff" onchange="NeoraEditor.updateSelectedText()">
+                  </div>
+                </div>
+                <div class="ne-field">
+                  <label>Style</label>
+                  <div class="ne-style-btns">
+                    <button class="ne-style-btn" id="neSelBold" onclick="NeoraEditor.toggleSelStyle('bold')">B</button>
+                    <button class="ne-style-btn" id="neSelItalic" onclick="NeoraEditor.toggleSelStyle('italic')"><i>I</i></button>
+                    <button class="ne-style-btn" id="neSelUnderline" onclick="NeoraEditor.toggleSelStyle('underline')"><u>U</u></button>
+                  </div>
+                </div>
+                <div class="ne-field">
+                  <label>Opacité: <span id="neSelTextOpacityVal">100%</span></label>
+                  <input type="range" id="neSelTextOpacity" min="0" max="100" value="100" oninput="NeoraEditor.updateSelectedOpacity(this.value)">
+                </div>
+                <div class="ne-row" style="margin-top:12px;">
+                  <button class="ne-btn ne-btn-ghost ne-btn-sm" onclick="NeoraEditor.duplicateSelected()">Dupliquer</button>
+                  <button class="ne-btn ne-btn-danger ne-btn-sm" onclick="NeoraEditor.deleteSelected()">Supprimer</button>
+                </div>
+              </div>
+              
+              <!-- Propriétés image sélectionnée -->
+              <div class="ne-selection-props" id="neSelectionImageProps" style="display:none;">
+                <div class="ne-field">
+                  <label>Opacité: <span id="neSelImageOpacityVal">100%</span></label>
+                  <input type="range" id="neSelImageOpacity" min="0" max="100" value="100" oninput="NeoraEditor.updateSelectedOpacity(this.value)">
                 </div>
                 <div class="ne-row" style="margin-top:12px;">
                   <button class="ne-btn ne-btn-ghost ne-btn-sm" onclick="NeoraEditor.duplicateSelected()">Dupliquer</button>
@@ -230,7 +276,7 @@ const NeoraEditor = {
     document.getElementById('neImageOpacity').addEventListener('input', (e) => {
       document.getElementById('neImageOpacityVal').textContent = e.target.value + '%';
     });
-    document.getElementById('neSelOpacity').addEventListener('input', (e) => {
+    document.getElementById('neSelOpacity')?.addEventListener('input', (e) => {
       document.getElementById('neSelOpacityVal').textContent = e.target.value + '%';
       this.updateSelectedOpacity(e.target.value);
     });
@@ -256,11 +302,15 @@ const NeoraEditor = {
       }
     });
     
-    // Fermer le dropdown police quand on clique ailleurs
+    // Fermer les dropdowns police quand on clique ailleurs
     document.addEventListener('click', (e) => {
       const dropdown = document.getElementById('neFontDropdown');
       if (dropdown && !dropdown.contains(e.target)) {
         dropdown.classList.remove('open');
+      }
+      const selDropdown = document.getElementById('neSelFontDropdown');
+      if (selDropdown && !selDropdown.contains(e.target)) {
+        selDropdown.classList.remove('open');
       }
     });
   },
@@ -291,44 +341,63 @@ const NeoraEditor = {
     const wrapper = document.getElementById('neCanvasWrapper');
     
     fabric.Image.fromURL(imageUrl, (img) => {
-      // Prendre plus de place - 90% de l'espace disponible
-      const maxWidth = wrapper.clientWidth - 40;
-      const maxHeight = wrapper.clientHeight - 40;
+      // Dimensions de l'espace disponible
+      const maxWidth = wrapper.clientWidth - 60;
+      const maxHeight = wrapper.clientHeight - 60;
       
-      let width = img.width;
-      let height = img.height;
+      // Dimensions originales de l'image
+      const imgWidth = img.width;
+      const imgHeight = img.height;
       
-      // Calculer le scale pour remplir au max l'espace
-      const scale = Math.min(maxWidth / width, maxHeight / height);
+      // Calculer le ratio pour que l'image remplisse l'espace sans dépasser
+      const scaleX = maxWidth / imgWidth;
+      const scaleY = maxHeight / imgHeight;
+      const scale = Math.min(scaleX, scaleY);
       
-      // Appliquer le scale seulement si l'image est plus grande que l'espace
-      if (scale < 1) {
-        width = width * scale;
-        height = height * scale;
+      // Dimensions finales du canvas (au moins 600px de large pour les petites images)
+      let canvasWidth = Math.max(imgWidth * scale, Math.min(600, maxWidth));
+      let canvasHeight = Math.max(imgHeight * scale, Math.min(600, maxHeight));
+      
+      // Si l'image est très petite, on garde les proportions mais on agrandit le canvas
+      if (imgWidth < 400 || imgHeight < 400) {
+        const upscale = Math.min(maxWidth / imgWidth, maxHeight / imgHeight, 3);
+        canvasWidth = imgWidth * upscale;
+        canvasHeight = imgHeight * upscale;
       } else {
-        // Si l'image est petite, l'agrandir pour remplir l'espace (max 2x)
-        const upscale = Math.min(scale, 2);
-        width = width * upscale;
-        height = height * upscale;
+        canvasWidth = imgWidth * scale;
+        canvasHeight = imgHeight * scale;
       }
       
+      // Créer le canvas
       this.canvas = new fabric.Canvas('neoraEditorCanvas', {
-        width, height,
+        width: canvasWidth,
+        height: canvasHeight,
         backgroundColor: '#1a1a2e',
         selection: true,
-        preserveObjectStacking: true
+        preserveObjectStacking: true,
+        enableRetinaScaling: true
       });
       
-      // Mettre l'image à la taille du canvas
-      img.scaleToWidth(width);
-      img.set({ selectable: false, evented: false });
+      // Mettre l'image de fond à la taille du canvas
+      img.scaleToWidth(canvasWidth);
+      img.set({ 
+        selectable: false, 
+        evented: false,
+        originX: 'left',
+        originY: 'top',
+        left: 0,
+        top: 0
+      });
+      
       this.canvas.setBackgroundImage(img, this.canvas.renderAll.bind(this.canvas));
       
-      this.originalWidth = img.width;
-      this.originalHeight = img.height;
-      this.displayWidth = width;
-      this.displayHeight = height;
+      // Stocker les dimensions
+      this.originalWidth = imgWidth;
+      this.originalHeight = imgHeight;
+      this.displayWidth = canvasWidth;
+      this.displayHeight = canvasHeight;
       
+      // Events
       this.canvas.on('object:modified', () => this.saveHistory());
       this.canvas.on('object:added', () => this.saveHistory());
       this.canvas.on('selection:created', (e) => this.onSelect(e.selected[0]));
@@ -337,7 +406,10 @@ const NeoraEditor = {
       
       this.saveHistory();
       this.updateZoomDisplay();
+      
+      console.log('Canvas initialized:', canvasWidth, 'x', canvasHeight, 'Original:', imgWidth, 'x', imgHeight);
     }, { crossOrigin: 'anonymous' });
+  },
   },
   
   setTool(tool) {
@@ -524,21 +596,130 @@ const NeoraEditor = {
   },
   
   onSelect(obj) {
+    if (!obj) return;
+    
     document.getElementById('neEmptyState').style.display = 'none';
-    document.getElementById('neSelectionProps').style.display = 'block';
-    const opacity = Math.round((obj.opacity || 1) * 100);
-    document.getElementById('neSelOpacity').value = opacity;
-    document.getElementById('neSelOpacityVal').textContent = opacity + '%';
+    
+    const isText = obj.type === 'i-text' || obj.type === 'text';
+    
+    // Afficher le bon panel
+    document.getElementById('neSelectionTextProps').style.display = isText ? 'block' : 'none';
+    document.getElementById('neSelectionImageProps').style.display = isText ? 'none' : 'block';
+    
+    if (isText) {
+      // Remplir les champs avec les valeurs actuelles
+      document.getElementById('neSelTextInput').value = obj.text || '';
+      document.getElementById('neSelFontSize').value = obj.fontSize || 48;
+      document.getElementById('neSelTextColor').value = obj.fill || '#ffffff';
+      
+      // Police
+      const fontLabel = document.getElementById('neSelFontLabel');
+      fontLabel.textContent = obj.fontFamily || 'Inter';
+      fontLabel.style.fontFamily = `'${obj.fontFamily || 'Inter'}'`;
+      
+      // Styles
+      document.getElementById('neSelBold').classList.toggle('active', obj.fontWeight === 'bold');
+      document.getElementById('neSelItalic').classList.toggle('active', obj.fontStyle === 'italic');
+      document.getElementById('neSelUnderline').classList.toggle('active', obj.underline === true);
+      
+      // Opacité
+      const opacity = Math.round((obj.opacity || 1) * 100);
+      document.getElementById('neSelTextOpacity').value = opacity;
+      document.getElementById('neSelTextOpacityVal').textContent = opacity + '%';
+      
+      // Générer les options de police
+      this.populateSelFontOptions();
+    } else {
+      // Image - juste l'opacité
+      const opacity = Math.round((obj.opacity || 1) * 100);
+      document.getElementById('neSelImageOpacity').value = opacity;
+      document.getElementById('neSelImageOpacityVal').textContent = opacity + '%';
+    }
   },
   
   onDeselect() {
     document.getElementById('neEmptyState').style.display = 'flex';
-    document.getElementById('neSelectionProps').style.display = 'none';
+    document.getElementById('neSelectionTextProps').style.display = 'none';
+    document.getElementById('neSelectionImageProps').style.display = 'none';
+  },
+  
+  populateSelFontOptions() {
+    const container = document.getElementById('neSelFontOptions');
+    container.innerHTML = this.fonts.map(f => 
+      `<div class="ne-font-option" data-font="${f}" onclick="NeoraEditor.selectSelFont('${f}')" style="font-family:'${f}'">${f}</div>`
+    ).join('');
+  },
+  
+  toggleSelFontDropdown() {
+    document.getElementById('neSelFontDropdown').classList.toggle('open');
+  },
+  
+  selectSelFont(font) {
+    const obj = this.canvas?.getActiveObject();
+    if (obj && (obj.type === 'i-text' || obj.type === 'text')) {
+      obj.set('fontFamily', font);
+      this.canvas.requestRenderAll();
+      this.saveHistory();
+    }
+    
+    const fontLabel = document.getElementById('neSelFontLabel');
+    fontLabel.textContent = font;
+    fontLabel.style.fontFamily = `'${font}'`;
+    
+    document.getElementById('neSelFontDropdown').classList.remove('open');
+  },
+  
+  toggleSelStyle(style) {
+    const obj = this.canvas?.getActiveObject();
+    if (!obj || (obj.type !== 'i-text' && obj.type !== 'text')) return;
+    
+    const btn = document.getElementById('neSel' + style.charAt(0).toUpperCase() + style.slice(1));
+    btn.classList.toggle('active');
+    
+    if (style === 'bold') {
+      obj.set('fontWeight', btn.classList.contains('active') ? 'bold' : 'normal');
+    } else if (style === 'italic') {
+      obj.set('fontStyle', btn.classList.contains('active') ? 'italic' : 'normal');
+    } else if (style === 'underline') {
+      obj.set('underline', btn.classList.contains('active'));
+    }
+    
+    this.canvas.requestRenderAll();
+    this.saveHistory();
+  },
+  
+  updateSelectedText() {
+    const obj = this.canvas?.getActiveObject();
+    if (!obj || (obj.type !== 'i-text' && obj.type !== 'text')) return;
+    
+    const text = document.getElementById('neSelTextInput').value;
+    const fontSize = parseInt(document.getElementById('neSelFontSize').value) || 48;
+    const color = document.getElementById('neSelTextColor').value;
+    
+    obj.set({
+      text: text,
+      fontSize: fontSize,
+      fill: color
+    });
+    
+    this.canvas.requestRenderAll();
+    this.saveHistory();
   },
   
   updateSelectedOpacity(value) {
     const obj = this.canvas?.getActiveObject();
-    if (obj) { obj.set('opacity', value / 100); this.canvas.renderAll(); }
+    if (obj) { 
+      obj.set('opacity', value / 100); 
+      this.canvas.renderAll(); 
+      
+      // Mettre à jour l'affichage
+      const isText = obj.type === 'i-text' || obj.type === 'text';
+      if (isText) {
+        document.getElementById('neSelTextOpacityVal').textContent = value + '%';
+      } else {
+        document.getElementById('neSelImageOpacityVal').textContent = value + '%';
+      }
+    }
   },
   
   deleteSelected() {
@@ -680,9 +861,9 @@ const NeoraEditor = {
       .ne-tool-btn{width:40px;height:40px;border-radius:10px;background:transparent;border:none;color:rgba(255,255,255,0.5);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
       .ne-tool-btn:hover{background:rgba(255,255,255,0.1);color:#fff}
       .ne-tool-btn.active{background:rgba(139,92,246,0.2);color:#8b5cf6}
-      .ne-canvas-area{flex:1;display:flex;align-items:center;justify-content:center;background:#050508;overflow:auto}
-      .ne-canvas-wrapper{display:flex;align-items:center;justify-content:center;padding:40px}
-      .ne-canvas-wrapper .canvas-container{border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,0.5);transition:transform .2s ease}
+      .ne-canvas-area{flex:1;display:flex;align-items:center;justify-content:center;background:#050508;overflow:auto;padding:20px}
+      .ne-canvas-wrapper{display:flex;align-items:center;justify-content:center;min-width:100%;min-height:100%}
+      .ne-canvas-wrapper .canvas-container{border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,0.5);transition:transform .2s ease;image-rendering:high-quality}
       .ne-panel{width:300px;background:#0d0d15;border-left:1px solid rgba(255,255,255,0.08);overflow-y:auto}
       .ne-panel-content{padding:20px}
       .ne-panel-header{margin-bottom:20px}
