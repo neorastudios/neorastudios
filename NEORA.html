@@ -15,6 +15,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="neora-auth-persist.js"></script>
   <script src="neora-tracker.js"></script>
   
   <style>
@@ -913,9 +914,14 @@
     // Protection: Vérifier si l'utilisateur est connecté et non bloqué
     firebase.auth().onAuthStateChanged(async (user) => {
       if (!user) {
+        // Effacer le cache et rediriger
+        if (typeof NeoraAuth !== 'undefined') NeoraAuth.clear();
         window.location.href = 'index.html';
         return;
       }
+      
+      // Sauvegarder dans le cache pour éviter le flash sur les autres pages
+      if (typeof NeoraAuth !== 'undefined') NeoraAuth.saveUser(user);
       
       // Créer/mettre à jour le document utilisateur
       await ensureUserDocument(user);
@@ -927,6 +933,12 @@
       // Vérifier si l'utilisateur a accès (plan payant)
       const hasAccess = await checkPlanAccess(user);
       if (!hasAccess) return;
+      
+      // Sauvegarder le plan dans le cache
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (userDoc.exists && typeof NeoraAuth !== 'undefined') {
+        NeoraAuth.savePlan(userDoc.data().plan || 'free');
+      }
       
       // Charger les générations disponibles
       await loadGenerations(user);
@@ -1558,6 +1570,7 @@
 })();
 </script>
 
+<script src="neora-mobile-nav.js"></script>
 <script src="neora-mobile-nav.js"></script>
 </body>
 </html>

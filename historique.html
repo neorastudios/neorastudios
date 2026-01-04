@@ -586,6 +586,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="neora-auth-persist.js"></script>
   
   <script>
     // Firebase config
@@ -749,6 +750,7 @@
     
     // Logout
     function logout() {
+      if (typeof NeoraAuth !== "undefined") NeoraAuth.clear();
       auth.signOut().then(() => {
         window.location.href = 'index.html';
       });
