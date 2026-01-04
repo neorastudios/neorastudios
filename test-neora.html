@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧪 NEORA - Page de Test</title>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="neora-auth-persist.js"></script>
+  
+  <link rel="stylesheet" href="neora-mobile.css">
+  
+  <style>
+    :root {
+      --bg: #050714;
+      --card: rgba(255,255,255,0.05);
+      --border: rgba(255,255,255,0.1);
+      --text: #fff;
+      --muted: rgba(255,255,255,0.6);
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --blue: #3b82f6;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .subtitle {
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+    
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .test-grid {
+      display: grid;
+      gap: 12px;
+    }
+    
+    .test-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 10px;
+    }
+    
+    .test-name {
+      font-size: 14px;
+    }
+    
+    .test-status {
+      font-size: 13px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    
+    .status-pass {
+      background: rgba(16,185,129,0.2);
+      color: var(--green);
+    }
+    
+    .status-fail {
+      background: rgba(239,68,68,0.2);
+      color: var(--red);
+    }
+    
+    .status-warn {
+      background: rgba(245,158,11,0.2);
+      color: var(--yellow);
+    }
+    
+    .status-pending {
+      background: rgba(59,130,246,0.2);
+      color: var(--blue);
+    }
+    
+    .status-info {
+      background: rgba(255,255,255,0.1);
+      color: var(--muted);
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      color: #fff;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(139,92,246,0.3);
+    }
+    
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: var(--text);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .summary {
+      display: flex;
+      gap: 20px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    
+    .summary-item {
+      text-align: center;
+    }
+    
+    .summary-value {
+      font-size: 32px;
+      font-weight: 700;
+    }
+    
+    .summary-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    .log-box {
+      background: rgba(0,0,0,0.4);
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 16px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .log-entry {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .log-time {
+      color: var(--muted);
+      margin-right: 8px;
+    }
+    
+    .log-success { color: var(--green); }
+    .log-error { color: var(--red); }
+    .log-warn { color: var(--yellow); }
+    .log-info { color: var(--blue); }
+    
+    .device-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    
+    .device-item {
+      padding: 12px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 10px;
+    }
+    
+    .device-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    
+    .device-value {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    @media (max-width: 600px) {
+      h1 { font-size: 22px; }
+      .section { padding: 16px; }
+      .summary { flex-direction: column; gap: 12px; }
+      .btn-row { flex-direction: column; }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 NEORA Test Suite</h1>
+    <p class="subtitle">Vérification de toutes les fonctionnalités</p>
+    
+    <!-- Scripts -->
+    <div class="section">
+      <h2 class="section-title">📦 Scripts & Fichiers</h2>
+      <div class="test-grid" id="scriptsTests">
+        <div class="test-item">
+          <span class="test-name">Firebase App</span>
+          <span class="test-status status-pending" id="test-firebase">⏳ Test...</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">Firebase Auth</span>
+          <span class="test-status status-pending" id="test-firebase-auth">⏳ Test...</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">Firebase Firestore</span>
+          <span class="test-status status-pending" id="test-firestore">⏳ Test...</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">NeoraAuth (Persistance)</span>
+          <span class="test-status status-pending" id="test-neora-auth">⏳ Test...</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">neora-mobile.css</span>
+          <span class="test-status status-pending" id="test-mobile-css">⏳ Test...</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Auth -->
+    <div class="section">
+      <h2 class="section-title">🔐 Authentification</h2>
+      <div class="test-grid" id="authTests">
+        <div class="test-item">
+          <span class="test-name">Utilisateur connecté</span>
+          <span class="test-status status-pending" id="test-user">⏳ Test...</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">Email</span>
+          <span class="test-status status-info" id="test-email">-</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">UID</span>
+          <span class="test-status status-info" id="test-uid">-</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">Cache Auth (localStorage)</span>
+          <span class="test-status status-pending" id="test-cache">⏳ Test...</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="testAuthCache()">🔄 Tester Cache</button>
+        <button class="btn btn-secondary" onclick="clearAuthCache()">🗑️ Vider Cache</button>
+      </div>
+    </div>
+    
+    <!-- Firestore -->
+    <div class="section">
+      <h2 class="section-title">🗄️ Base de données (Firestore)</h2>
+      <div class="test-grid" id="firestoreTests">
+        <div class="test-item">
+          <span class="test-name">Connexion Firestore</span>
+          <span class="test-status status-pending" id="test-db-connection">⏳ Test...</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">Document utilisateur</span>
+          <span class="test-status status-pending" id="test-user-doc">⏳ Test...</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">Plan</span>
+          <span class="test-status status-info" id="test-plan">-</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">Crédits disponibles</span>
+          <span class="test-status status-info" id="test-credits">-</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="refreshUserData()">🔄 Rafraîchir données</button>
+      </div>
+    </div>
+    
+    <!-- Mobile -->
+    <div class="section">
+      <h2 class="section-title">📱 Responsive Mobile</h2>
+      <div class="test-grid">
+        <div class="test-item">
+          <span class="test-name">Type d'appareil</span>
+          <span class="test-status status-info" id="test-device">-</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">Taille écran</span>
+          <span class="test-status status-info" id="test-screen">-</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">Mode responsive actif</span>
+          <span class="test-status status-pending" id="test-responsive">⏳ Test...</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">Touch supporté</span>
+          <span class="test-status status-pending" id="test-touch">⏳ Test...</span>
+        </div>
+      </div>
+      <div class="device-info">
+        <div class="device-item">
+          <div class="device-label">User Agent</div>
+          <div class="device-value" id="user-agent">-</div>
+        </div>
+        <div class="device-item">
+          <div class="device-label">Pixel Ratio</div>
+          <div class="device-value" id="pixel-ratio">-</div>
+        </div>
+        <div class="device-item">
+          <div class="device-label">Orientation</div>
+          <div class="device-value" id="orientation">-</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Stripe -->
+    <div class="section">
+      <h2 class="section-title">💳 Paiement Stripe</h2>
+      <div class="test-grid">
+        <div class="test-item">
+          <span class="test-name">Stripe Customer ID</span>
+          <span class="test-status status-info" id="test-stripe-id">-</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">Dernier achat crédits</span>
+          <span class="test-status status-info" id="test-last-purchase">-</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="testStripeCheckout()">🧪 Test Paiement (Mode Test)</button>
+      </div>
+      <p style="margin-top: 12px; font-size: 12px; color: var(--muted);">
+        💡 Carte de test : <code>4242 4242 4242 4242</code> - Date : future - CVC : 123
+      </p>
+    </div>
+    
+    <!-- Logs -->
+    <div class="section">
+      <h2 class="section-title">📋 Logs</h2>
+      <div class="log-box" id="logBox">
+        <div class="log-entry"><span class="log-time">--:--:--</span> En attente des tests...</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="runAllTests()">▶️ Lancer tous les tests</button>
+        <button class="btn btn-secondary" onclick="clearLogs()">🗑️ Effacer logs</button>
+      </div>
+      
+      <div class="summary" id="summary" style="display: none;">
+        <div class="summary-item">
+          <div class="summary-value" style="color: var(--green);" id="passCount">0</div>
+          <div class="summary-label">Réussis</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-value" style="color: var(--red);" id="failCount">0</div>
+          <div class="summary-label">Échoués</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-value" style="color: var(--yellow);" id="warnCount">0</div>
+          <div class="summary-label">Avertissements</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Navigation -->
+    <div class="section">
+      <h2 class="section-title">🔗 Tester les pages</h2>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="window.open('index.html', '_blank')">🏠 Index</button>
+        <button class="btn btn-secondary" onclick="window.open('NEORA.html', '_blank')">🎨 NEORA</button>
+        <button class="btn btn-secondary" onclick="window.open('NEORAPRO.html', '_blank')">⚡ NEORA PRO</button>
+        <button class="btn btn-secondary" onclick="window.open('pricing.html', '_blank')">💎 Pricing</button>
+        <button class="btn btn-secondary" onclick="window.open('profil.html', '_blank')">👤 Profil</button>
+        <button class="btn btn-secondary" onclick="window.open('historique.html', '_blank')">📁 Historique</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCKPepYjXiY92hZPEdKxqOow9AACfMTOoc",
+      authDomain: "neorastudiosnc.firebaseapp.com",
+      projectId: "neorastudiosnc",
+      storageBucket: "neorastudiosnc.firebasestorage.app",
+      messagingSenderId: "275455765566",
+      appId: "1:275455765566:web:c2cf516fcb8f13de7e356f"
+    };
+    
+    let db, auth;
+    let testResults = { pass: 0, fail: 0, warn: 0 };
+    
+    // Initialize Firebase
+    try {
+      firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth();
+      db = firebase.firestore();
+    } catch (e) {
+      console.error('Firebase init error:', e);
+    }
+    
+    // Logging
+    function log(message, type = 'info') {
+      const logBox = document.getElementById('logBox');
+      const time = new Date().toLocaleTimeString();
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `<span class="log-time">${time}</span><span class="log-${type}">${message}</span>`;
+      logBox.appendChild(entry);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+    
+    function clearLogs() {
+      document.getElementById('logBox').innerHTML = '<div class="log-entry"><span class="log-time">--:--:--</span> Logs effacés</div>';
+    }
+    
+    // Set test status
+    function setStatus(id, status, text) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      
+      el.className = 'test-status status-' + status;
+      el.textContent = text;
+      
+      if (status === 'pass') testResults.pass++;
+      else if (status === 'fail') testResults.fail++;
+      else if (status === 'warn') testResults.warn++;
+    }
+    
+    function updateSummary() {
+      document.getElementById('summary').style.display = 'flex';
+      document.getElementById('passCount').textContent = testResults.pass;
+      document.getElementById('failCount').textContent = testResults.fail;
+      document.getElementById('warnCount').textContent = testResults.warn;
+    }
+    
+    // ========== TESTS ==========
+    
+    // Test Scripts
+    function testScripts() {
+      log('🔍 Test des scripts...', 'info');
+      
+      // Firebase
+      if (typeof firebase !== 'undefined') {
+        setStatus('test-firebase', 'pass', '✅ Chargé');
+        log('Firebase App: ✅', 'success');
+      } else {
+        setStatus('test-firebase', 'fail', '❌ Non trouvé');
+        log('Firebase App: ❌ Non chargé', 'error');
+      }
+      
+      // Firebase Auth
+      if (typeof firebase !== 'undefined' && firebase.auth) {
+        setStatus('test-firebase-auth', 'pass', '✅ Chargé');
+        log('Firebase Auth: ✅', 'success');
+      } else {
+        setStatus('test-firebase-auth', 'fail', '❌ Non trouvé');
+        log('Firebase Auth: ❌', 'error');
+      }
+      
+      // Firestore
+      if (typeof firebase !== 'undefined' && firebase.firestore) {
+        setStatus('test-firestore', 'pass', '✅ Chargé');
+        log('Firestore: ✅', 'success');
+      } else {
+        setStatus('test-firestore', 'fail', '❌ Non trouvé');
+        log('Firestore: ❌', 'error');
+      }
+      
+      // NeoraAuth
+      if (typeof NeoraAuth !== 'undefined') {
+        setStatus('test-neora-auth', 'pass', '✅ Chargé');
+        log('NeoraAuth (persistance): ✅', 'success');
+      } else {
+        setStatus('test-neora-auth', 'warn', '⚠️ Non trouvé');
+        log('NeoraAuth: ⚠️ Script non chargé (neora-auth-persist.js)', 'warn');
+      }
+      
+      // Mobile CSS
+      const mobileCSS = Array.from(document.styleSheets).some(sheet => {
+        try {
+          return sheet.href && sheet.href.includes('neora-mobile.css');
+        } catch (e) {
+          return false;
+        }
+      });
+      
+      if (mobileCSS) {
+        setStatus('test-mobile-css', 'pass', '✅ Chargé');
+        log('neora-mobile.css: ✅', 'success');
+      } else {
+        setStatus('test-mobile-css', 'warn', '⚠️ Non trouvé');
+        log('neora-mobile.css: ⚠️ Non chargé', 'warn');
+      }
+    }
+    
+    // Test Auth
+    async function testAuth() {
+      log('🔍 Test authentification...', 'info');
+      
+      return new Promise((resolve) => {
+        auth.onAuthStateChanged(async (user) => {
+          if (user) {
+            setStatus('test-user', 'pass', '✅ Connecté');
+            setStatus('test-email', 'info', user.email);
+            setStatus('test-uid', 'info', user.uid.substring(0, 12) + '...');
+            log(`Utilisateur: ${user.email}`, 'success');
+            
+            // Save to cache
+            if (typeof NeoraAuth !== 'undefined') {
+              NeoraAuth.saveUser(user);
+            }
+          } else {
+            setStatus('test-user', 'warn', '⚠️ Non connecté');
+            setStatus('test-email', 'info', '-');
+            setStatus('test-uid', 'info', '-');
+            log('Utilisateur: Non connecté', 'warn');
+          }
+          resolve(user);
+        });
+      });
+    }
+    
+    // Test Auth Cache
+    function testAuthCache() {
+      log('🔍 Test cache auth...', 'info');
+      
+      const cached = localStorage.getItem('neora_auth_cache');
+      if (cached) {
+        try {
+          const data = JSON.parse(cached);
+          setStatus('test-cache', 'pass', '✅ ' + data.email);
+          log(`Cache auth: ✅ ${data.email}`, 'success');
+        } catch (e) {
+          setStatus('test-cache', 'fail', '❌ Invalide');
+          log('Cache auth: ❌ JSON invalide', 'error');
+        }
+      } else {
+        setStatus('test-cache', 'warn', '⚠️ Vide');
+        log('Cache auth: Vide (normal si première connexion)', 'warn');
+      }
+    }
+    
+    function clearAuthCache() {
+      localStorage.removeItem('neora_auth_cache');
+      setStatus('test-cache', 'info', '🗑️ Effacé');
+      log('Cache auth effacé', 'info');
+    }
+    
+    // Test Firestore
+    async function testFirestore(user) {
+      log('🔍 Test Firestore...', 'info');
+      
+      if (!user) {
+        setStatus('test-db-connection', 'warn', '⚠️ Non connecté');
+        setStatus('test-user-doc', 'warn', '⚠️ -');
+        log('Firestore: Impossible sans connexion', 'warn');
+        return;
+      }
+      
+      try {
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        
+        setStatus('test-db-connection', 'pass', '✅ Connecté');
+        log('Connexion Firestore: ✅', 'success');
+        
+        if (userDoc.exists) {
+          const data = userDoc.data();
+          setStatus('test-user-doc', 'pass', '✅ Trouvé');
+          setStatus('test-plan', 'info', data.plan || 'free');
+          setStatus('test-credits', 'info', data.generationsAvailable || 0);
+          setStatus('test-stripe-id', 'info', data.stripeCustomerId || '-');
+          setStatus('test-last-purchase', 'info', data.lastCreditPurchase ? new Date(data.lastCreditPurchase).toLocaleDateString() : '-');
+          
+          log(`Plan: ${data.plan || 'free'}`, 'success');
+          log(`Crédits: ${data.generationsAvailable || 0}`, 'success');
+          
+          // Save plan to cache
+          if (typeof NeoraAuth !== 'undefined') {
+            NeoraAuth.savePlan(data.plan || 'free');
+          }
+        } else {
+          setStatus('test-user-doc', 'warn', '⚠️ Non trouvé');
+          log('Document utilisateur non trouvé', 'warn');
+        }
+      } catch (error) {
+        setStatus('test-db-connection', 'fail', '❌ Erreur');
+        log('Erreur Firestore: ' + error.message, 'error');
+      }
+    }
+    
+    async function refreshUserData() {
+      const user = auth.currentUser;
+      await testFirestore(user);
+    }
+    
+    // Test Mobile
+    function testMobile() {
+      log('🔍 Test mobile/responsive...', 'info');
+      
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const isMobile = width <= 768;
+      const isTablet = width > 768 && width <= 1024;
+      const isDesktop = width > 1024;
+      
+      let deviceType = isDesktop ? '🖥️ Desktop' : (isTablet ? '📱 Tablet' : '📱 Mobile');
+      setStatus('test-device', 'info', deviceType);
+      setStatus('test-screen', 'info', `${width} x ${height}`);
+      
+      // Responsive mode
+      if (isMobile) {
+        setStatus('test-responsive', 'pass', '✅ Actif (mobile)');
+        log('Mode responsive: ✅ Mobile', 'success');
+      } else if (isTablet) {
+        setStatus('test-responsive', 'info', 'ℹ️ Tablet');
+        log('Mode responsive: Tablet', 'info');
+      } else {
+        setStatus('test-responsive', 'info', 'ℹ️ Desktop');
+        log('Mode responsive: Desktop', 'info');
+      }
+      
+      // Touch
+      const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      if (hasTouch) {
+        setStatus('test-touch', 'pass', '✅ Oui');
+        log('Touch: ✅ Supporté', 'success');
+      } else {
+        setStatus('test-touch', 'info', 'ℹ️ Non');
+        log('Touch: Non (souris)', 'info');
+      }
+      
+      // Device info
+      document.getElementById('user-agent').textContent = navigator.userAgent.substring(0, 50) + '...';
+      document.getElementById('pixel-ratio').textContent = window.devicePixelRatio + 'x';
+      document.getElementById('orientation').textContent = window.innerWidth > window.innerHeight ? '🔄 Paysage' : '📱 Portrait';
+    }
+    
+    // Test Stripe
+    function testStripeCheckout() {
+      log('💳 Ouverture test Stripe...', 'info');
+      
+      const user = auth.currentUser;
+      if (!user) {
+        log('❌ Connectez-vous d\'abord pour tester le paiement', 'error');
+        alert('Connectez-vous d\'abord pour tester le paiement');
+        return;
+      }
+      
+      // URL de test Stripe (pack starter)
+      const testUrl = 'https://buy.stripe.com/test_00gaFU4bN3xE3Ly6oo'; // Remplacer par ton URL de test
+      
+      log('Redirection vers Stripe Checkout (mode test)...', 'info');
+      
+      // Ouvrir dans un nouvel onglet
+      window.open(`https://buy.stripe.com/28E00j1lpggtbCC2ERao801?prefilled_email=${encodeURIComponent(user.email)}&client_reference_id=${user.uid}`, '_blank');
+    }
+    
+    // Run all tests
+    async function runAllTests() {
+      log('🚀 Démarrage de tous les tests...', 'info');
+      testResults = { pass: 0, fail: 0, warn: 0 };
+      
+      // Scripts
+      testScripts();
+      
+      // Auth
+      const user = await testAuth();
+      
+      // Cache
+      testAuthCache();
+      
+      // Firestore
+      await testFirestore(user);
+      
+      // Mobile
+      testMobile();
+      
+      // Summary
+      updateSummary();
+      
+      log('✅ Tous les tests terminés !', 'success');
+      log(`Résultat: ${testResults.pass} ✅ | ${testResults.fail} ❌ | ${testResults.warn} ⚠️`, 'info');
+    }
+    
+    // Auto-run on load
+    window.addEventListener('load', () => {
+      setTimeout(runAllTests, 500);
+    });
+    
+    // Update on resize
+    window.addEventListener('resize', testMobile);
+  </script>
+  
+  <script src="neora-mobile-nav.js"></script>
+</body>
+</html>
