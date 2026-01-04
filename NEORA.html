@@ -1477,6 +1477,15 @@
   }
 
   function fixCanvasDPR(canvas){
+    // ⚠️ IMPORTANT: Ne pas toucher aux canvas Fabric.js (éditeur).
+    // Fabric gère déjà le DPR/retina + ses propres resize. Si on modifie width/height ici,
+    // ça efface le canvas => image noire (surtout au zoom).
+    if (canvas && (
+      canvas.id === 'neoraEditorCanvas' ||
+      (canvas.classList && (canvas.classList.contains('lower-canvas') || canvas.classList.contains('upper-canvas'))) ||
+      (canvas.closest && canvas.closest('#neoraEditorModal'))
+    )) return;
+
     if (canvas.dataset.neoraDprFixed) return;
     const ctx = canvas.getContext && canvas.getContext('2d');
     if (!ctx) return;
