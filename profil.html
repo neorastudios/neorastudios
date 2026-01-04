@@ -8,7 +8,6 @@
   <link rel="shortcut icon" href="favicon.ico">
   <link rel="manifest" href="site.webmanifest">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="neora-mobile.css">
   <title>Mon Profil — NEORA</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,6 +19,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="neora-auth-persist.js"></script>
+  
+  <link rel="stylesheet" href="neora-mobile.css">
   
   <style>
     :root {
@@ -651,9 +652,13 @@
     // Auth state listener
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
+        if (typeof NeoraAuth !== 'undefined') NeoraAuth.clear();
         window.location.href = 'index.html';
         return;
       }
+      
+      // Sauvegarder dans le cache
+      if (typeof NeoraAuth !== 'undefined') NeoraAuth.saveUser(user);
       
       currentUser = user;
       await loadUserProfile(user);
@@ -666,6 +671,10 @@
         
         if (userDoc.exists) {
           userData = userDoc.data();
+          // Sauvegarder le plan dans le cache
+          if (typeof NeoraAuth !== 'undefined') {
+            NeoraAuth.savePlan(userData.plan || 'free');
+          }
         } else {
           userData = {};
         }
@@ -794,7 +803,7 @@
     }
     
     function logout() {
-      if (typeof NeoraAuth !== "undefined") NeoraAuth.clear();
+      if (typeof NeoraAuth !== 'undefined') NeoraAuth.clear();
       auth.signOut().then(() => {
         window.location.href = 'index.html';
       });
@@ -882,6 +891,30 @@
     
     // Fonction pour aller à l'app selon le plan
     async function goToApp() {
+      // D'abord vérifier le cache pour une réponse instantanée
+      if (typeof NeoraAuth !== 'undefined') {
+        const cached = NeoraAuth.getCachedUser();
+        if (cached && cached.plan) {
+          if (cached.plan === 'pro') {
+            window.location.href = 'selector.html';
+          } else {
+            window.location.href = 'NEORASIMPLE.html';
+          }
+          return;
+        }
+      }
+      
+      // Sinon utiliser les données chargées
+      if (userData && userData.plan) {
+        if (userData.plan === 'pro') {
+          window.location.href = 'selector.html';
+        } else {
+          window.location.href = 'NEORASIMPLE.html';
+        }
+        return;
+      }
+      
+      // En dernier recours, vérifier Firebase
       if (!currentUser) {
         window.location.href = 'index.html';
         return;
@@ -890,10 +923,8 @@
       const plan = userData?.plan || 'free';
       
       if (plan === 'pro') {
-        // Pro → page de sélection des versions
         window.location.href = 'selector.html';
       } else {
-        // Free → NEORASIMPLE directement
         window.location.href = 'NEORASIMPLE.html';
       }
     }

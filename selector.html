@@ -8,13 +8,13 @@
   <link rel="shortcut icon" href="favicon.ico">
   <link rel="manifest" href="site.webmanifest">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="neora-mobile.css">
   <title>Neora.ai — Choisissez votre version</title>
   <meta name="description" content="Sélectionnez la version de Neora adaptée à vos besoins.">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="neora-mobile.css">
   
   <style>
     :root {
@@ -266,6 +266,36 @@
       color: #67e8f9;
     }
     
+    /* Loading overlay */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 0.3s;
+    }
+    
+    .loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--accent-violet);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
     @media (max-width: 768px) {
       .version-grid {
         grid-template-columns: 1fr;
@@ -284,6 +314,11 @@
   </style>
 </head>
 <body>
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+  </div>
+
   <div class="page-container">
     <!-- Navigation -->
     <nav class="topbar">
@@ -295,7 +330,7 @@
         
         <div class="nav-links">
           <a href="index.html" class="nav-link">🏠 Accueil</a>
-          <a href="#" class="nav-link" onclick="goToApp()">🚀 App</a>
+          <a href="#" class="nav-link" onclick="goToApp(); return false;">🚀 App</a>
           <a href="pricing.html" class="nav-link">💎 Tarifs</a>
           <a href="historique.html" class="nav-link">📁 Historique</a>
           <a href="profil.html" class="nav-link">👤 Profil</a>
@@ -363,51 +398,155 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
     
-    // Vérifier l'authentification
+    // Variable pour stocker le plan une fois chargé
+    let userPlan = null;
+    let authReady = false;
+    
+    // Fonction pour cacher le loading
+    function hideLoading() {
+      document.getElementById('loadingOverlay').classList.add('hidden');
+    }
+    
+    // Vérifier d'abord le cache pour une réponse instantanée
+    (function checkCacheFirst() {
+      if (typeof NeoraAuth !== 'undefined') {
+        const cached = NeoraAuth.getCachedUser();
+        if (cached && cached.plan) {
+          userPlan = cached.plan;
+          // Si le cache dit FREE, rediriger immédiatement
+          if (cached.plan === 'free') {
+            window.location.href = 'NEORASIMPLE.html';
+            return;
+          }
+          // Si PRO dans le cache, on peut afficher la page
+          hideLoading();
+        }
+      }
+    })();
+    
+    // Vérifier l'authentification Firebase (source de vérité)
     auth.onAuthStateChanged(async (user) => {
+      authReady = true;
+      
       if (!user) {
         // Non connecté → retour à l'accueil
+        if (typeof NeoraAuth !== 'undefined') NeoraAuth.clear();
         window.location.href = 'index.html';
         return;
       }
       
-      // Récupérer le plan
-      const userDoc = await db.collection('users').doc(user.uid).get();
-      if (userDoc.exists) {
-        const plan = userDoc.data().plan || 'free';
+      // Sauvegarder l'utilisateur dans le cache
+      if (typeof NeoraAuth !== 'undefined') NeoraAuth.saveUser(user);
+      
+      try {
+        // Récupérer le plan depuis Firestore
+        const userDoc = await db.collection('users').doc(user.uid).get();
         
-        // Si plan gratuit, rediriger vers NEORASIMPLE
-        if (plan === 'free') {
+        if (userDoc.exists) {
+          const plan = userDoc.data().plan || 'free';
+          userPlan = plan;
+          
+          // Sauvegarder le plan dans le cache
+          if (typeof NeoraAuth !== 'undefined') NeoraAuth.savePlan(plan);
+          
+          // Si plan gratuit, rediriger vers NEORASIMPLE
+          if (plan === 'free') {
+            window.location.href = 'NEORASIMPLE.html';
+            return;
+          }
+        } else {
+          // Document n'existe pas = plan free
+          userPlan = 'free';
           window.location.href = 'NEORASIMPLE.html';
+          return;
         }
+      } catch (error) {
+        console.error('Erreur lors de la récupération du plan:', error);
       }
+      
+      // Tout est OK, cacher le loading
+      hideLoading();
     });
     
+    // Timeout de sécurité - si Firebase ne répond pas en 3s, utiliser le cache
+    setTimeout(() => {
+      if (!authReady) {
+        console.log('Firebase timeout, using cache');
+        hideLoading();
+      }
+    }, 3000);
+    
     function logout() {
-      if (typeof NeoraAuth !== "undefined") NeoraAuth.clear();
+      if (typeof NeoraAuth !== 'undefined') NeoraAuth.clear();
       auth.signOut().then(() => {
         window.location.href = 'index.html';
       });
     }
     
+    // Fonction goToApp améliorée - attend que l'auth soit prête
     async function goToApp() {
+      // Si on a déjà le plan en cache ou en mémoire
+      if (userPlan) {
+        if (userPlan === 'free') {
+          window.location.href = 'NEORASIMPLE.html';
+        } else {
+          window.location.href = 'selector.html';
+        }
+        return;
+      }
+      
+      // Vérifier le cache
+      if (typeof NeoraAuth !== 'undefined') {
+        const cached = NeoraAuth.getCachedUser();
+        if (cached && cached.plan) {
+          if (cached.plan === 'free') {
+            window.location.href = 'NEORASIMPLE.html';
+          } else {
+            window.location.href = 'selector.html';
+          }
+          return;
+        }
+      }
+      
+      // Si pas de cache, attendre Firebase
       const user = auth.currentUser;
       if (!user) {
+        // Attendre un peu que Firebase soit prêt
+        await new Promise(resolve => {
+          const unsubscribe = auth.onAuthStateChanged((u) => {
+            unsubscribe();
+            resolve(u);
+          });
+          // Timeout de 2 secondes
+          setTimeout(() => resolve(null), 2000);
+        });
+      }
+      
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
         window.location.href = 'index.html';
         return;
       }
       
-      const userDoc = await db.collection('users').doc(user.uid).get();
-      const plan = userDoc.exists ? (userDoc.data().plan || 'free') : 'free';
-      
-      if (plan === 'free') {
+      try {
+        const userDoc = await db.collection('users').doc(currentUser.uid).get();
+        const plan = userDoc.exists ? (userDoc.data().plan || 'free') : 'free';
+        
+        // Sauvegarder dans le cache
+        if (typeof NeoraAuth !== 'undefined') NeoraAuth.savePlan(plan);
+        
+        if (plan === 'free') {
+          window.location.href = 'NEORASIMPLE.html';
+        } else {
+          window.location.href = 'selector.html';
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
         window.location.href = 'NEORASIMPLE.html';
-      } else {
-        window.location.href = 'selector.html';
       }
     }
   </script>
-<script src="neora-cache.js"></script>
-<script src="neora-mobile-nav.js"></script>
+  <script src="neora-cache.js"></script>
+  <script src="neora-mobile-nav.js"></script>
 </body>
 </html>
