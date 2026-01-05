@@ -537,6 +537,29 @@
     </div>
   </div>
 
+  <!-- Modal Upgrade Pro -->
+  <div id="upgradeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); backdrop-filter:blur(8px); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:linear-gradient(180deg,#12121f,#0a0a14); border:1px solid rgba(255,255,255,.14); border-radius:24px; padding:40px; max-width:420px; width:90%; text-align:center;">
+      <div style="font-size:64px; margin-bottom:16px;">🚀</div>
+      <h2 style="font-size:24px; font-weight:700; margin:0 0 12px;">Passez à Pro !</h2>
+      <p style="color:rgba(255,255,255,.7); font-size:15px; line-height:1.6; margin-bottom:24px;">
+        Vous avez utilisé vos <strong>5 générations gratuites</strong>.<br>
+        Passez à Pro pour débloquer <strong>50 générations/mois</strong> et accéder à toutes les fonctionnalités avancées !
+      </p>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <a href="pricing.html" style="display:block; padding:16px 32px; background:linear-gradient(135deg,#6366f1,#a855f7,#ec4899); color:#fff; font-weight:700; font-size:16px; border-radius:999px; text-decoration:none; box-shadow:0 20px 50px rgba(99,102,241,.35);">
+          ⚡ Voir les offres Pro
+        </a>
+        <button onclick="closeUpgradeModal()" style="padding:14px 28px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); color:rgba(255,255,255,.8); font-size:14px; border-radius:999px; cursor:pointer;">
+          Plus tard
+        </button>
+      </div>
+      <p style="margin-top:20px; font-size:12px; color:rgba(255,255,255,.5);">
+        💡 À partir de 7 990 XPF/mois
+      </p>
+    </div>
+  </div>
+
   <script>
     // Firebase config
     const firebaseConfig = {
@@ -564,7 +587,7 @@
       const userDoc = await userRef.get();
       
       if (!userDoc.exists) {
-        // Nouveau utilisateur → créer avec tous les champs
+        // Nouveau utilisateur FREE → 5 crédits gratuits à vie
         await userRef.set({
           email: user.email,
           firstName: '',
@@ -575,7 +598,7 @@
           blocked: false,
           provider: user.providerData[0]?.providerId || 'email',
           plan: 'free',
-          generationsAvailable: 0,
+          generationsAvailable: 5, // 5 crédits gratuits pour les FREE
           lastBonusMonth: '',
           totalGenerations: 0,
           monthlyGenerations: 0,
@@ -586,6 +609,33 @@
         await userRef.update({
           lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
         });
+      }
+    }
+    
+    // Modal Upgrade
+    function showUpgradeModal() {
+      document.getElementById('upgradeModal').style.display = 'flex';
+    }
+    
+    function closeUpgradeModal() {
+      document.getElementById('upgradeModal').style.display = 'none';
+    }
+    
+    // Déduire un crédit après génération réussie
+    async function deductCredit() {
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      try {
+        const userRef = db.collection('users').doc(user.uid);
+        await userRef.update({
+          generationsAvailable: firebase.firestore.FieldValue.increment(-1),
+          totalGenerations: firebase.firestore.FieldValue.increment(1),
+          lastGenerationAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log('✅ Crédit déduit');
+      } catch (error) {
+        console.error('Erreur déduction crédit:', error);
       }
     }
     
@@ -790,6 +840,8 @@
             setOverlay(false);
             setStatus("Done ✅");
             showImage(r.image);
+            // Déduire un crédit (polling)
+            await deductCredit();
           } else if(r.status === "failed"){
             stopPolling();
             setOverlay(false);
@@ -874,6 +926,31 @@
         return;
       }
 
+      // === VÉRIFICATION DES CRÉDITS ===
+      const user = auth.currentUser;
+      if (!user) {
+        setStatus("Connectez-vous pour générer.");
+        return;
+      }
+      
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      const userData = userDoc.exists ? userDoc.data() : {};
+      const credits = userData.generationsAvailable || 0;
+      const plan = userData.plan || 'free';
+      
+      if (credits <= 0) {
+        setOverlay(false);
+        if (plan === 'free') {
+          setStatus("❌ Vous avez utilisé vos 5 générations gratuites.");
+          showUpgradeModal();
+        } else {
+          setStatus("❌ Plus de crédits disponibles. Achetez un pack de crédits.");
+          window.location.href = 'pricing.html';
+        }
+        return;
+      }
+      // === FIN VÉRIFICATION ===
+
       submitBtn.disabled = true;
       recheckBtn.disabled = true;
 
@@ -909,6 +986,9 @@
           setOverlay(false);
           setStatus("Done ✅");
           showImage(r.image);
+          
+          // Déduire un crédit
+          await deductCredit();
           
           // Sauvegarde dans l'historique
           saveGeneration({
