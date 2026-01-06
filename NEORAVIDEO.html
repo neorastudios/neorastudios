@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="neora-mobile.css">
+  <title>NEORA VIDEO</title>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="neora-auth-persist.js"></script>
+  
+  <style>
+    :root {
+      --bg0: #050714;
+      --bg1: #070a1a;
+      --card: rgba(255,255,255,.045);
+      --border: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.95);
+      --muted: rgba(255,255,255,.7);
+      --muted2: rgba(255,255,255,.5);
+      --radius: 20px;
+      --grad: linear-gradient(135deg, #8b5cf6, #ec4899 50%, #f97316);
+      --grad-video: linear-gradient(135deg, #ec4899, #8b5cf6);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: 
+        radial-gradient(1200px 600px at 20% 0%, rgba(236,72,153,.18), transparent 60%),
+        radial-gradient(900px 500px at 80% 10%, rgba(139,92,246,.15), transparent 55%),
+        radial-gradient(900px 700px at 50% 110%, rgba(249,115,22,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Topbar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: linear-gradient(180deg, rgba(5,7,20,.85), rgba(5,7,20,.6));
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .topbar-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: url('logo.jpg') center/cover;
+      box-shadow: 0 8px 30px rgba(236,72,153,.25);
+    }
+
+    .brand h1 {
+      font-size: 14px;
+      letter-spacing: .4em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.95);
+    }
+
+    .brand h1 span {
+      background: var(--grad-video);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .credits-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(236,72,153,.12);
+      border: 1px solid rgba(236,72,153,.25);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .credits-badge .icon { font-size: 16px; }
+    .credits-badge .count { color: #ec4899; }
+
+    .btn-nav {
+      padding: 10px 18px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      text-decoration: none;
+    }
+
+    .btn-nav:hover {
+      background: rgba(255,255,255,.1);
+      transform: translateY(-1px);
+    }
+
+    /* Main */
+    .main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .hero h2 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .hero h2 .gradient {
+      background: var(--grad-video);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* Upload Zone */
+    .upload-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .drop-zone {
+      border: 2px dashed rgba(255,255,255,.2);
+      border-radius: 16px;
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+      background: rgba(0,0,0,.2);
+    }
+
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: rgba(236,72,153,.5);
+      background: rgba(236,72,153,.05);
+    }
+
+    .drop-zone .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .drop-zone h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .drop-zone p {
+      font-size: 13px;
+      color: var(--muted2);
+    }
+
+    .file-input { display: none; }
+
+    /* Preview */
+    .preview-container {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .preview-container.active { display: block; }
+
+    .preview-image {
+      width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: rgba(0,0,0,.3);
+    }
+
+    .preview-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: rgba(0,0,0,.3);
+      border-radius: 12px;
+    }
+
+    .preview-name {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .btn-clear {
+      padding: 8px 14px;
+      background: rgba(239,68,68,.15);
+      border: 1px solid rgba(239,68,68,.3);
+      border-radius: 8px;
+      color: #ef4444;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Styles Grid */
+    .styles-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 28px;
+    }
+
+    .styles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .style-card {
+      padding: 16px 12px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .style-card:hover {
+      background: rgba(255,255,255,.08);
+      border-color: rgba(139,92,246,.3);
+      transform: translateY(-2px);
+    }
+
+    .style-card.selected {
+      background: rgba(139,92,246,.15);
+      border-color: rgba(139,92,246,.5);
+      box-shadow: 0 8px 30px rgba(139,92,246,.2);
+    }
+
+    .style-card .icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .style-card .name {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .style-card .desc {
+      font-size: 11px;
+      color: var(--muted2);
+    }
+
+    /* Custom Prompt */
+    .custom-prompt {
+      margin-top: 16px;
+      display: none;
+    }
+
+    .custom-prompt.active { display: block; }
+
+    .custom-prompt textarea {
+      width: 100%;
+      padding: 14px;
+      background: rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 14px;
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .custom-prompt textarea:focus {
+      outline: none;
+      border-color: rgba(139,92,246,.5);
+    }
+
+    /* Duration */
+    .duration-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 28px;
+    }
+
+    .duration-options {
+      display: flex;
+      gap: 16px;
+    }
+
+    .duration-btn {
+      flex: 1;
+      padding: 20px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 14px;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      text-align: center;
+    }
+
+    .duration-btn:hover {
+      background: rgba(255,255,255,.08);
+    }
+
+    .duration-btn.selected {
+      background: rgba(236,72,153,.15);
+      border-color: rgba(236,72,153,.5);
+    }
+
+    .duration-btn .time {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    .duration-btn .label {
+      font-size: 12px;
+      color: var(--muted2);
+    }
+
+    /* Generate Button */
+    .generate-section {
+      text-align: center;
+    }
+
+    .btn-generate {
+      padding: 20px 60px;
+      background: var(--grad-video);
+      border: none;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 15px 50px rgba(236,72,153,.35);
+      transition: all .25s;
+    }
+
+    .btn-generate:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 60px rgba(236,72,153,.45);
+    }
+
+    .btn-generate:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .generate-info {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--muted2);
+    }
+
+    /* Result Section */
+    .result-section {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-top: 28px;
+      text-align: center;
+    }
+
+    .result-section.active { display: block; }
+
+    .result-video {
+      width: 100%;
+      max-height: 450px;
+      border-radius: 16px;
+      background: #000;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .btn-download {
+      padding: 14px 32px;
+      background: var(--grad);
+      border: none;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .btn-new {
+      padding: 14px 32px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 999px;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.9);
+      backdrop-filter: blur(12px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .loading-overlay.active { display: flex; }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(255,255,255,.1);
+      border-top-color: #ec4899;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .loading-sub {
+      font-size: 14px;
+      color: var(--muted2);
+    }
+
+    /* Status */
+    .status-bar {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: rgba(0,0,0,.3);
+      border-radius: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* Upgrade Modal */
+    .upgrade-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.9);
+      backdrop-filter: blur(12px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .upgrade-modal.active { display: flex; }
+
+    .upgrade-content {
+      background: linear-gradient(180deg, #15152a, #0a0a14);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    .upgrade-content .icon { font-size: 56px; margin-bottom: 16px; }
+    .upgrade-content h3 { font-size: 24px; margin-bottom: 12px; }
+    .upgrade-content p { color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+
+    .btn-upgrade {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: var(--grad);
+      border: none;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none;
+      margin-bottom: 12px;
+    }
+
+    .btn-close-modal {
+      padding: 12px 24px;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .hero h2 { font-size: 28px; }
+      .styles-grid { grid-template-columns: repeat(2, 1fr); }
+      .duration-options { flex-direction: column; }
+      .btn-generate { width: 100%; padding: 18px; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo"></div>
+        <h1>NEORA <span>VIDEO</span></h1>
+      </div>
+      <div class="topbar-right">
+        <div class="credits-badge">
+          <span class="icon">🎬</span>
+          <span class="count" id="creditsCount">-</span>
+          <span>crédits</span>
+        </div>
+        <a href="selector.html" class="btn-nav">← Retour</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Hero -->
+    <div class="hero">
+      <h2>Anime tes images en <span class="gradient">vidéo</span></h2>
+      <p>Transforme n'importe quelle image en vidéo cinématique grâce à l'IA</p>
+    </div>
+
+    <!-- Upload Section -->
+    <section class="upload-section">
+      <div class="section-title">
+        <span>📤</span> Image source
+      </div>
+      <div class="drop-zone" id="dropZone">
+        <div class="icon">🖼️</div>
+        <h3>Glisse ton image ici</h3>
+        <p>ou clique pour parcourir • PNG, JPG, WebP</p>
+      </div>
+      <input type="file" id="fileInput" class="file-input" accept="image/png,image/jpeg,image/webp">
+      
+      <div class="preview-container" id="previewContainer">
+        <img id="previewImage" class="preview-image" src="" alt="Preview">
+        <div class="preview-info">
+          <span class="preview-name" id="previewName">image.png</span>
+          <button class="btn-clear" id="clearBtn">✕ Supprimer</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Styles Section -->
+    <section class="styles-section">
+      <div class="section-title">
+        <span>🎭</span> Style d'animation
+      </div>
+      <div class="styles-grid" id="stylesGrid">
+        <div class="style-card selected" data-style="zoom_in">
+          <div class="icon">🔍</div>
+          <div class="name">Zoom avant</div>
+          <div class="desc">Zoom cinématique</div>
+        </div>
+        <div class="style-card" data-style="zoom_out">
+          <div class="icon">🔭</div>
+          <div class="name">Zoom arrière</div>
+          <div class="desc">Révèle la scène</div>
+        </div>
+        <div class="style-card" data-style="pan_left">
+          <div class="icon">⬅️</div>
+          <div class="name">Travelling G</div>
+          <div class="desc">Pan horizontal</div>
+        </div>
+        <div class="style-card" data-style="pan_right">
+          <div class="icon">➡️</div>
+          <div class="name">Travelling D</div>
+          <div class="desc">Pan horizontal</div>
+        </div>
+        <div class="style-card" data-style="float">
+          <div class="icon">🌊</div>
+          <div class="name">Flottement</div>
+          <div class="desc">Mouvement doux</div>
+        </div>
+        <div class="style-card" data-style="rotate">
+          <div class="icon">🔄</div>
+          <div class="name">Rotation</div>
+          <div class="desc">Orbite 360°</div>
+        </div>
+        <div class="style-card" data-style="sparkle">
+          <div class="icon">✨</div>
+          <div class="name">Particules</div>
+          <div class="desc">Effets magiques</div>
+        </div>
+        <div class="style-card" data-style="reveal">
+          <div class="icon">🎬</div>
+          <div class="name">Révélation</div>
+          <div class="desc">Light rays</div>
+        </div>
+        <div class="style-card" data-style="breathe">
+          <div class="icon">💫</div>
+          <div class="name">Respiration</div>
+          <div class="desc">Pulsation</div>
+        </div>
+        <div class="style-card" data-style="custom">
+          <div class="icon">✏️</div>
+          <div class="name">Personnalisé</div>
+          <div class="desc">Ton prompt</div>
+        </div>
+      </div>
+      <div class="custom-prompt" id="customPrompt">
+        <textarea id="customPromptInput" placeholder="Décris l'animation que tu veux... Ex: Zoom lent avec des particules dorées qui apparaissent"></textarea>
+      </div>
+    </section>
+
+    <!-- Duration Section -->
+    <section class="duration-section">
+      <div class="section-title">
+        <span>⏱️</span> Durée de la vidéo
+      </div>
+      <div class="duration-options">
+        <button class="duration-btn selected" data-duration="5">
+          <div class="time">5s</div>
+          <div class="label">Rapide • 1 crédit</div>
+        </button>
+        <button class="duration-btn" data-duration="10">
+          <div class="time">10s</div>
+          <div class="label">Long • 2 crédits</div>
+        </button>
+      </div>
+    </section>
+
+    <!-- Generate Button -->
+    <section class="generate-section">
+      <button class="btn-generate" id="generateBtn" disabled>
+        🎬 Générer la vidéo
+      </button>
+      <div class="generate-info">
+        La génération prend environ 1-2 minutes
+      </div>
+      <div class="status-bar" id="statusBar" style="display: none;"></div>
+    </section>
+
+    <!-- Result Section -->
+    <section class="result-section" id="resultSection">
+      <div class="section-title" style="justify-content: center;">
+        <span>✅</span> Vidéo générée !
+      </div>
+      <video id="resultVideo" class="result-video" controls></video>
+      <div class="result-actions">
+        <a id="downloadBtn" class="btn-download" href="" download="neora-video.mp4">
+          📥 Télécharger
+        </a>
+        <button class="btn-new" id="newVideoBtn">
+          🔄 Nouvelle vidéo
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Génération en cours...</div>
+    <div class="loading-sub">Cela peut prendre 1-2 minutes</div>
+  </div>
+
+  <!-- Upgrade Modal -->
+  <div class="upgrade-modal" id="upgradeModal">
+    <div class="upgrade-content">
+      <div class="icon">🎬</div>
+      <h3>Crédits vidéo épuisés</h3>
+      <p>Tu as utilisé tous tes crédits vidéo. Achète des crédits supplémentaires pour continuer à créer des vidéos incroyables !</p>
+      <a href="pricing.html" class="btn-upgrade">⚡ Acheter des crédits</a>
+      <button class="btn-close-modal" onclick="closeUpgradeModal()">Plus tard</button>
+    </div>
+  </div>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCKPepYjXiY92hZPEdKxqOow9AACfMTOoc",
+      authDomain: "neorastudiosnc.firebaseapp.com",
+      projectId: "neorastudiosnc",
+      storageBucket: "neorastudiosnc.firebasestorage.app",
+      messagingSenderId: "275455765566",
+      appId: "1:275455765566:web:c2cf516fcb8f13de7e356f"
+    };
+    
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Config
+    const KLING_WEBHOOK_URL = 'https://n8n.srv1125399.hstgr.cloud/webhook/kling-video';
+    const CLOUDINARY_UPLOAD_URL = 'https://api.cloudinary.com/v1_1/diegfxcyl/image/upload';
+    const CLOUDINARY_UPLOAD_PRESET = 'neora_upload';
+    const FAL_API_KEY = 'fe2232cd-be9e-411f-9e5b-4e88bfcb3930:4539ba5f78d39afecdf730b00b3cba10';
+
+    // State
+    let selectedFile = null;
+    let selectedStyle = 'zoom_in';
+    let selectedDuration = '5';
+    let currentUser = null;
+    let videoCredits = 0;
+
+    // DOM Elements
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const previewImage = document.getElementById('previewImage');
+    const previewName = document.getElementById('previewName');
+    const clearBtn = document.getElementById('clearBtn');
+    const stylesGrid = document.getElementById('stylesGrid');
+    const customPrompt = document.getElementById('customPrompt');
+    const customPromptInput = document.getElementById('customPromptInput');
+    const generateBtn = document.getElementById('generateBtn');
+    const statusBar = document.getElementById('statusBar');
+    const resultSection = document.getElementById('resultSection');
+    const resultVideo = document.getElementById('resultVideo');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const newVideoBtn = document.getElementById('newVideoBtn');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const creditsCount = document.getElementById('creditsCount');
+
+    // Auth Check - Pro Only
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+      
+      currentUser = user;
+      
+      // Check if Pro
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      const userData = userDoc.exists ? userDoc.data() : {};
+      
+      if (userData.plan !== 'pro') {
+        // Not Pro - redirect
+        alert('NEORA VIDEO est réservé aux utilisateurs Pro.');
+        window.location.href = 'selector.html';
+        return;
+      }
+      
+      // Get video credits
+      videoCredits = userData.videoCreditsAvailable || 0;
+      creditsCount.textContent = videoCredits;
+    });
+
+    // File Upload
+    dropZone.addEventListener('click', () => fileInput.click());
+    
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+    
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        handleFile(file);
+      }
+    });
+    
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (file) handleFile(file);
+    });
+    
+    function handleFile(file) {
+      selectedFile = file;
+      previewImage.src = URL.createObjectURL(file);
+      previewName.textContent = file.name;
+      previewContainer.classList.add('active');
+      dropZone.style.display = 'none';
+      updateGenerateButton();
+    }
+    
+    clearBtn.addEventListener('click', () => {
+      selectedFile = null;
+      fileInput.value = '';
+      previewContainer.classList.remove('active');
+      dropZone.style.display = 'block';
+      updateGenerateButton();
+    });
+
+    // Style Selection
+    stylesGrid.addEventListener('click', (e) => {
+      const card = e.target.closest('.style-card');
+      if (!card) return;
+      
+      document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedStyle = card.dataset.style;
+      
+      if (selectedStyle === 'custom') {
+        customPrompt.classList.add('active');
+      } else {
+        customPrompt.classList.remove('active');
+      }
+    });
+
+    // Duration Selection
+    document.querySelectorAll('.duration-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.duration-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedDuration = btn.dataset.duration;
+      });
+    });
+
+    // Update Generate Button
+    function updateGenerateButton() {
+      generateBtn.disabled = !selectedFile;
+    }
+
+    // Generate Video
+    generateBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+      
+      // Check credits
+      const creditsNeeded = selectedDuration === '10' ? 2 : 1;
+      if (videoCredits < creditsNeeded) {
+        showUpgradeModal();
+        return;
+      }
+      
+      // Show loading
+      loadingOverlay.classList.add('active');
+      statusBar.style.display = 'block';
+      statusBar.textContent = '📤 Upload de l\'image...';
+      generateBtn.disabled = true;
+      
+      try {
+        // Upload to Cloudinary
+        const imageUrl = await uploadToCloudinary(selectedFile);
+        statusBar.textContent = '🎬 Génération de la vidéo...';
+        
+        // Call Kling API
+        const customPromptText = selectedStyle === 'custom' ? customPromptInput.value : '';
+        
+        const response = await fetch(KLING_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            image_url: imageUrl,
+            animation_style: selectedStyle,
+            duration: selectedDuration,
+            custom_prompt: customPromptText
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.video_url) {
+          // Video ready!
+          showResult(data.video_url);
+          await deductVideoCredits(creditsNeeded);
+        } else if (data.request_id) {
+          // Need to poll
+          statusBar.textContent = '⏳ Traitement en cours...';
+          await pollForResult(data.request_id, creditsNeeded);
+        } else {
+          throw new Error(data.message || 'Erreur inconnue');
+        }
+        
+      } catch (error) {
+        console.error('Error:', error);
+        statusBar.textContent = '❌ Erreur: ' + error.message;
+        loadingOverlay.classList.remove('active');
+        generateBtn.disabled = false;
+      }
+    });
+
+    // Upload to Cloudinary
+    async function uploadToCloudinary(file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      
+      const response = await fetch(CLOUDINARY_UPLOAD_URL, {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await response.json();
+      if (!data.secure_url) throw new Error('Upload failed');
+      return data.secure_url;
+    }
+
+    // Poll for result
+    async function pollForResult(requestId, creditsNeeded) {
+      const POLL_URL = `https://queue.fal.run/fal-ai/kling-video/v2.1/standard/image-to-video/requests/${requestId}`;
+      const maxAttempts = 60; // ~3 minutes
+      let attempts = 0;
+      
+      const poll = async () => {
+        attempts++;
+        statusBar.textContent = `⏳ Traitement en cours... (${attempts * 3}s)`;
+        
+        try {
+          // Check status first
+          const statusResponse = await fetch(`${POLL_URL}/status`, {
+            headers: { 'Authorization': `Key ${FAL_API_KEY}` }
+          });
+          const statusData = await statusResponse.json();
+          
+          if (statusData.status === 'COMPLETED') {
+            // Get result
+            const resultResponse = await fetch(POLL_URL, {
+              headers: { 'Authorization': `Key ${FAL_API_KEY}` }
+            });
+            const resultData = await resultResponse.json();
+            
+            if (resultData.video?.url) {
+              showResult(resultData.video.url);
+              await deductVideoCredits(creditsNeeded);
+              return;
+            }
+          } else if (statusData.status === 'FAILED') {
+            throw new Error('La génération a échoué');
+          }
+          
+          if (attempts < maxAttempts) {
+            setTimeout(poll, 3000);
+          } else {
+            throw new Error('Timeout - réessayez plus tard');
+          }
+          
+        } catch (error) {
+          console.error('Poll error:', error);
+          statusBar.textContent = '❌ ' + error.message;
+          loadingOverlay.classList.remove('active');
+          generateBtn.disabled = false;
+        }
+      };
+      
+      setTimeout(poll, 5000);
+    }
+
+    // Show Result
+    function showResult(videoUrl) {
+      loadingOverlay.classList.remove('active');
+      statusBar.style.display = 'none';
+      resultSection.classList.add('active');
+      resultVideo.src = videoUrl;
+      downloadBtn.href = videoUrl;
+      generateBtn.disabled = false;
+    }
+
+    // Deduct video credits
+    async function deductVideoCredits(amount) {
+      if (!currentUser) return;
+      
+      try {
+        await db.collection('users').doc(currentUser.uid).update({
+          videoCreditsAvailable: firebase.firestore.FieldValue.increment(-amount),
+          totalVideosGenerated: firebase.firestore.FieldValue.increment(1)
+        });
+        
+        videoCredits -= amount;
+        creditsCount.textContent = videoCredits;
+      } catch (error) {
+        console.error('Error deducting credits:', error);
+      }
+    }
+
+    // New Video
+    newVideoBtn.addEventListener('click', () => {
+      resultSection.classList.remove('active');
+      resultVideo.src = '';
+      selectedFile = null;
+      fileInput.value = '';
+      previewContainer.classList.remove('active');
+      dropZone.style.display = 'block';
+      updateGenerateButton();
+    });
+
+    // Upgrade Modal
+    function showUpgradeModal() {
+      document.getElementById('upgradeModal').classList.add('active');
+    }
+    
+    function closeUpgradeModal() {
+      document.getElementById('upgradeModal').classList.remove('active');
+    }
+  </script>
+</body>
+</html>

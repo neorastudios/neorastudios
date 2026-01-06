@@ -172,9 +172,9 @@
     
     .version-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      max-width: 900px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      max-width: 1100px;
       width: 100%;
     }
     
@@ -266,6 +266,22 @@
       color: #67e8f9;
     }
     
+    .version-card:nth-child(4) .version-badge {
+      background: linear-gradient(135deg, rgba(236,72,153,.3), rgba(249,115,22,.25));
+      border-color: rgba(236,72,153,.5);
+      color: #f472b6;
+    }
+    
+    .version-card:nth-child(4) {
+      background: linear-gradient(180deg, rgba(236,72,153,.08), rgba(255,255,255,.02));
+      border-color: rgba(236,72,153,.2);
+    }
+    
+    .version-card:nth-child(4):hover {
+      border-color: rgba(236,72,153,.6);
+      box-shadow: 0 30px 60px rgba(236,72,153,.25);
+    }
+    
     /* Loading overlay */
     .loading-overlay {
       position: fixed;
@@ -296,7 +312,13 @@
       to { transform: rotate(360deg); }
     }
     
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
+      .version-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 600px) {
       .version-grid {
         grid-template-columns: 1fr;
         max-width: 400px;
@@ -372,6 +394,15 @@
             <div class="version-name">NEORA PRO</div>
             <div class="version-desc">Version avancée avec options professionnelles</div>
             <div class="version-badge">Avancé</div>
+          </div>
+        </a>
+        
+        <a href="NEORAVIDEO.html" class="version-card">
+          <div class="version-card-inner">
+            <div class="version-icon">🎬</div>
+            <div class="version-name">NEORA VIDEO</div>
+            <div class="version-desc">Transforme tes images en vidéos cinématiques</div>
+            <div class="version-badge">✨ Nouveau</div>
           </div>
         </a>
       </div>
