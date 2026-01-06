@@ -604,11 +604,33 @@
           monthlyGenerations: 0,
           lastGenerationMonth: ''
         });
+        
+        // Envoyer l'email de bienvenue
+        sendWelcomeEmail(user.email);
       } else {
         // Utilisateur existant → mettre à jour lastLoginAt
         await userRef.update({
           lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
         });
+      }
+    }
+    
+    // Fonction pour envoyer l'email de bienvenue via n8n
+    async function sendWelcomeEmail(email) {
+      const WELCOME_WEBHOOK_URL = 'https://n8n.srv1125399.hstgr.cloud/webhook/welcome-email';
+      
+      try {
+        await fetch(WELCOME_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            firstName: email.split('@')[0]
+          })
+        });
+        console.log('✅ Email de bienvenue envoyé à', email);
+      } catch (error) {
+        console.error('❌ Erreur envoi email bienvenue:', error);
       }
     }
     
