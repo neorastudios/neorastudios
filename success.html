@@ -300,13 +300,19 @@
         
         // Check if user data has been updated recently (within last 2 minutes)
         const now = Date.now();
-        const upgradedAt = userData.upgradedAt?.toMillis();
+        
+        // Gère les deux formats : Firestore Timestamp ou String ISO
+        const upgradedAt = userData.upgradedAt?.toMillis?.() || 
+                          (userData.upgradedAt ? new Date(userData.upgradedAt).getTime() : 0);
         const lastCreditPurchase = userData.lastCreditPurchase ? new Date(userData.lastCreditPurchase).getTime() : 0;
         
         const recentUpdate = (upgradedAt && (now - upgradedAt) < 120000) || 
                             (lastCreditPurchase && (now - lastCreditPurchase) < 120000);
         
-        if (recentUpdate) {
+        // OU si l'utilisateur a le plan Pro avec des crédits (cas fallback)
+        const hasProWithCredits = userData.plan === 'pro' && (userData.generationsAvailable || 0) > 0;
+        
+        if (recentUpdate || hasProWithCredits) {
           // Webhook has updated the user!
           showSuccess(user, userData);
           return true;
