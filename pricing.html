@@ -105,7 +105,6 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
     }
     
     .logo {
@@ -119,14 +118,12 @@
       width: 40px; height: 40px;
       border-radius: var(--radius-md);
       background: url('logo.jpg') center/cover no-repeat;
-      flex: 0 0 auto;
     }
     
     .logo-text {
       font-size: 22px;
       font-weight: 700;
       color: var(--text-primary);
-      white-space: nowrap;
     }
     
     .logo-text span {
@@ -139,8 +136,6 @@
       display: flex;
       align-items: center;
       gap: 24px;
-      flex: 1 1 auto;
-      justify-content: center;
     }
     
     .nav-link {
@@ -149,7 +144,6 @@
       font-size: 14px;
       font-weight: 500;
       transition: color 0.2s;
-      white-space: nowrap;
     }
     
     .nav-link:hover { color: var(--text-primary); }
@@ -168,7 +162,6 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      white-space: nowrap;
     }
     
     .btn-ghost {
@@ -256,6 +249,51 @@
       margin: 0 auto;
     }
     
+    /* Toggle */
+    .pricing-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    
+    .toggle-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    
+    .toggle-label.active {
+      color: var(--text-primary);
+    }
+    
+    .toggle-switch {
+      width: 56px;
+      height: 30px;
+      background: rgba(255,255,255,0.1);
+      border-radius: var(--radius-full);
+      padding: 3px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    .toggle-switch.active {
+      background: var(--gradient-main);
+    }
+    
+    .toggle-knob {
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+    
+    .toggle-switch.active .toggle-knob {
+      transform: translateX(26px);
+    }
+    
     /* Section titles */
     .section-title {
       text-align: center;
@@ -274,19 +312,18 @@
       margin-bottom: 80px;
     }
     
-    /* ✅ 3 plans, responsive */
-    .subscription-grid{
+    .subscription-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 24px;
-      max-width: 1100px;
+      max-width: 900px;
       margin: 0 auto;
     }
-    @media (max-width: 1024px){
-      .subscription-grid{ grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 768px){
-      .subscription-grid{ grid-template-columns: 1fr; }
+    
+    @media (max-width: 768px) {
+      .subscription-grid {
+        grid-template-columns: 1fr;
+      }
     }
     
     .pricing-card {
@@ -330,7 +367,6 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: #fff;
     }
     
     .card-icon {
@@ -452,7 +488,6 @@
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.5px;
-      color: #fff;
     }
     
     .credit-icon {
@@ -535,7 +570,7 @@
     }
     
     .faq-item.active .faq-answer {
-      max-height: 220px;
+      max-height: 200px;
       padding-bottom: 24px;
     }
     
@@ -570,7 +605,7 @@
     .user-menu {
       display: none;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
     }
     
     .user-email {
@@ -596,9 +631,17 @@
     }
     
     @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .pricing-card { padding: 24px; }
-      .price-amount { font-size: 32px; }
+      .nav-links {
+        display: none;
+      }
+      
+      .pricing-card {
+        padding: 24px;
+      }
+      
+      .price-amount {
+        font-size: 32px;
+      }
     }
   </style>
 </head>
@@ -628,10 +671,7 @@
         <button class="btn btn-primary" onclick="window.location.href='index.html'">Commencer</button>
       </div>
       
-      <!-- ✅ corrigé: éléments utilisés par le JS -->
       <div class="user-menu" id="userMenu">
-        <span class="user-email" id="userEmail"></span>
-        <span class="user-plan" id="userPlan"></span>
         <button class="btn btn-ghost" onclick="logout()">Déconnexion</button>
       </div>
     </div>
@@ -669,29 +709,7 @@
             <li><span class="cross">✗</span> Pas d'accès aux versions Pro</li>
           </ul>
           
-          <button class="btn btn-outline btn-large" data-plan-btn="free" onclick="selectPlan('free')">Utiliser Free</button>
-        </div>
-
-        <!-- One-time Plan -->
-        <div class="pricing-card">
-          <div class="card-badge">Paiement unique</div>
-          <div class="card-icon">⚡</div>
-          <h3 class="card-name">Standard</h3>
-          <p class="card-description">Accès aux versions Pro avec un achat unique. Idéal pour un besoin ponctuel.</p>
-          
-          <div class="card-price">
-            <span class="price-amount">2 990 XPF</span>
-          </div>
-          
-          <ul class="card-features">
-            <li><span class="check">✓</span> NEORA PRO</li>
-            <li><span class="check">✓</span> 10 générations</li>
-            <li><span class="check">✓</span> Sans filigrane</li>
-            <li><span class="check">✓</span> Images en 1K</li>
-            <li><span class="cross">✗</span> Support prioritaire</li>
-          </ul>
-          
-          <button class="btn btn-outline btn-large" data-plan-btn="one" onclick="selectPlan('one')">Acheter </button>
+          <button class="btn btn-outline btn-large" onclick="selectPlan('free')">Plan actuel</button>
         </div>
         
         <!-- Pro Plan -->
@@ -707,14 +725,13 @@
           </div>
           
           <ul class="card-features">
-            <li><span class="check">✓</span> NEORA PRO, NEORA VIDEO</li>
+            <li><span class="check">✓</span> NEORA, NEORA PRO, NEORA PRODUITS</li>
             <li><span class="check">✓</span> 50 générations par mois</li>
             <li><span class="check">✓</span> Sans filigrane</li>
-            <li><span class="check">✓</span> Images en 2K</li>
             <li><span class="check">✓</span> Support prioritaire</li>
           </ul>
           
-          <button class="btn btn-primary btn-large" data-plan-btn="pro" onclick="selectPlan('pro')">Passer à Pro</button>
+          <button class="btn btn-primary btn-large" onclick="selectPlan('pro')">Passer à Pro</button>
         </div>
       </div>
     </section>
@@ -814,11 +831,10 @@
   <script>
     // Stripe Payment Links
     const PAYMENT_LINKS = {
-      pro: 'https://buy.stripe.com/5kQ3cvggjggt5eegvHao800',                 // Abonnement Pro mensuel
-      oneTime: 'https://buy.stripe.com/TON_LIEN_ONE_TIME_ICI',               // ✅ Plan paiement unique 2 990 XPF
-      starter: 'https://buy.stripe.com/28E00j1lpggtbCC2ERao801',             // Pack Starter 10 crédits
-      proPack: 'https://buy.stripe.com/28E9AT2pt7JXdKK0wJao802',             // Pack Pro 30 crédits
-      business: 'https://buy.stripe.com/28E8wP7JN4xLeOO5R3ao803'             // Pack Business 100 crédits
+      pro: 'https://buy.stripe.com/5kQ3cvggjggt5eegvHao800',           // Abonnement Pro mensuel
+      starter: 'https://buy.stripe.com/28E00j1lpggtbCC2ERao801',       // Pack Starter 10 crédits
+      proPack: 'https://buy.stripe.com/28E9AT2pt7JXdKK0wJao802',       // Pack Pro 30 crédits
+      business: 'https://buy.stripe.com/28E8wP7JN4xLeOO5R3ao803'       // Pack Business 100 crédits
     };
     
     // Firebase config
@@ -837,6 +853,8 @@
     
     let currentUser = null;
     let userPlan = 'free';
+    
+    // Auth state listener
     let authChecked = false;
     
     auth.onAuthStateChanged(async (user) => {
@@ -852,32 +870,30 @@
         // Update UI
         document.getElementById('navButtons').style.display = 'none';
         document.getElementById('userMenu').style.display = 'flex';
-
-        const emailEl = document.getElementById('userEmail');
-        if (emailEl) emailEl.textContent = user.email;
-
+        document.getElementById('userEmail').textContent = user.email;
+        
         const planBadge = document.getElementById('userPlan');
-        if (planBadge) {
-          planBadge.textContent = (userPlan || 'free').toUpperCase();
-          planBadge.classList.toggle('pro', userPlan === 'pro');
+        planBadge.textContent = userPlan.charAt(0).toUpperCase() + userPlan.slice(1);
+        if (userPlan === 'pro') {
+          planBadge.classList.add('pro');
         }
-
-        // Boutons plans
-        const btnFree = document.querySelector('[data-plan-btn="free"]');
-        const btnOne  = document.querySelector('[data-plan-btn="one"]');
-        const btnPro  = document.querySelector('[data-plan-btn="pro"]');
-
-        function setCurrent(btn){
-          if (!btn) return;
-          btn.textContent = 'Plan actuel';
-          btn.disabled = true;
-          btn.classList.remove('btn-primary');
-          btn.classList.add('btn-outline');
+        
+        // Update buttons based on plan
+        if (userPlan === 'free') {
+          const freeBtn = document.querySelector('.pricing-card:not(.featured) .btn');
+          if (freeBtn) {
+            freeBtn.textContent = 'Plan actuel';
+            freeBtn.disabled = true;
+          }
+        } else if (userPlan === 'pro') {
+          const proBtn = document.querySelector('.pricing-card.featured .btn');
+          if (proBtn) {
+            proBtn.textContent = 'Plan actuel';
+            proBtn.classList.remove('btn-primary');
+            proBtn.classList.add('btn-outline');
+            proBtn.disabled = true;
+          }
         }
-
-        if (userPlan === 'free') setCurrent(btnFree);
-        if (userPlan === 'one')  setCurrent(btnOne);
-        if (userPlan === 'pro')  setCurrent(btnPro);
       } else {
         document.getElementById('navButtons').style.display = 'flex';
         document.getElementById('userMenu').style.display = 'none';
@@ -903,26 +919,13 @@
     
     function selectPlan(plan) {
       if (!currentUser) {
-        alert('Veuillez vous connecter pour continuer.');
+        alert('Veuillez vous connecter pour souscrire à un plan.');
         window.location.href = 'index.html';
         return;
       }
       
       if (plan === 'free') {
-        alert("Plan gratuit sélectionné.");
-        return;
-      }
-      
-      if (plan === 'one') {
-        const link = PAYMENT_LINKS.oneTime;
-        if (!link || link.includes('TON_LIEN_ONE_TIME_ICI')) {
-          alert("Ajoute d'abord ton Payment Link Stripe pour le plan One-time.");
-          return;
-        }
-        const url = link
-          + '?prefilled_email=' + encodeURIComponent(currentUser.email)
-          + '&client_reference_id=' + currentUser.uid;
-        window.location.href = url;
+        alert('Vous êtes déjà sur le plan gratuit !');
         return;
       }
       
@@ -931,11 +934,9 @@
           alert('Vous êtes déjà abonné au plan Pro !');
           return;
         }
-        const url = PAYMENT_LINKS.pro
-          + '?prefilled_email=' + encodeURIComponent(currentUser.email)
-          + '&client_reference_id=' + currentUser.uid;
+        // Ajouter l'email et l'uid dans l'URL pour identifier l'utilisateur après paiement
+        const url = PAYMENT_LINKS.pro + '?prefilled_email=' + encodeURIComponent(currentUser.email) + '&client_reference_id=' + currentUser.uid;
         window.location.href = url;
-        return;
       }
     }
     
@@ -953,9 +954,8 @@
       };
       
       if (packLinks[pack]) {
-        const url = packLinks[pack]
-          + '?prefilled_email=' + encodeURIComponent(currentUser.email)
-          + '&client_reference_id=' + currentUser.uid;
+        // Ajouter l'email et l'uid dans l'URL
+        const url = packLinks[pack] + '?prefilled_email=' + encodeURIComponent(currentUser.email) + '&client_reference_id=' + currentUser.uid;
         window.location.href = url;
       }
     }
@@ -970,15 +970,14 @@
       const userDoc = await db.collection('users').doc(currentUser.uid).get();
       const plan = userDoc.exists ? (userDoc.data().plan || 'free') : 'free';
       
-      if (plan === 'pro' || plan === 'one') {
+      if (plan === 'pro') {
         window.location.href = 'selector.html';
       } else {
         window.location.href = 'NEORASIMPLE.html';
       }
     }
   </script>
-
-  <script src="neora-cache.js"></script>
-  <script src="neora-mobile-nav.js"></script>
+<script src="neora-cache.js"></script>
+<script src="neora-mobile-nav.js"></script>
 </body>
 </html>
