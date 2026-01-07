@@ -669,7 +669,7 @@
           <div class="row2" style="margin-top:12px;">
             <div>
               <label>Resolution</label>
-              <div class="pill"><span class="mono">2K</span></div>
+              <div class="pill"><span class="mono" id="resolutionPill">1K</span></div>
             </div>
             <div>
               <label for="aspectRatio">Aspect ratio</label>
@@ -826,7 +826,7 @@
       if (userDoc.exists) {
         const plan = userDoc.data().plan || 'free';
         if (plan === 'free') {
-          alert('Cette version nécessite un abonnement Pro. Vous allez être redirigé vers la page des tarifs.');
+          alert('Cette version nécessite un plan payant (Standard ou Pro). Vous allez être redirigé vers la page des tarifs.');
           window.location.href = 'pricing.html';
           return false;
         }
@@ -855,9 +855,12 @@
       if (userDoc.exists) {
         const data = userDoc.data();
         const currentMonth = getCurrentMonth();
-        
-        // Si nouveau mois → ajouter le bonus mensuel de 50
-        if (data.lastBonusMonth !== currentMonth) {
+
+        const plan = normalizePlan(data.plan);
+        updateQualityFromPlan(plan);
+
+        // Bonus mensuel UNIQUEMENT pour Pro
+        if (plan === 'pro' && data.lastBonusMonth !== currentMonth) {
           const currentGenerations = data.generationsAvailable || 0;
           generationsAvailable = currentGenerations + MONTHLY_BONUS;
           
@@ -934,11 +937,11 @@
       const hasAccess = await checkPlanAccess(user);
       if (!hasAccess) return;
       
-      // Sauvegarder le plan dans le cache
+      // Sauvegarder le plan dans le cache + appliquer la qualité (1K Standard / 2K Pro)
       const userDoc = await db.collection('users').doc(user.uid).get();
-      if (userDoc.exists && typeof NeoraAuth !== 'undefined') {
-        NeoraAuth.savePlan(userDoc.data().plan || 'free');
-      }
+      const plan = userDoc.exists ? (userDoc.data().plan || 'free') : 'free';
+      if (typeof NeoraAuth !== 'undefined') NeoraAuth.savePlan(plan);
+      updateQualityFromPlan(plan);
       
       // Charger les générations disponibles
       await loadGenerations(user);
@@ -992,7 +995,19 @@
     const clearModBtn = $("clear-mod-btn");
     const modStatusEl = $("modStatus");
 
-    const FIXED_RESOLUTION = "2K";
+    var FIXED_RESOLUTION = "1K";
+    var userPlan = "free";
+
+    function normalizePlan(p){
+      return (p || "free").toString().toLowerCase();
+    }
+
+    function updateQualityFromPlan(plan){
+      userPlan = normalizePlan(plan);
+      FIXED_RESOLUTION = (userPlan === "pro") ? "2K" : "1K";
+      const pill = document.getElementById("resolutionPill");
+      if (pill) pill.textContent = FIXED_RESOLUTION;
+    }
 
     let lastTaskId = null;
     let pollTimer = null;
