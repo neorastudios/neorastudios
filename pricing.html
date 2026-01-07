@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="neora-mobile.css">
+  <title>Tarifs — NEORA</title>
+  <meta name="description" content="Choisissez le plan NEORA adapté à vos besoins.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="neora-auth-persist.js"></script>
+  
+  <style>
+    :root {
+      --bg-primary: #030308;
+      --bg-secondary: #08080f;
+      --bg-card: rgba(255,255,255,0.02);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255,255,255,0.7);
+      --text-muted: rgba(255,255,255,0.5);
+      --accent-violet: #8b5cf6;
+      --accent-pink: #ec4899;
+      --accent-orange: #f97316;
+      --accent-green: #10b981;
+      --border-subtle: rgba(255,255,255,0.06);
+      --border-light: rgba(255,255,255,0.1);
+      --gradient-main: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f97316 100%);
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+      --font-display: 'Space Grotesk', sans-serif;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    /* Cacher les boutons nav jusqu'à ce que l'auth soit vérifiée */
+    #navButtons, #userMenu {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    body.auth-ready #navButtons,
+    body.auth-ready #userMenu {
+      opacity: 1;
+    }
+    
+    body {
+      font-family: var(--font-display);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+    
+    /* Background glow */
+    .bg-glow {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .bg-glow::before {
+      content: '';
+      position: absolute;
+      top: -40%; left: -20%;
+      width: 80%; height: 80%;
+      background: radial-gradient(ellipse, rgba(139,92,246,0.15) 0%, transparent 70%);
+    }
+    
+    .bg-glow::after {
+      content: '';
+      position: absolute;
+      bottom: -30%; right: -20%;
+      width: 70%; height: 70%;
+      background: radial-gradient(ellipse, rgba(236,72,153,0.12) 0%, transparent 70%);
+    }
+    
+    /* Navigation */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 16px 24px;
+      background: rgba(3,3,8,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    
+    .nav-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    
+    .logo-icon {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-md);
+      background: url('logo.jpg') center/cover no-repeat;
+    }
+    
+    .logo-text {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .logo-text span {
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    
+    .nav-link:hover { color: var(--text-primary); }
+    
+    .btn {
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      border: none;
+      font-family: var(--font-display);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+    }
+    
+    .btn-ghost:hover {
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.05);
+    }
+    
+    .btn-primary {
+      background: var(--gradient-main);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(139,92,246,0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(139,92,246,0.4);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      color: var(--text-primary);
+      border: 1px solid var(--border-light);
+    }
+    
+    .btn-outline:hover { 
+      background: rgba(255,255,255,0.05); 
+    }
+    
+    .btn-large { 
+      padding: 16px 32px; 
+      font-size: 16px; 
+      width: 100%;
+    }
+    
+    /* Main content */
+    .main {
+      position: relative;
+      z-index: 2;
+      padding: 120px 24px 80px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    
+    /* Header */
+    .pricing-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    
+    .pricing-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(139,92,246,0.1);
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      color: var(--accent-violet);
+      margin-bottom: 24px;
+    }
+    
+    .pricing-title {
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    
+    .pricing-title .gradient {
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .pricing-subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* Toggle */
+    .pricing-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    
+    .toggle-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    
+    .toggle-label.active {
+      color: var(--text-primary);
+    }
+    
+    .toggle-switch {
+      width: 56px;
+      height: 30px;
+      background: rgba(255,255,255,0.1);
+      border-radius: var(--radius-full);
+      padding: 3px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    .toggle-switch.active {
+      background: var(--gradient-main);
+    }
+    
+    .toggle-knob {
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+    
+    .toggle-switch.active .toggle-knob {
+      transform: translateX(26px);
+    }
+    
+    /* Section titles */
+    .section-title {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 32px;
+      color: var(--text-primary);
+    }
+    
+    .section-title .icon {
+      margin-right: 12px;
+    }
+    
+    /* Subscription cards */
+    .subscription-section {
+      margin-bottom: 80px;
+    }
+    
+    .subscription-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    @media (max-width: 768px) {
+      .subscription-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .pricing-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xl);
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    
+    .pricing-card.featured {
+      border-color: var(--accent-violet);
+      background: linear-gradient(180deg, rgba(139,92,246,0.1), rgba(255,255,255,0.02));
+    }
+    
+    .pricing-card.featured::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gradient-main);
+    }
+    
+    .card-badge {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 6px 12px;
+      background: var(--gradient-main);
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .card-icon {
+      font-size: 40px;
+      margin-bottom: 16px;
+    }
+    
+    .card-name {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .card-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    
+    .card-price {
+      margin-bottom: 24px;
+    }
+    
+    .price-amount {
+      font-size: 42px;
+      font-weight: 700;
+    }
+    
+    .price-amount.gradient {
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .price-period {
+      font-size: 16px;
+      color: var(--text-muted);
+    }
+    
+    .card-features {
+      list-style: none;
+      margin-bottom: 32px;
+    }
+    
+    .card-features li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      font-size: 14px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    
+    .card-features li:last-child {
+      border-bottom: none;
+    }
+    
+    .card-features .check {
+      color: var(--accent-green);
+      font-size: 16px;
+    }
+    
+    .card-features .cross {
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+    
+    /* Credits section */
+    .credits-section {
+      margin-bottom: 80px;
+    }
+    
+    .credits-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    @media (max-width: 900px) {
+      .credits-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .credit-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xl);
+      padding: 28px;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    }
+    
+    .credit-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      border-color: var(--accent-pink);
+    }
+    
+    .credit-card.popular {
+      border-color: var(--accent-pink);
+      background: linear-gradient(180deg, rgba(236,72,153,0.08), rgba(255,255,255,0.02));
+      position: relative;
+    }
+    
+    .credit-card.popular::before {
+      content: 'POPULAIRE';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 16px;
+      background: var(--accent-pink);
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    
+    .credit-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    
+    .credit-name {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .credit-amount {
+      font-size: 14px;
+      color: var(--accent-violet);
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding: 8px 16px;
+      background: rgba(139,92,246,0.1);
+      border-radius: var(--radius-full);
+      display: inline-block;
+    }
+    
+    .credit-price {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .credit-unit {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+    
+    /* FAQ Section */
+    .faq-section {
+      max-width: 800px;
+      margin: 0 auto 80px;
+    }
+    
+    .faq-item {
+      border-bottom: 1px solid var(--border-light);
+    }
+    
+    .faq-question {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 0;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 600;
+      font-family: var(--font-display);
+      cursor: pointer;
+      text-align: left;
+    }
+    
+    .faq-question:hover {
+      color: var(--accent-violet);
+    }
+    
+    .faq-icon {
+      font-size: 20px;
+      transition: transform 0.3s;
+    }
+    
+    .faq-item.active .faq-icon {
+      transform: rotate(45deg);
+    }
+    
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s, padding 0.3s;
+    }
+    
+    .faq-item.active .faq-answer {
+      max-height: 200px;
+      padding-bottom: 24px;
+    }
+    
+    .faq-answer p {
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    /* CTA Section */
+    .cta-section {
+      text-align: center;
+      padding: 60px 24px;
+      background: linear-gradient(180deg, rgba(139,92,246,0.1), transparent);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-light);
+    }
+    
+    .cta-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    
+    .cta-subtitle {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+    }
+    
+    /* User info in nav */
+    .user-menu {
+      display: none;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .user-email {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    
+    .user-plan {
+      padding: 6px 12px;
+      background: rgba(139,92,246,0.1);
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-violet);
+      text-transform: uppercase;
+    }
+    
+    .user-plan.pro {
+      background: var(--gradient-main);
+      border: none;
+      color: #fff;
+    }
+    
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+      
+      .pricing-card {
+        padding: 24px;
+      }
+      
+      .price-amount {
+        font-size: 32px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-glow"></div>
+  
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon"></div>
+        <div class="logo-text">Neora<span>.ai</span></div>
+      </a>
+      
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">🏠 Accueil</a>
+        <a href="#" class="nav-link" onclick="goToApp()">🚀 App</a>
+        <a href="pricing.html" class="nav-link" style="color: var(--text-primary);">💎 Tarifs</a>
+        <a href="historique.html" class="nav-link">📁 Historique</a>
+        <a href="profil.html" class="nav-link">👤 Profil</a>
+        <a href="contact.html" class="nav-link">📬 Contact</a>
+      </div>
+      
+      <div class="nav-buttons" id="navButtons">
+        <button class="btn btn-ghost" onclick="window.location.href='index.html'">Connexion</button>
+        <button class="btn btn-primary" onclick="window.location.href='index.html'">Commencer</button>
+      </div>
+      
+      <div class="user-menu" id="userMenu">
+        <button class="btn btn-ghost" onclick="logout()">Déconnexion</button>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- Main content -->
+  <main class="main">
+    <!-- Header -->
+    <div class="pricing-header">
+      <div class="pricing-badge">💎 Tarification simple</div>
+      <h1 class="pricing-title">Choisissez votre <span class="gradient">plan</span></h1>
+      <p class="pricing-subtitle">Commencez gratuitement, passez à Pro quand vous êtes prêt.</p>
+    </div>
+    
+    <!-- Subscription plans -->
+    <section class="subscription-section">
+      <h2 class="section-title"><span class="icon">⚡</span>Abonnements</h2>
+      
+      <div class="subscription-grid">
+        <!-- Free Plan -->
+        <div class="pricing-card">
+          <div class="card-icon">🆓</div>
+          <h3 class="card-name">Free</h3>
+          <p class="card-description">Parfait pour découvrir NEORA et tester la génération d'images.</p>
+          
+          <div class="card-price">
+            <span class="price-amount">0 XPF</span>
+            <span class="price-period">/ mois</span>
+          </div>
+          
+          <ul class="card-features">
+            <li><span class="check">✓</span> Accès à NEORA Simple</li>
+            <li><span class="check">✓</span> 5 générations</li>
+            <li><span class="cross">✗</span> Filigrane sur les images</li>
+            <li><span class="cross">✗</span> Pas d'accès aux versions Pro</li>
+          </ul>
+          
+          <button class="btn btn-outline btn-large" onclick="selectPlan('free')">Plan actuel</button>
+        </div>
+        
+        <!-- Pro Plan -->
+        <div class="pricing-card featured">
+          <div class="card-badge">Recommandé</div>
+          <div class="card-icon">👑</div>
+          <h3 class="card-name">Pro</h3>
+          <p class="card-description">Pour les professionnels qui veulent des visuels de qualité.</p>
+          
+          <div class="card-price">
+            <span class="price-amount gradient">7 990 XPF</span>
+            <span class="price-period">/ mois</span>
+          </div>
+          
+          <ul class="card-features">
+            <li><span class="check">✓</span> NEORA, NEORA PRO, NEORA PRODUITS</li>
+            <li><span class="check">✓</span> 50 générations par mois</li>
+            <li><span class="check">✓</span> Sans filigrane</li>
+            <li><span class="check">✓</span> Support prioritaire</li>
+          </ul>
+          
+          <button class="btn btn-primary btn-large" onclick="selectPlan('pro')">Passer à Pro</button>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Credit packs -->
+    <section class="credits-section">
+      <h2 class="section-title"><span class="icon">🎁</span>Packs de crédits</h2>
+      
+      <div class="credits-grid">
+        <!-- Starter Pack -->
+        <div class="credit-card">
+          <div class="credit-icon">🌱</div>
+          <h3 class="credit-name">Starter</h3>
+          <div class="credit-amount">10 crédits</div>
+          <div class="credit-price">1 990 XPF</div>
+          
+          <button class="btn btn-outline btn-large" onclick="buyCredits('starter')">Acheter</button>
+        </div>
+        
+        <!-- Pro Pack -->
+        <div class="credit-card popular">
+          <div class="credit-icon">🚀</div>
+          <h3 class="credit-name">Pro</h3>
+          <div class="credit-amount">30 crédits</div>
+          <div class="credit-price">4 990 XPF</div>
+          
+          <button class="btn btn-primary btn-large" onclick="buyCredits('pro')">Acheter</button>
+        </div>
+        
+        <!-- Business Pack -->
+        <div class="credit-card">
+          <div class="credit-icon">💼</div>
+          <h3 class="credit-name">Business</h3>
+          <div class="credit-amount">100 crédits</div>
+          <div class="credit-price">14 990 XPF</div>
+          
+          <button class="btn btn-outline btn-large" onclick="buyCredits('business')">Acheter</button>
+        </div>
+      </div>
+    </section>
+    
+    <!-- FAQ -->
+    <section class="faq-section">
+      <h2 class="section-title"><span class="icon">❓</span>Questions fréquentes</h2>
+      
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span>Comment fonctionnent les crédits ?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>1 crédit = 1 génération d'image. Les crédits n'expirent jamais et sont utilisables sur toutes les versions de NEORA (sauf NEORA Simple qui est illimité avec filigrane).</p>
+        </div>
+      </div>
+      
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span>Puis-je annuler mon abonnement ?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Oui, vous pouvez annuler à tout moment. Vous conserverez l'accès jusqu'à la fin de votre période de facturation.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span>Quelle est la différence entre abonnement et crédits ?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>L'abonnement Pro vous donne 50 générations par mois qui se renouvellent. Les packs de crédits sont des achats uniques qui ne se renouvellent pas mais n'expirent jamais.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span>Le filigrane peut-il être retiré ?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Le filigrane est uniquement présent sur NEORA Simple (version gratuite). Avec l'abonnement Pro ou les packs de crédits, vos images sont sans filigrane.</p>
+        </div>
+      </div>
+    </section>
+    
+    <!-- CTA -->
+    <section class="cta-section">
+      <h2 class="cta-title">Prêt à créer des visuels incroyables ?</h2>
+      <p class="cta-subtitle">Commencez gratuitement, sans carte bancaire requise.</p>
+      <button class="btn btn-primary btn-large" onclick="window.location.href='index.html'" style="width: auto;">
+        Commencer maintenant →
+      </button>
+    </section>
+  </main>
+  
+  <script>
+    // Stripe Payment Links
+    const PAYMENT_LINKS = {
+      pro: 'https://buy.stripe.com/5kQ3cvggjggt5eegvHao800',           // Abonnement Pro mensuel
+      starter: 'https://buy.stripe.com/28E00j1lpggtbCC2ERao801',       // Pack Starter 10 crédits
+      proPack: 'https://buy.stripe.com/28E9AT2pt7JXdKK0wJao802',       // Pack Pro 30 crédits
+      business: 'https://buy.stripe.com/28E8wP7JN4xLeOO5R3ao803'       // Pack Business 100 crédits
+    };
+    
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCKPepYjXiY92hZPEdKxqOow9AACfMTOoc",
+      authDomain: "neorastudiosnc.firebaseapp.com",
+      projectId: "neorastudiosnc",
+      storageBucket: "neorastudiosnc.firebasestorage.app",
+      messagingSenderId: "275455765566",
+      appId: "1:275455765566:web:c2cf516fcb8f13de7e356f"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    
+    let currentUser = null;
+    let userPlan = 'free';
+    
+    // Auth state listener
+    let authChecked = false;
+    
+    auth.onAuthStateChanged(async (user) => {
+      currentUser = user;
+      
+      if (user) {
+        // Get user plan
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        if (userDoc.exists) {
+          userPlan = userDoc.data().plan || 'free';
+        }
+        
+        // Update UI
+        document.getElementById('navButtons').style.display = 'none';
+        document.getElementById('userMenu').style.display = 'flex';
+        document.getElementById('userEmail').textContent = user.email;
+        
+        const planBadge = document.getElementById('userPlan');
+        planBadge.textContent = userPlan.charAt(0).toUpperCase() + userPlan.slice(1);
+        if (userPlan === 'pro') {
+          planBadge.classList.add('pro');
+        }
+        
+        // Update buttons based on plan
+        if (userPlan === 'free') {
+          const freeBtn = document.querySelector('.pricing-card:not(.featured) .btn');
+          if (freeBtn) {
+            freeBtn.textContent = 'Plan actuel';
+            freeBtn.disabled = true;
+          }
+        } else if (userPlan === 'pro') {
+          const proBtn = document.querySelector('.pricing-card.featured .btn');
+          if (proBtn) {
+            proBtn.textContent = 'Plan actuel';
+            proBtn.classList.remove('btn-primary');
+            proBtn.classList.add('btn-outline');
+            proBtn.disabled = true;
+          }
+        }
+      } else {
+        document.getElementById('navButtons').style.display = 'flex';
+        document.getElementById('userMenu').style.display = 'none';
+      }
+      
+      // Marquer l'auth comme vérifiée et afficher le contenu
+      if (!authChecked) {
+        authChecked = true;
+        document.body.classList.add('auth-ready');
+      }
+    });
+    
+    function logout() {
+      if (typeof NeoraAuth !== "undefined") NeoraAuth.clear();
+      auth.signOut().then(() => {
+        window.location.href = 'index.html';
+      });
+    }
+    
+    function toggleFaq(btn) {
+      btn.parentElement.classList.toggle('active');
+    }
+    
+    function selectPlan(plan) {
+      if (!currentUser) {
+        alert('Veuillez vous connecter pour souscrire à un plan.');
+        window.location.href = 'index.html';
+        return;
+      }
+      
+      if (plan === 'free') {
+        alert('Vous êtes déjà sur le plan gratuit !');
+        return;
+      }
+      
+      if (plan === 'pro') {
+        if (userPlan === 'pro') {
+          alert('Vous êtes déjà abonné au plan Pro !');
+          return;
+        }
+        // Ajouter l'email et l'uid dans l'URL pour identifier l'utilisateur après paiement
+        const url = PAYMENT_LINKS.pro + '?prefilled_email=' + encodeURIComponent(currentUser.email) + '&client_reference_id=' + currentUser.uid;
+        window.location.href = url;
+      }
+    }
+    
+    function buyCredits(pack) {
+      if (!currentUser) {
+        alert('Veuillez vous connecter pour acheter des crédits.');
+        window.location.href = 'index.html';
+        return;
+      }
+      
+      const packLinks = {
+        starter: PAYMENT_LINKS.starter,
+        pro: PAYMENT_LINKS.proPack,
+        business: PAYMENT_LINKS.business
+      };
+      
+      if (packLinks[pack]) {
+        // Ajouter l'email et l'uid dans l'URL
+        const url = packLinks[pack] + '?prefilled_email=' + encodeURIComponent(currentUser.email) + '&client_reference_id=' + currentUser.uid;
+        window.location.href = url;
+      }
+    }
+    
+    // Fonction pour aller à l'app selon le plan
+    async function goToApp() {
+      if (!currentUser) {
+        window.location.href = 'index.html';
+        return;
+      }
+      
+      const userDoc = await db.collection('users').doc(currentUser.uid).get();
+      const plan = userDoc.exists ? (userDoc.data().plan || 'free') : 'free';
+      
+      if (plan === 'pro') {
+        window.location.href = 'selector.html';
+      } else {
+        window.location.href = 'NEORASIMPLE.html';
+      }
+    }
+  </script>
+<script src="neora-cache.js"></script>
+<script src="neora-mobile-nav.js"></script>
+</body>
+</html>
