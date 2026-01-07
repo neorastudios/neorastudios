@@ -9,19 +9,19 @@
   <link rel="manifest" href="site.webmanifest">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mon Profil — NEORA</title>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="neora-auth-persist.js"></script>
-  
+
   <link rel="stylesheet" href="neora-mobile.css">
-  
+
   <style>
     :root {
       --bg-primary: #030308;
@@ -44,9 +44,9 @@
       --radius-full: 9999px;
       --font-display: 'Space Grotesk', sans-serif;
     }
-    
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
+
     body {
       font-family: var(--font-display);
       background: var(--bg-primary);
@@ -54,7 +54,7 @@
       min-height: 100vh;
       line-height: 1.6;
     }
-    
+
     /* Background glow */
     .bg-glow {
       position: fixed;
@@ -62,7 +62,7 @@
       pointer-events: none;
       z-index: 0;
     }
-    
+
     .bg-glow::before {
       content: '';
       position: absolute;
@@ -70,7 +70,7 @@
       width: 80%; height: 80%;
       background: radial-gradient(ellipse, rgba(139,92,246,0.12) 0%, transparent 70%);
     }
-    
+
     .bg-glow::after {
       content: '';
       position: absolute;
@@ -78,7 +78,7 @@
       width: 70%; height: 70%;
       background: radial-gradient(ellipse, rgba(236,72,153,0.08) 0%, transparent 70%);
     }
-    
+
     /* Navigation */
     .nav {
       position: sticky;
@@ -88,7 +88,7 @@
       backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border-light);
     }
-    
+
     .nav-inner {
       max-width: 1200px;
       margin: 0 auto;
@@ -96,58 +96,59 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 16px;
     }
-    
+
     .logo {
       display: flex;
       align-items: center;
       gap: 12px;
       text-decoration: none;
     }
-    
+
     .logo-icon {
       width: 40px;
       height: 40px;
       border-radius: var(--radius-md);
       overflow: hidden;
     }
-    
+
     .logo-icon img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
-    
+
     .logo-text {
       font-size: 24px;
       font-weight: 700;
       color: var(--text-primary);
+      white-space: nowrap;
     }
-    
+
     .logo-text span {
       background: var(--gradient-main);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    
+
     .nav-links {
       display: flex;
       align-items: center;
       gap: 32px;
     }
-    
+
     .nav-link {
       color: var(--text-secondary);
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
       transition: color 0.2s;
+      white-space: nowrap;
     }
-    
-    .nav-link:hover {
-      color: var(--text-primary);
-    }
-    
+
+    .nav-link:hover { color: var(--text-primary); }
+
     .btn {
       padding: 12px 24px;
       font-size: 14px;
@@ -162,40 +163,39 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
+      white-space: nowrap;
     }
-    
+
     .btn-primary {
       background: var(--gradient-main);
       color: #fff;
       box-shadow: 0 4px 20px rgba(139,92,246,0.3);
     }
-    
+
     .btn-primary:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 30px rgba(139,92,246,0.4);
     }
-    
+
     .btn-outline {
       background: transparent;
       color: var(--text-primary);
       border: 1px solid var(--border-light);
     }
-    
+
     .btn-outline:hover {
       background: rgba(255,255,255,0.05);
       border-color: rgba(255,255,255,0.2);
     }
-    
+
     .btn-danger {
       background: rgba(239,68,68,0.1);
       color: var(--accent-red);
       border: 1px solid rgba(239,68,68,0.2);
     }
-    
-    .btn-danger:hover {
-      background: rgba(239,68,68,0.2);
-    }
-    
+
+    .btn-danger:hover { background: rgba(239,68,68,0.2); }
+
     /* Main content */
     .main {
       position: relative;
@@ -204,7 +204,7 @@
       margin: 0 auto;
       padding: 48px 24px;
     }
-    
+
     /* Profile header */
     .profile-header {
       display: flex;
@@ -212,7 +212,7 @@
       gap: 24px;
       margin-bottom: 48px;
     }
-    
+
     .avatar {
       width: 100px;
       height: 100px;
@@ -227,31 +227,32 @@
       text-transform: uppercase;
       flex-shrink: 0;
     }
-    
+
     .avatar img {
       width: 100%;
       height: 100%;
       border-radius: 50%;
       object-fit: cover;
     }
-    
+
     .profile-info h1 {
       font-size: 28px;
       font-weight: 700;
       margin-bottom: 4px;
     }
-    
+
     .profile-info .email {
       color: var(--text-secondary);
       font-size: 14px;
       margin-bottom: 12px;
+      word-break: break-word;
     }
-    
+
     .profile-info .member-since {
       color: var(--text-muted);
       font-size: 13px;
     }
-    
+
     /* Stats grid */
     .stats-grid {
       display: grid;
@@ -259,7 +260,7 @@
       gap: 20px;
       margin-bottom: 48px;
     }
-    
+
     .stat-card {
       background: var(--bg-card);
       border: 1px solid var(--border-light);
@@ -267,12 +268,9 @@
       padding: 24px;
       text-align: center;
     }
-    
-    .stat-icon {
-      font-size: 32px;
-      margin-bottom: 12px;
-    }
-    
+
+    .stat-icon { font-size: 32px; margin-bottom: 12px; }
+
     .stat-value {
       font-size: 36px;
       font-weight: 700;
@@ -281,12 +279,9 @@
       -webkit-text-fill-color: transparent;
       margin-bottom: 4px;
     }
-    
-    .stat-label {
-      color: var(--text-secondary);
-      font-size: 14px;
-    }
-    
+
+    .stat-label { color: var(--text-secondary); font-size: 14px; }
+
     /* Cards */
     .card {
       background: var(--bg-card);
@@ -295,14 +290,15 @@
       padding: 32px;
       margin-bottom: 24px;
     }
-    
+
     .card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 24px;
+      gap: 12px;
     }
-    
+
     .card-title {
       font-size: 18px;
       font-weight: 600;
@@ -310,11 +306,9 @@
       align-items: center;
       gap: 10px;
     }
-    
-    .card-title .icon {
-      font-size: 20px;
-    }
-    
+
+    .card-title .icon { font-size: 20px; }
+
     /* Plan section */
     .plan-badge {
       display: inline-flex;
@@ -324,25 +318,32 @@
       border-radius: var(--radius-full);
       font-size: 14px;
       font-weight: 600;
+      white-space: nowrap;
     }
-    
+
     .plan-badge.free {
       background: rgba(255,255,255,0.1);
       color: var(--text-secondary);
     }
-    
+
+    .plan-badge.standard {
+      background: rgba(139,92,246,0.18);
+      border: 1px solid rgba(139,92,246,0.28);
+      color: #c4b5fd;
+    }
+
     .plan-badge.pro {
       background: var(--gradient-main);
       color: #fff;
     }
-    
+
     .plan-details {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 16px;
       margin-top: 20px;
     }
-    
+
     .plan-detail {
       display: flex;
       align-items: center;
@@ -351,64 +352,49 @@
       background: rgba(255,255,255,0.02);
       border-radius: var(--radius-md);
     }
-    
-    .plan-detail .icon {
-      font-size: 20px;
-    }
-    
+
+    .plan-detail .icon { font-size: 20px; }
+
     .plan-detail .label {
       color: var(--text-muted);
       font-size: 12px;
     }
-    
+
     .plan-detail .value {
       font-weight: 600;
       font-size: 14px;
     }
-    
+
     /* Generations bar */
-    .generations-bar {
-      margin-top: 20px;
-    }
-    
+    .generations-bar { margin-top: 20px; }
+
     .generations-header {
       display: flex;
       justify-content: space-between;
       margin-bottom: 10px;
+      gap: 12px;
     }
-    
-    .generations-label {
-      color: var(--text-secondary);
-      font-size: 14px;
-    }
-    
-    .generations-count {
-      font-weight: 600;
-      color: var(--accent-green);
-    }
-    
-    .generations-count.low {
-      color: var(--accent-orange);
-    }
-    
-    .generations-count.empty {
-      color: var(--accent-red);
-    }
-    
+
+    .generations-label { color: var(--text-secondary); font-size: 14px; }
+
+    .generations-count { font-weight: 600; color: var(--accent-green); }
+    .generations-count.low { color: var(--accent-orange); }
+    .generations-count.empty { color: var(--accent-red); }
+
     .progress-bar {
       height: 8px;
       background: rgba(255,255,255,0.1);
       border-radius: var(--radius-full);
       overflow: hidden;
     }
-    
+
     .progress-fill {
       height: 100%;
       background: var(--gradient-main);
       border-radius: var(--radius-full);
       transition: width 0.5s ease;
     }
-    
+
     /* Info rows */
     .info-row {
       display: flex;
@@ -416,53 +402,27 @@
       justify-content: space-between;
       padding: 16px 0;
       border-bottom: 1px solid var(--border-light);
+      gap: 16px;
     }
-    
-    .info-row:last-child {
-      border-bottom: none;
-    }
-    
-    .info-label {
-      color: var(--text-secondary);
-      font-size: 14px;
-    }
-    
-    .info-value {
-      font-weight: 500;
-      font-size: 14px;
-    }
-    
+
+    .info-row:last-child { border-bottom: none; }
+
+    .info-label { color: var(--text-secondary); font-size: 14px; }
+    .info-value { font-weight: 500; font-size: 14px; text-align: right; }
+
     /* Actions */
-    .actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
-    }
-    
+    .actions { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+
     /* Responsive */
     @media (max-width: 768px) {
-      .nav-links {
-        display: none;
-      }
-      
-      .profile-header {
-        flex-direction: column;
-        text-align: center;
-      }
-      
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .plan-details {
-        grid-template-columns: 1fr;
-      }
-      
-      .actions {
-        flex-direction: column;
-      }
+      .nav-links { display: none; }
+      .profile-header { flex-direction: column; text-align: center; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .plan-details { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+      .info-value { text-align: left; }
     }
-    
+
     /* Loading */
     .loading {
       display: flex;
@@ -471,8 +431,10 @@
       justify-content: center;
       min-height: 60vh;
       gap: 16px;
+      position: relative;
+      z-index: 1;
     }
-    
+
     .spinner {
       width: 40px;
       height: 40px;
@@ -481,18 +443,16 @@
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
     .hidden { display: none !important; }
   </style>
 </head>
 
 <body>
   <div class="bg-glow"></div>
-  
+
   <!-- Navigation -->
   <nav class="nav">
     <div class="nav-inner">
@@ -500,7 +460,7 @@
         <div class="logo-icon"><img src="logo.jpg" alt="NEORA"></div>
         <div class="logo-text">Neora<span>.ai</span></div>
       </a>
-      
+
       <div class="nav-links">
         <a href="index.html" class="nav-link">🏠 Accueil</a>
         <a href="#" class="nav-link" onclick="goToApp()">🚀 App</a>
@@ -509,17 +469,17 @@
         <a href="profil.html" class="nav-link">👤 Profil</a>
         <a href="contact.html" class="nav-link">📬 Contact</a>
       </div>
-      
+
       <button class="btn btn-outline" onclick="logout()">Déconnexion</button>
     </div>
   </nav>
-  
+
   <!-- Loading state -->
   <div class="loading" id="loadingState">
     <div class="spinner"></div>
     <p>Chargement du profil...</p>
   </div>
-  
+
   <!-- Main content -->
   <main class="main hidden" id="mainContent">
     <!-- Profile header -->
@@ -527,11 +487,11 @@
       <div class="avatar" id="avatar">?</div>
       <div class="profile-info">
         <h1 id="userName">Utilisateur</h1>
-        <p class="email" id="userEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e3868e828a8fa3869b828e938f86cd808c8e">[email&#160;protected]</a></p>
+        <p class="email" id="userEmail">--</p>
         <p class="member-since">Membre depuis <span id="memberSince">--</span></p>
       </div>
     </div>
-    
+
     <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card">
@@ -550,14 +510,14 @@
         <div class="stat-label">Jours d'ancienneté</div>
       </div>
     </div>
-    
+
     <!-- Plan -->
     <div class="card">
       <div class="card-header">
         <h2 class="card-title"><span class="icon">💳</span> Mon abonnement</h2>
         <span class="plan-badge free" id="planBadge">Free</span>
       </div>
-      
+
       <div class="plan-details">
         <div class="plan-detail">
           <span class="icon">📦</span>
@@ -566,15 +526,32 @@
             <div class="value" id="planName">Free</div>
           </div>
         </div>
+
         <div class="plan-detail">
           <span class="icon">🔄</span>
           <div>
             <div class="label">Renouvellement</div>
-            <div class="value" id="planRenewal">Chaque mois</div>
+            <div class="value" id="planRenewal">--</div>
+          </div>
+        </div>
+
+        <div class="plan-detail">
+          <span class="icon">🖼️</span>
+          <div>
+            <div class="label">Qualité image</div>
+            <div class="value" id="planQuality">--</div>
+          </div>
+        </div>
+
+        <div class="plan-detail">
+          <span class="icon">💡</span>
+          <div>
+            <div class="label">Accès</div>
+            <div class="value" id="planAccess">--</div>
           </div>
         </div>
       </div>
-      
+
       <div class="generations-bar">
         <div class="generations-header">
           <span class="generations-label">Générations disponibles</span>
@@ -584,20 +561,20 @@
           <div class="progress-fill" id="progressFill" style="width: 0%"></div>
         </div>
       </div>
-      
+
       <div class="actions" id="planActions">
         <a href="pricing.html" class="btn btn-primary" id="upgradeBtn">⬆️ Passer à Pro</a>
         <a href="pricing.html" class="btn btn-outline">🛒 Acheter des crédits</a>
         <button class="btn btn-outline hidden" id="manageSubBtn" onclick="manageSubscription()">⚙️ Gérer mon abonnement</button>
       </div>
     </div>
-    
+
     <!-- Account info -->
     <div class="card">
       <div class="card-header">
         <h2 class="card-title"><span class="icon">👤</span> Informations du compte</h2>
       </div>
-      
+
       <div class="info-row">
         <span class="info-label">Email</span>
         <span class="info-value" id="infoEmail">--</span>
@@ -615,7 +592,7 @@
         <span class="info-value" id="infoLastLogin">--</span>
       </div>
     </div>
-    
+
     <!-- Danger zone -->
     <div class="card" style="border-color: rgba(239,68,68,0.2);">
       <div class="card-header">
@@ -631,7 +608,7 @@
     </div>
   </main>
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  <script>
     // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCKPepYjXiY92hZPEdKxqOow9AACfMTOoc",
@@ -641,14 +618,22 @@
       messagingSenderId: "275455765566",
       appId: "1:275455765566:web:c2cf516fcb8f13de7e356f"
     };
-    
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    
+
     let currentUser = null;
     let userData = null;
-    
+
+    // Helper: normalise plan (supporte "standard" ET "one")
+    function normalizePlan(plan) {
+      const p = String(plan || "free").toLowerCase();
+      if (p === "one" || p === "standard") return "standard";
+      if (p === "pro") return "pro";
+      return "free";
+    }
+
     // Auth state listener
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
@@ -656,48 +641,42 @@
         window.location.href = 'index.html';
         return;
       }
-      
-      // Sauvegarder dans le cache
+
       if (typeof NeoraAuth !== 'undefined') NeoraAuth.saveUser(user);
-      
+
       currentUser = user;
       await loadUserProfile(user);
     });
-    
+
     async function loadUserProfile(user) {
       try {
-        // Get user data from Firestore
         const userDoc = await db.collection('users').doc(user.uid).get();
-        
+
         if (userDoc.exists) {
           userData = userDoc.data();
-          // Sauvegarder le plan dans le cache
           if (typeof NeoraAuth !== 'undefined') {
             NeoraAuth.savePlan(userData.plan || 'free');
           }
         } else {
           userData = {};
         }
-        
-        // Get total generations count
+
         const generationsSnap = await db.collection('generations')
           .where('userId', '==', user.uid)
           .get();
         const totalGenerations = generationsSnap.size;
-        
-        // Update UI
+
         updateProfileUI(user, userData, totalGenerations);
-        
-        // Show content
+
         document.getElementById('loadingState').classList.add('hidden');
         document.getElementById('mainContent').classList.remove('hidden');
-        
+
       } catch (error) {
         console.error('Error loading profile:', error);
         alert('Erreur lors du chargement du profil.');
       }
     }
-    
+
     function updateProfileUI(user, data, totalGenerations) {
       // Avatar
       const avatar = document.getElementById('avatar');
@@ -706,13 +685,13 @@
       } else {
         avatar.textContent = (user.email || '?').charAt(0).toUpperCase();
       }
-      
+
       // Name & email
       const displayName = user.displayName || user.email.split('@')[0];
       document.getElementById('userName').textContent = displayName;
       document.getElementById('userEmail').textContent = user.email;
       document.getElementById('infoEmail').textContent = user.email;
-      
+
       // Provider
       const provider = data.provider || user.providerData[0]?.providerId || 'email';
       const providerNames = {
@@ -721,69 +700,99 @@
         'email': '📧 Email'
       };
       document.getElementById('infoProvider').textContent = providerNames[provider] || provider;
-      
+
       // Dates
       const createdAt = data.createdAt?.toDate?.() || new Date(user.metadata.creationTime);
       const lastLogin = data.lastLoginAt?.toDate?.() || new Date(user.metadata.lastSignInTime);
-      
+
       document.getElementById('memberSince').textContent = formatDate(createdAt);
       document.getElementById('infoCreatedAt').textContent = formatDateTime(createdAt);
       document.getElementById('infoLastLogin').textContent = formatDateTime(lastLogin);
-      
+
       // Days since signup
       const days = Math.floor((new Date() - createdAt) / (1000 * 60 * 60 * 24));
       document.getElementById('statDays').textContent = days;
-      
+
       // Plan
-      const plan = data.plan || 'free';
+      const plan = normalizePlan(data.plan || 'free');
       const planBadge = document.getElementById('planBadge');
       const planName = document.getElementById('planName');
+      const planRenewal = document.getElementById('planRenewal');
+      const planQuality = document.getElementById('planQuality');
+      const planAccess = document.getElementById('planAccess');
+
       const upgradeBtn = document.getElementById('upgradeBtn');
       const manageSubBtn = document.getElementById('manageSubBtn');
-      
+
+      // reset classes
+      planBadge.classList.remove('free', 'standard', 'pro');
+
       if (plan === 'pro') {
         planBadge.textContent = '⭐ Pro';
-        planBadge.classList.remove('free');
         planBadge.classList.add('pro');
         planName.textContent = 'Pro';
+        planRenewal.textContent = 'Chaque mois';
+        planQuality.textContent = '2K';
+        planAccess.textContent = 'Accès versions Pro';
+
         upgradeBtn.textContent = '✅ Abonnement actif';
         upgradeBtn.classList.remove('btn-primary');
         upgradeBtn.classList.add('btn-outline');
         upgradeBtn.style.pointerEvents = 'none';
-        
-        // Afficher le bouton de gestion si l'utilisateur a un stripeCustomerId
-        if (data.stripeCustomerId) {
-          manageSubBtn.classList.remove('hidden');
-        }
+
+        // Bouton portail Stripe: seulement Pro + stripeCustomerId
+        if (data.stripeCustomerId) manageSubBtn.classList.remove('hidden');
+        else manageSubBtn.classList.add('hidden');
+
+      } else if (plan === 'standard') {
+        planBadge.textContent = '⚡ Standard';
+        planBadge.classList.add('standard');
+        planName.textContent = 'Standard';
+        planRenewal.textContent = 'Paiement unique';
+        planQuality.textContent = '1K';
+        planAccess.textContent = 'Accès versions Pro';
+
+        // Standard peut upgrade vers Pro
+        upgradeBtn.textContent = '⬆️ Passer à Pro';
+        upgradeBtn.classList.remove('btn-outline');
+        upgradeBtn.classList.add('btn-primary');
+        upgradeBtn.style.pointerEvents = 'auto';
+
+        manageSubBtn.classList.add('hidden');
+
       } else {
         planBadge.textContent = 'Free';
-        planBadge.classList.remove('pro');
         planBadge.classList.add('free');
         planName.textContent = 'Free';
+        planRenewal.textContent = '—';
+        planQuality.textContent = '—';
+        planAccess.textContent = 'NEORA Simple';
+
+        upgradeBtn.textContent = '⬆️ Passer à Pro';
+        upgradeBtn.classList.remove('btn-outline');
+        upgradeBtn.classList.add('btn-primary');
+        upgradeBtn.style.pointerEvents = 'auto';
+
         manageSubBtn.classList.add('hidden');
       }
-      
+
       // Generations
       const generations = data.generationsAvailable || 0;
       document.getElementById('statGenerations').textContent = generations;
       document.getElementById('generationsCount').textContent = `${generations} disponibles`;
-      
-      // Progress bar (based on 100 max for visual)
+
       const progressPercent = Math.min((generations / 100) * 100, 100);
       document.getElementById('progressFill').style.width = `${progressPercent}%`;
-      
-      // Color based on count
+
       const countEl = document.getElementById('generationsCount');
-      if (generations <= 0) {
-        countEl.classList.add('empty');
-      } else if (generations <= 10) {
-        countEl.classList.add('low');
-      }
-      
+      countEl.classList.remove('empty', 'low');
+      if (generations <= 0) countEl.classList.add('empty');
+      else if (generations <= 10) countEl.classList.add('low');
+
       // Total generations
       document.getElementById('statTotalGenerations').textContent = totalGenerations;
     }
-    
+
     function formatDate(date) {
       return new Intl.DateTimeFormat('fr-FR', {
         day: 'numeric',
@@ -791,7 +800,7 @@
         year: 'numeric'
       }).format(date);
     }
-    
+
     function formatDateTime(date) {
       return new Intl.DateTimeFormat('fr-FR', {
         day: 'numeric',
@@ -801,80 +810,65 @@
         minute: '2-digit'
       }).format(date);
     }
-    
+
     function logout() {
       if (typeof NeoraAuth !== 'undefined') NeoraAuth.clear();
       auth.signOut().then(() => {
         window.location.href = 'index.html';
       });
     }
-    
+
     function resetPassword() {
       if (!currentUser?.email) return;
-      
+
       if (confirm('Voulez-vous recevoir un email pour réinitialiser votre mot de passe ?')) {
         auth.sendPasswordResetEmail(currentUser.email)
-          .then(() => {
-            alert('Email envoyé ! Vérifiez votre boîte de réception.');
-          })
-          .catch((error) => {
-            alert('Erreur : ' + error.message);
-          });
+          .then(() => alert('Email envoyé ! Vérifiez votre boîte de réception.'))
+          .catch((error) => alert('Erreur : ' + error.message));
       }
     }
-    
+
     function confirmDeleteAccount() {
       const confirmation = prompt('Pour supprimer votre compte, tapez "SUPPRIMER" :');
-      
-      if (confirmation === 'SUPPRIMER') {
-        deleteAccount();
-      } else if (confirmation !== null) {
-        alert('Texte incorrect. Suppression annulée.');
-      }
+      if (confirmation === 'SUPPRIMER') deleteAccount();
+      else if (confirmation !== null) alert('Texte incorrect. Suppression annulée.');
     }
-    
+
     async function deleteAccount() {
       try {
-        // Delete user data from Firestore
         await db.collection('users').doc(currentUser.uid).delete();
-        
-        // Delete user generations
+
         const generations = await db.collection('generations')
           .where('userId', '==', currentUser.uid)
           .get();
-        
+
         const batch = db.batch();
-        generations.forEach(doc => {
-          batch.delete(doc.ref);
-        });
+        generations.forEach(doc => batch.delete(doc.ref));
         await batch.commit();
-        
-        // Delete Firebase auth account
+
         await currentUser.delete();
-        
+
         alert('Votre compte a été supprimé.');
         window.location.href = 'index.html';
-        
+
       } catch (error) {
         console.error('Error deleting account:', error);
         if (error.code === 'auth/requires-recent-login') {
           alert('Pour des raisons de sécurité, veuillez vous reconnecter avant de supprimer votre compte.');
-          auth.signOut().then(() => {
-            window.location.href = 'index.html';
-          });
+          auth.signOut().then(() => window.location.href = 'index.html');
         } else {
           alert('Erreur lors de la suppression : ' + error.message);
         }
       }
     }
-    
-    // Gérer l'abonnement via le portail Stripe
+
+    // Gérer l'abonnement via le portail Stripe (Pro uniquement)
     function manageSubscription() {
       if (!userData || !userData.stripeCustomerId) {
         alert('Impossible de trouver votre abonnement. Contactez le support.');
         return;
       }
-      
+
       const choice = confirm(
         'Vous allez être redirigé vers le portail Stripe pour gérer votre abonnement.\n\n' +
         'Vous pourrez :\n' +
@@ -883,53 +877,43 @@
         '• Annuler votre abonnement\n\n' +
         'Continuer ?'
       );
-      
+
       if (choice) {
         window.location.href = 'https://billing.stripe.com/p/login/6oU5kE19zcgQg6L2pQ7ok00';
       }
     }
-    
+
     // Fonction pour aller à l'app selon le plan
     async function goToApp() {
-      // D'abord vérifier le cache pour une réponse instantanée
+      // Cache d'abord
       if (typeof NeoraAuth !== 'undefined') {
         const cached = NeoraAuth.getCachedUser();
         if (cached && cached.plan) {
-          if (cached.plan === 'pro') {
-            window.location.href = 'selector.html';
-          } else {
-            window.location.href = 'NEORASIMPLE.html';
-          }
+          const p = normalizePlan(cached.plan);
+          window.location.href = (p === 'pro' || p === 'standard') ? 'selector.html' : 'NEORASIMPLE.html';
           return;
         }
       }
-      
-      // Sinon utiliser les données chargées
+
+      // Données chargées ensuite
       if (userData && userData.plan) {
-        if (userData.plan === 'pro') {
-          window.location.href = 'selector.html';
-        } else {
-          window.location.href = 'NEORASIMPLE.html';
-        }
+        const p = normalizePlan(userData.plan);
+        window.location.href = (p === 'pro' || p === 'standard') ? 'selector.html' : 'NEORASIMPLE.html';
         return;
       }
-      
-      // En dernier recours, vérifier Firebase
+
+      // Dernier recours
       if (!currentUser) {
         window.location.href = 'index.html';
         return;
       }
-      
-      const plan = userData?.plan || 'free';
-      
-      if (plan === 'pro') {
-        window.location.href = 'selector.html';
-      } else {
-        window.location.href = 'NEORASIMPLE.html';
-      }
+
+      const p = normalizePlan(userData?.plan || 'free');
+      window.location.href = (p === 'pro' || p === 'standard') ? 'selector.html' : 'NEORASIMPLE.html';
     }
   </script>
-<script src="neora-cache.js"></script>
-<script src="neora-mobile-nav.js"></script>
+
+  <script src="neora-cache.js"></script>
+  <script src="neora-mobile-nav.js"></script>
 </body>
 </html>
