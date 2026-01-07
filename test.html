@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NEORA — Test Stripe Standard (TEST)</title>
-  <meta name="description" content="Page de test Stripe + Webhook + Firestore (NEORA Standard)." />
+  <title>NEORA — Stripe Test Center</title>
+  <meta name="description" content="Tester Stripe Payment Links + Webhook n8n + Firestore (NEORA)." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,19 +17,16 @@
 
   <style>
     :root{
-      --bg0:#030308;
-      --bg1:#08080f;
-      --card: rgba(255,255,255,0.04);
-      --border: rgba(255,255,255,0.10);
+      --bg0:#030308; --bg1:#08080f;
+      --card: rgba(255,255,255,0.045);
+      --border: rgba(255,255,255,0.12);
       --text: rgba(255,255,255,0.92);
       --muted: rgba(255,255,255,0.65);
       --grad: linear-gradient(135deg,#8b5cf6 0%, #ec4899 50%, #f97316 100%);
       --radius: 18px;
-      --shadow: 0 20px 60px rgba(0,0,0,0.55);
-      --ok: #10b981;
-      --warn:#f59e0b;
-      --bad:#ef4444;
-      font-family: "Space Grotesk", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      --shadow: 0 20px 70px rgba(0,0,0,0.55);
+      --ok:#10b981; --warn:#f59e0b; --bad:#ef4444;
+      font-family:"Space Grotesk",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     }
     *{box-sizing:border-box;margin:0;padding:0}
     body{
@@ -38,150 +35,114 @@
         radial-gradient(1100px 600px at 20% 0%, rgba(99,102,241,.22), transparent 60%),
         radial-gradient(900px 500px at 80% 10%, rgba(236,72,153,.18), transparent 55%),
         radial-gradient(900px 700px at 50% 110%, rgba(34,211,238,.12), transparent 55%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
-      color: var(--text);
-      padding: 28px 18px;
+        linear-gradient(180deg,var(--bg0),var(--bg1));
+      color:var(--text);
+      padding: 26px 18px;
     }
-    .wrap{
-      max-width: 980px;
-      margin: 0 auto;
-    }
-    .top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
-      margin-bottom:18px;
-    }
-    .brand{
-      display:flex;align-items:center;gap:12px;
-    }
-    .logo{
-      width:44px;height:44px;border-radius:14px;
-      background: var(--grad);
-      box-shadow: 0 18px 45px rgba(139,92,246,.25);
-    }
-    h1{
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-    }
+    .wrap{max-width:1100px;margin:0 auto}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:46px;height:46px;border-radius:16px;background:var(--grad);box-shadow:0 18px 50px rgba(139,92,246,.25)}
+    h1{font-size:18px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
     .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 8px 12px;
-      border-radius: 999px;
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 12px;border-radius:999px;
       border:1px solid var(--border);
       background: rgba(255,255,255,0.03);
       color: var(--muted);
-      font-size: 12px;
-      white-space: nowrap;
+      font-size:12px;white-space:nowrap;
     }
-    .pill b{
-      color: #fff;
-      font-weight: 700;
-    }
-    .grid{
-      display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap: 16px;
-    }
-    @media (max-width: 860px){
-      .grid{grid-template-columns:1fr}
-    }
+    .pill b{color:#fff;font-weight:700}
+    .grid{display:grid;grid-template-columns: 1.05fr .95fr;gap:14px}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
       border:1px solid var(--border);
       border-radius: var(--radius);
-      padding: 18px;
+      padding:16px;
       box-shadow: var(--shadow);
     }
-    .card h2{
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
-    .sub{
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-      margin-bottom: 14px;
-    }
+    .card h2{font-size:15px;margin-bottom:10px}
+    .sub{color:var(--muted);font-size:13px;line-height:1.5;margin-bottom:12px}
     .row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      font-size: 13px;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:10px 0;
+      border-bottom:1px solid rgba(255,255,255,0.07);
+      font-size:13px;
     }
     .row:last-child{border-bottom:none}
-    .k{color: var(--muted)}
-    .v{font-weight: 600; word-break: break-all; text-align:right}
-    .btns{
-      display:flex;
-      flex-wrap:wrap;
-      gap: 10px;
-      margin-top: 14px;
-    }
+    .k{color:var(--muted)}
+    .v{font-weight:600;word-break:break-all;text-align:right}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
     button{
-      border:none;
-      cursor:pointer;
-      border-radius: 999px;
-      padding: 12px 16px;
-      font-weight: 700;
-      font-size: 13px;
+      border:none;cursor:pointer;
+      border-radius:999px;
+      padding:12px 14px;
+      font-weight:800;
+      font-size:13px;
       color:#fff;
       background: rgba(255,255,255,0.06);
       border:1px solid var(--border);
       transition: transform .15s ease, background .15s ease;
+      white-space:nowrap;
     }
-    button:hover{transform: translateY(-1px); background: rgba(255,255,255,0.09);}
-    .primary{
+    button:hover{transform: translateY(-1px); background: rgba(255,255,255,0.10);}
+    button.primary{
       background: var(--grad);
       border:none;
-      box-shadow: 0 14px 40px rgba(139,92,246,.25);
+      box-shadow: 0 14px 44px rgba(139,92,246,.25);
     }
-    .primary:hover{background: var(--grad)}
-    .danger{
-      border:1px solid rgba(239,68,68,.45);
+    button.primary:hover{background: var(--grad)}
+    button.danger{
       background: rgba(239,68,68,.12);
+      border:1px solid rgba(239,68,68,.45);
     }
+    button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    .section{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08)}
+    .btn-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media(max-width:560px){.btn-grid{grid-template-columns:1fr}}
+    .btnCard{
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.02);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+    }
+    .btnCard .left{display:flex;flex-direction:column;gap:2px}
+    .btnCard .name{font-weight:800}
+    .btnCard .desc{font-size:12px;color:var(--muted);line-height:1.35}
     .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 8px 12px;
-      border-radius: 12px;
-      border:1px solid var(--border);
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 12px;border-radius:14px;
+      border:1px solid rgba(255,255,255,0.12);
       background: rgba(255,255,255,0.03);
-      font-size: 12px;
       color: var(--muted);
-      margin-top: 10px;
+      font-size:12px;
+      margin-top:10px;
     }
-    .dot{
-      width:10px;height:10px;border-radius:50%;
-      background: rgba(255,255,255,0.35);
-    }
+    .dot{width:10px;height:10px;border-radius:50%;background: rgba(255,255,255,0.35)}
     .dot.ok{background: var(--ok)}
     .dot.warn{background: var(--warn)}
     .dot.bad{background: var(--bad)}
-    code{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 12px;
-      color: rgba(255,255,255,0.85);
-    }
     .hint{
-      margin-top: 12px;
-      padding: 12px 14px;
-      border-radius: 14px;
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:14px;
       border:1px dashed rgba(255,255,255,0.16);
       color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
+      font-size:13px;
+      line-height:1.55;
       background: rgba(255,255,255,0.02);
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      font-size:12px;
+      color: rgba(255,255,255,0.85);
+      word-break: break-all;
     }
   </style>
 </head>
@@ -192,42 +153,79 @@
       <div class="brand">
         <div class="logo"></div>
         <div>
-          <h1>NEORA — Test Stripe</h1>
-          <div class="pill">Payment Link: <b>Standard (TEST)</b></div>
+          <h1>NEORA — Stripe Test Center</h1>
+          <div class="pill">Mode: <b>Stripe TEST</b> + Webhook n8n + Firestore</div>
         </div>
       </div>
-      <div class="pill" id="statusPill">Auth: <b>...</b></div>
+      <div class="pill" id="authPill">Auth: <b>...</b></div>
     </div>
 
     <div class="grid">
+      <!-- LEFT -->
       <section class="card">
-        <h2>1) Identité Firebase</h2>
-        <p class="sub">Cette page sert juste à vérifier que Stripe → Webhook → Firestore met bien à jour le compte.</p>
+        <h2>1) Actions de test</h2>
+        <p class="sub">
+          Connecte-toi, puis lance le checkout que tu veux tester. La page injecte automatiquement
+          <code>prefilled_email</code> + <code>client_reference_id</code> (UID) dans l’URL.
+        </p>
 
         <div class="row"><div class="k">Email</div><div class="v" id="uEmail">—</div></div>
         <div class="row"><div class="k">UID</div><div class="v" id="uUid">—</div></div>
 
-        <div class="btns">
-          <button class="primary" id="payBtn" disabled>Ouvrir Checkout Standard (TEST)</button>
-          <button id="refreshBtn" disabled>Rafraîchir Firestore</button>
-          <button class="danger" id="logoutBtn" style="display:none;">Déconnexion</button>
+        <div class="actions">
+          <button class="primary" id="btnStandard" disabled>Tester Plan Standard (2 990)</button>
+          <button class="primary" id="btnPro" disabled>Tester Plan Pro (7 990/mois)</button>
+          <button id="btnRefresh" disabled>Rafraîchir Firestore</button>
+          <button class="danger" id="btnLogout" style="display:none;">Déconnexion</button>
         </div>
 
-        <div class="hint">
-          🔧 Conseil : dans Stripe, mets l’URL de succès du Payment Link sur<br>
-          <code>.../stripe-test.html?status=success</code><br>
-          et l’URL d’annulation sur <code>.../stripe-test.html?status=cancel</code>.<br>
-          Comme ça, au retour, la page va “poll” Firestore automatiquement.
+        <div class="section">
+          <h2>2) Packs de crédits (TEST)</h2>
+          <p class="sub">Ces boutons testent tes Payment Links crédits (10 / 30 / 100).</p>
+
+          <div class="btn-grid">
+            <div class="btnCard">
+              <div class="left">
+                <div class="name">🎁 10 crédits</div>
+                <div class="desc">Payment Link TEST (pack 10)</div>
+              </div>
+              <button id="btnC10" disabled>Acheter</button>
+            </div>
+
+            <div class="btnCard">
+              <div class="left">
+                <div class="name">🎁 30 crédits</div>
+                <div class="desc">Payment Link TEST (pack 30)</div>
+              </div>
+              <button id="btnC30" disabled>Acheter</button>
+            </div>
+
+            <div class="btnCard">
+              <div class="left">
+                <div class="name">🎁 100 crédits</div>
+                <div class="desc">Payment Link TEST (pack 100)</div>
+              </div>
+              <button id="btnC100" disabled>Acheter</button>
+            </div>
+          </div>
+
+          <div class="hint">
+            🔧 Astuce pratique : dans Stripe, mets pour chaque Payment Link :<br>
+            Success URL → <code>.../stripe-test.html?status=success</code><br>
+            Cancel URL → <code>.../stripe-test.html?status=cancel</code><br>
+            Comme ça, au retour, tu vois direct si Firestore a bougé.
+          </div>
         </div>
       </section>
 
+      <!-- RIGHT -->
       <section class="card">
-        <h2>2) Données Firestore (users/{uid})</h2>
-        <p class="sub">On lit les champs importants pour vérifier ton webhook.</p>
+        <h2>3) Firestore live (users/{uid})</h2>
+        <p class="sub">Lecture en temps réel du document utilisateur. Si ton webhook n8n met à jour Firestore, ça doit bouger ici.</p>
 
-        <div class="badge" id="webhookBadge">
-          <span class="dot warn" id="webhookDot"></span>
-          <span id="webhookText">En attente…</span>
+        <div class="badge" id="hookBadge">
+          <span class="dot warn" id="hookDot"></span>
+          <span id="hookText">En attente…</span>
         </div>
 
         <div style="margin-top:12px">
@@ -235,24 +233,32 @@
           <div class="row"><div class="k">generationsAvailable</div><div class="v" id="fGen">—</div></div>
           <div class="row"><div class="k">imageQuality</div><div class="v" id="fQuality">—</div></div>
           <div class="row"><div class="k">stripeCustomerId</div><div class="v" id="fCust">—</div></div>
+          <div class="row"><div class="k">lastCreditPurchase</div><div class="v" id="fLastCredit">—</div></div>
           <div class="row"><div class="k">upgradedAt</div><div class="v" id="fUpgraded">—</div></div>
-          <div class="row"><div class="k">Dernière mise à jour</div><div class="v" id="fUpdated">—</div></div>
+          <div class="row"><div class="k">Dernière lecture</div><div class="v" id="fUpdated">—</div></div>
         </div>
 
         <div class="hint">
-          ✅ Attendu après achat Standard :<br>
-          <code>plan = "standard"</code>, <code>generationsAvailable += 10</code>, <code>imageQuality = "1K"</code><br>
-          (selon ta logique webhook exact).
+          ✅ Résultats attendus (selon ta logique n8n) :<br>
+          • Standard : <code>plan="standard"</code> + <code>generationsAvailable += 10</code> + <code>imageQuality="1K"</code><br>
+          • Pro : <code>plan="pro"</code> + (mensuel) + <code>imageQuality="2K"</code><br>
+          • Crédits : <code>generationsAvailable += 10/30/100</code>
         </div>
       </section>
     </div>
   </div>
 
   <script>
-    // === Stripe TEST payment link fourni ===
-    const STRIPE_STANDARD_TEST_LINK = "https://buy.stripe.com/test_7sY4gzgZv60t1wodPEgjC05";
+    // === Tes Payment Links (TEST) ===
+    const LINKS = {
+      pro:       "https://buy.stripe.com/test_8x2cN5dNjagJ3Ew8vkgjC01",
+      standard:  "https://buy.stripe.com/test_7sY4gzgZv60t1wodPEgjC05",
+      c10:       "https://buy.stripe.com/test_3cI5kD24BgF7df6aDsgjC02",
+      c30:       "https://buy.stripe.com/test_6oUdR98sZewZa2U3b0gjC03",
+      c100:      "https://buy.stripe.com/test_eVqeVd9x34Wp8YQ4f4gjC04"
+    };
 
-    // === Firebase (même config que tes autres pages) ===
+    // === Firebase config (même que tes autres pages) ===
     const firebaseConfig = {
       apiKey: "AIzaSyCKPepYjXiY92hZPEdKxqOow9AACfMTOoc",
       authDomain: "neorastudiosnc.firebaseapp.com",
@@ -262,171 +268,177 @@
       appId: "1:275455765566:web:c2cf516fcb8f13de7e356f"
     };
 
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    const $ = (id) => document.getElementById(id);
 
-    const el = (id) => document.getElementById(id);
+    const authPill = $("authPill");
+    const hookDot = $("hookDot");
+    const hookText = $("hookText");
 
-    const statusPill = el("statusPill");
-    const payBtn = el("payBtn");
-    const refreshBtn = el("refreshBtn");
-    const logoutBtn = el("logoutBtn");
-
-    const webhookDot = el("webhookDot");
-    const webhookText = el("webhookText");
+    const btnStandard = $("btnStandard");
+    const btnPro = $("btnPro");
+    const btnC10 = $("btnC10");
+    const btnC30 = $("btnC30");
+    const btnC100 = $("btnC100");
+    const btnRefresh = $("btnRefresh");
+    const btnLogout = $("btnLogout");
 
     let currentUser = null;
-    let pollTimer = null;
-    let lastData = null;
+    let db = null;
+    let auth = null;
+    let unsub = null;
 
-    function setAuthStatus(text){
-      statusPill.innerHTML = `Auth: <b>${text}</b>`;
+    function setAuthStatus(txt){
+      authPill.innerHTML = `Auth: <b>${txt}</b>`;
     }
 
-    function setWebhookStatus(state, text){
-      // state: ok | warn | bad
-      webhookDot.classList.remove("ok","warn","bad");
-      webhookDot.classList.add(state);
-      webhookText.textContent = text;
+    function setHookStatus(state, txt){
+      hookDot.classList.remove("ok","warn","bad");
+      hookDot.classList.add(state);
+      hookText.textContent = txt;
     }
 
-    function fmt(val){
-      if (val === null || val === undefined || val === "") return "—";
-      if (typeof val === "object") return JSON.stringify(val);
-      return String(val);
+    function fmt(v){
+      if (v === null || v === undefined || v === "") return "—";
+      if (typeof v === "object") return JSON.stringify(v);
+      return String(v);
     }
 
-    function fmtDate(val){
-      if (!val) return "—";
+    function fmtDate(v){
+      if (!v) return "—";
       try{
-        // Firestore Timestamp support
-        if (val.toDate) return val.toDate().toLocaleString();
-        const d = new Date(val);
+        if (v.toDate) return v.toDate().toLocaleString();
+        const d = new Date(v);
         if (!isNaN(d.getTime())) return d.toLocaleString();
       }catch(e){}
-      return fmt(val);
+      return fmt(v);
     }
 
-    async function readUserDoc(uid){
-      const ref = db.collection("users").doc(uid);
-      const snap = await ref.get();
-      if (!snap.exists) return null;
-      return snap.data();
-    }
-
-    function renderUser(user){
-      el("uEmail").textContent = user ? user.email : "—";
-      el("uUid").textContent = user ? user.uid : "—";
-    }
-
-    function renderFirestore(data){
-      lastData = data;
-
-      el("fPlan").textContent = fmt(data?.plan);
-      el("fGen").textContent = fmt(data?.generationsAvailable);
-      el("fQuality").textContent = fmt(data?.imageQuality);
-      el("fCust").textContent = fmt(data?.stripeCustomerId);
-      el("fUpgraded").textContent = fmtDate(data?.upgradedAt);
-      el("fUpdated").textContent = new Date().toLocaleString();
-
-      // Signal "OK" si plan standard/pro détecté
-      if (!data){
-        setWebhookStatus("bad", "Aucun document users/{uid} trouvé");
-        return;
-      }
-
-      const plan = (data.plan || "").toLowerCase();
-      if (plan === "standard" || plan === "pro"){
-        setWebhookStatus("ok", `OK — plan = "${plan}"`);
-      } else {
-        setWebhookStatus("warn", `En attente — plan = "${plan || "vide"}"`);
-      }
-    }
-
-    async function refresh(){
-      if (!currentUser) return;
-      try{
-        const data = await readUserDoc(currentUser.uid);
-        renderFirestore(data);
-      } catch (e){
-        console.error(e);
-        setWebhookStatus("bad", "Erreur lecture Firestore (console)");
-      }
-    }
-
-    function buildStripeUrl(user){
-      const u = new URL(STRIPE_STANDARD_TEST_LINK);
-      u.searchParams.set("prefilled_email", user.email || "");
-      u.searchParams.set("client_reference_id", user.uid);
+    function buildUrl(base){
+      const u = new URL(base);
+      u.searchParams.set("prefilled_email", currentUser?.email || "");
+      u.searchParams.set("client_reference_id", currentUser?.uid || "");
       return u.toString();
     }
 
-    function startPoll(seconds = 30){
-      let remaining = seconds;
-      clearInterval(pollTimer);
-
-      setWebhookStatus("warn", `Retour paiement détecté — polling Firestore (${remaining}s)…`);
-      pollTimer = setInterval(async () => {
-        await refresh();
-        remaining -= 2;
-        if (remaining <= 0){
-          clearInterval(pollTimer);
-          // Si toujours pas à jour, on laisse en warn
-          if (lastData && ["standard","pro"].includes(String(lastData.plan||"").toLowerCase())){
-            setWebhookStatus("ok", `OK — plan = "${String(lastData.plan).toLowerCase()}"`);
-          } else {
-            setWebhookStatus("warn", "Polling terminé — si pas à jour, ton webhook n’a peut-être pas trigger");
-          }
-        }
-      }, 2000);
+    function openCheckout(key){
+      if (!currentUser) {
+        alert("Connecte-toi d'abord.");
+        window.location.href = "index.html";
+        return;
+      }
+      const base = LINKS[key];
+      if (!base) return;
+      window.location.href = buildUrl(base);
     }
 
-    // --- Auth listener ---
-    auth.onAuthStateChanged(async (user) => {
+    function renderUser(u){
+      $("uEmail").textContent = u ? (u.email || "—") : "—";
+      $("uUid").textContent = u ? (u.uid || "—") : "—";
+    }
+
+    function renderFirestore(data){
+      $("fPlan").textContent = fmt(data?.plan);
+      $("fGen").textContent = fmt(data?.generationsAvailable);
+      $("fQuality").textContent = fmt(data?.imageQuality);
+      $("fCust").textContent = fmt(data?.stripeCustomerId);
+      $("fLastCredit").textContent = fmtDate(data?.lastCreditPurchase);
+      $("fUpgraded").textContent = fmtDate(data?.upgradedAt);
+      $("fUpdated").textContent = new Date().toLocaleString();
+
+      if (!data){
+        setHookStatus("bad","Aucun document users/{uid} trouvé");
+        return;
+      }
+
+      const plan = String(data.plan || "").toLowerCase();
+      if (plan === "pro" || plan === "standard"){
+        setHookStatus("ok", `OK — plan="${plan}"`);
+      } else {
+        // Si retour de paiement, on reste en warn mais on dit quoi surveiller
+        const params = new URLSearchParams(window.location.search);
+        const st = (params.get("status") || "").toLowerCase();
+        if (st === "success") setHookStatus("warn", `Retour paiement — en attente update (plan="${plan || "vide"}")`);
+        else setHookStatus("warn", `En attente — plan="${plan || "vide"}"`);
+      }
+    }
+
+    async function refreshOnce(){
+      if (!currentUser) return;
+      try{
+        const snap = await db.collection("users").doc(currentUser.uid).get();
+        renderFirestore(snap.exists ? snap.data() : null);
+      } catch (e){
+        console.error(e);
+        setHookStatus("bad","Erreur Firestore (voir console)");
+      }
+    }
+
+    function subscribe(uid){
+      if (unsub) { try{unsub();}catch(e){} unsub = null; }
+      unsub = db.collection("users").doc(uid).onSnapshot((snap) => {
+        renderFirestore(snap.exists ? snap.data() : null);
+      }, (err) => {
+        console.error(err);
+        setHookStatus("bad","Erreur abonnement Firestore (voir console)");
+      });
+    }
+
+    // Init Firebase
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    db = firebase.firestore();
+
+    // Buttons
+    btnStandard.addEventListener("click", () => openCheckout("standard"));
+    btnPro.addEventListener("click", () => openCheckout("pro"));
+    btnC10.addEventListener("click", () => openCheckout("c10"));
+    btnC30.addEventListener("click", () => openCheckout("c30"));
+    btnC100.addEventListener("click", () => openCheckout("c100"));
+    btnRefresh.addEventListener("click", refreshOnce);
+
+    btnLogout.addEventListener("click", async () => {
+      await auth.signOut();
+      window.location.href = "index.html";
+    });
+
+    // Auth listener
+    auth.onAuthStateChanged((user) => {
       currentUser = user;
 
       if (!user){
         setAuthStatus("NON CONNECTÉ");
         renderUser(null);
-        payBtn.disabled = true;
-        refreshBtn.disabled = true;
-        logoutBtn.style.display = "none";
-        setWebhookStatus("warn", "Connecte-toi puis reviens ici");
+
+        btnStandard.disabled = true;
+        btnPro.disabled = true;
+        btnC10.disabled = true;
+        btnC30.disabled = true;
+        btnC100.disabled = true;
+        btnRefresh.disabled = true;
+        btnLogout.style.display = "none";
+
+        setHookStatus("warn","Connecte-toi puis reviens ici");
+        if (unsub) { try{unsub();}catch(e){} unsub = null; }
         return;
       }
 
       setAuthStatus("CONNECTÉ");
       renderUser(user);
 
-      payBtn.disabled = false;
-      refreshBtn.disabled = false;
-      logoutBtn.style.display = "inline-flex";
+      btnStandard.disabled = false;
+      btnPro.disabled = false;
+      btnC10.disabled = false;
+      btnC30.disabled = false;
+      btnC100.disabled = false;
+      btnRefresh.disabled = false;
+      btnLogout.style.display = "inline-flex";
 
-      await refresh();
+      subscribe(user.uid);
 
-      // Si tu reviens de Stripe avec ?status=success → poll Firestore
       const params = new URLSearchParams(window.location.search);
-      const status = (params.get("status") || "").toLowerCase();
-      if (status === "success"){
-        startPoll(30);
-      } else if (status === "cancel"){
-        setWebhookStatus("warn", "Paiement annulé (cancel)");
-      }
-    });
-
-    // --- Actions ---
-    payBtn.addEventListener("click", () => {
-      if (!currentUser) return;
-      const url = buildStripeUrl(currentUser);
-      window.location.href = url;
-    });
-
-    refreshBtn.addEventListener("click", refresh);
-
-    logoutBtn.addEventListener("click", async () => {
-      await auth.signOut();
-      window.location.href = "index.html";
+      const st = (params.get("status") || "").toLowerCase();
+      if (st === "success") setHookStatus("warn","Retour paiement détecté — attente update Firestore…");
+      if (st === "cancel")  setHookStatus("warn","Paiement annulé (cancel)");
     });
   </script>
 </body>
