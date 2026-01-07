@@ -10,12 +10,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Neora.ai — Choisissez votre version</title>
   <meta name="description" content="Sélectionnez la version de Neora adaptée à vos besoins.">
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="neora-mobile.css">
-  
+
   <style>
     :root {
       --bg-primary: #030308;
@@ -33,16 +33,16 @@
       --radius-full: 9999px;
       --font-display: 'Space Grotesk', sans-serif;
     }
-    
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
+
     body {
       font-family: var(--font-display);
       background: var(--bg-primary);
       color: var(--text-primary);
       min-height: 100vh;
     }
-    
+
     .page-container {
       min-height: 100vh;
       background:
@@ -51,7 +51,7 @@
         radial-gradient(900px 700px at 50% 110%, rgba(34,211,238,.12), transparent 55%),
         linear-gradient(180deg, var(--bg-primary), var(--bg-secondary));
     }
-    
+
     /* Topbar */
     .topbar {
       position: sticky;
@@ -61,7 +61,7 @@
       background: linear-gradient(180deg, rgba(5,7,20,.76), rgba(5,7,20,.48));
       border-bottom: 1px solid rgba(255,255,255,.08);
     }
-    
+
     .topbar-inner {
       max-width: 1100px;
       margin: 0 auto;
@@ -70,7 +70,7 @@
       align-items: center;
       justify-content: space-between;
     }
-    
+
     .brand {
       display: flex;
       align-items: center;
@@ -78,32 +78,32 @@
       text-decoration: none;
       color: inherit;
     }
-    
+
     .brand-logo {
       width: 34px;
       height: 34px;
       border-radius: 10px;
       background: url('logo.jpg') center/cover no-repeat;
     }
-    
+
     .logo-text {
       font-size: 22px;
       font-weight: 700;
       color: var(--text-primary);
     }
-    
+
     .logo-text span {
       background: var(--gradient-main);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    
+
     .nav-links {
       display: flex;
       align-items: center;
       gap: 32px;
     }
-    
+
     .nav-link {
       color: var(--text-secondary);
       text-decoration: none;
@@ -111,11 +111,9 @@
       font-weight: 500;
       transition: color 0.2s;
     }
-    
-    .nav-link:hover {
-      color: var(--text-primary);
-    }
-    
+
+    .nav-link:hover { color: var(--text-primary); }
+
     .btn-logout {
       padding: 12px 24px;
       font-size: 14px;
@@ -128,11 +126,9 @@
       transition: all 0.2s;
       font-family: var(--font-display);
     }
-    
-    .btn-logout:hover {
-      background: rgba(255,255,255,0.05);
-    }
-    
+
+    .btn-logout:hover { background: rgba(255,255,255,0.05); }
+
     /* Selector Content */
     .selector-wrap {
       display: flex;
@@ -141,8 +137,9 @@
       justify-content: center;
       min-height: calc(100vh - 70px);
       padding: 40px 20px;
+      text-align: center;
     }
-    
+
     .selector-logo {
       width: 80px;
       height: 80px;
@@ -151,7 +148,7 @@
       margin-bottom: 24px;
       box-shadow: 0 20px 60px rgba(99,102,241,.35);
     }
-    
+
     .selector-title {
       font-size: 42px;
       font-weight: 700;
@@ -163,21 +160,22 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    
+
     .selector-subtitle {
       font-size: 16px;
       color: var(--text-secondary);
       margin-bottom: 48px;
     }
-    
+
+    /* ✅ FIX: 2 cartes au centre */
     .version-grid {
+      width: min(900px, 100%);
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(2, minmax(260px, 360px));
+      justify-content: center;
       gap: 20px;
-      max-width: 1100px;
-      width: 100%;
     }
-    
+
     .version-card {
       background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
       border: 1px solid var(--border-light);
@@ -192,7 +190,7 @@
       color: inherit;
       display: block;
     }
-    
+
     .version-card::before {
       content: '';
       position: absolute;
@@ -201,41 +199,33 @@
       opacity: 0;
       transition: opacity 0.3s ease;
     }
-    
+
     .version-card:hover {
       transform: translateY(-8px);
       border-color: rgba(139,92,246,.5);
       box-shadow: 0 30px 60px rgba(139,92,246,.25);
     }
-    
-    .version-card:hover::before {
-      opacity: 0.08;
-    }
-    
-    .version-card-inner {
-      position: relative;
-      z-index: 1;
-    }
-    
-    .version-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-    }
-    
+
+    .version-card:hover::before { opacity: 0.08; }
+
+    .version-card-inner { position: relative; z-index: 1; }
+
+    .version-icon { font-size: 48px; margin-bottom: 16px; }
+
     .version-name {
       font-size: 20px;
       font-weight: 700;
       margin-bottom: 8px;
       letter-spacing: 0.05em;
     }
-    
+
     .version-desc {
       font-size: 14px;
       color: var(--text-secondary);
       line-height: 1.5;
       margin-bottom: 16px;
     }
-    
+
     .version-badge {
       display: inline-block;
       padding: 6px 14px;
@@ -247,41 +237,19 @@
       background: rgba(255,255,255,.08);
       border: 1px solid rgba(255,255,255,.15);
     }
-    
+
     .version-card:nth-child(1) .version-badge {
       background: rgba(139,92,246,.2);
       border-color: rgba(139,92,246,.4);
       color: #a5b4fc;
     }
-    
+
     .version-card:nth-child(2) .version-badge {
       background: linear-gradient(135deg, rgba(236,72,153,.25), rgba(168,85,247,.25));
       border-color: rgba(236,72,153,.4);
       color: #f9a8d4;
     }
-    
-    .version-card:nth-child(3) .version-badge {
-      background: linear-gradient(135deg, rgba(34,211,238,.25), rgba(139,92,246,.25));
-      border-color: rgba(34,211,238,.4);
-      color: #67e8f9;
-    }
-    
-    .version-card:nth-child(4) .version-badge {
-      background: linear-gradient(135deg, rgba(236,72,153,.3), rgba(249,115,22,.25));
-      border-color: rgba(236,72,153,.5);
-      color: #f472b6;
-    }
-    
-    .version-card:nth-child(4) {
-      background: linear-gradient(180deg, rgba(236,72,153,.08), rgba(255,255,255,.02));
-      border-color: rgba(236,72,153,.2);
-    }
-    
-    .version-card:nth-child(4):hover {
-      border-color: rgba(236,72,153,.6);
-      box-shadow: 0 30px 60px rgba(236,72,153,.25);
-    }
-    
+
     /* Loading overlay */
     .loading-overlay {
       position: fixed;
@@ -293,12 +261,12 @@
       z-index: 1000;
       transition: opacity 0.3s;
     }
-    
+
     .loading-overlay.hidden {
       opacity: 0;
       pointer-events: none;
     }
-    
+
     .loading-spinner {
       width: 48px;
       height: 48px;
@@ -307,34 +275,17 @@
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    @media (max-width: 900px) {
-      .version-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-    
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
     @media (max-width: 600px) {
-      .version-grid {
-        grid-template-columns: 1fr;
-        max-width: 400px;
-      }
-      .selector-title {
-        font-size: 32px;
-      }
-      .user-email {
-        display: none;
-      }
-      .nav-links {
-        display: none;
-      }
+      .version-grid { grid-template-columns: 1fr; width: min(400px, 100%); }
+      .selector-title { font-size: 32px; }
+      .nav-links { display: none; }
     }
   </style>
 </head>
+
 <body>
   <!-- Loading overlay -->
   <div class="loading-overlay" id="loadingOverlay">
@@ -349,7 +300,7 @@
           <div class="brand-logo"></div>
           <div class="logo-text">Neora<span>.ai</span></div>
         </a>
-        
+
         <div class="nav-links">
           <a href="index.html" class="nav-link">🏠 Accueil</a>
           <a href="#" class="nav-link" onclick="goToApp(); return false;">🚀 App</a>
@@ -358,43 +309,45 @@
           <a href="profil.html" class="nav-link">👤 Profil</a>
           <a href="contact.html" class="nav-link">📬 Contact</a>
         </div>
-        
+
         <button class="btn-logout" onclick="logout()">Déconnexion</button>
       </div>
     </nav>
-    
+
+    <!-- Selector -->
     <main class="selector-wrap">
-  <div class="selector-logo"></div>
-  <h1 class="selector-title">NEORA</h1>
-  <p class="selector-subtitle">Choisissez votre version</p>
+      <div class="selector-logo"></div>
+      <h1 class="selector-title">NEORA</h1>
+      <p class="selector-subtitle">Choisissez votre version</p>
 
-  <div class="version-grid">
-    <a href="NEORA.html" class="version-card">
-      <div class="version-card-inner">
-        <div class="version-icon">🎨</div>
-        <div class="version-name">NEORA</div>
-        <div class="version-desc">Version standard avec toutes les fonctionnalités de base</div>
-        <div class="version-badge">Standard</div>
+      <div class="version-grid">
+        <a href="NEORA.html" class="version-card">
+          <div class="version-card-inner">
+            <div class="version-icon">🎨</div>
+            <div class="version-name">NEORA</div>
+            <div class="version-desc">Version standard avec toutes les fonctionnalités de base</div>
+            <div class="version-badge">Standard</div>
+          </div>
+        </a>
+
+        <a href="#" class="version-card">
+          <div class="version-card-inner">
+            <div class="version-icon">🎬</div>
+            <div class="version-name">NEORA VIDEO</div>
+            <div class="version-desc">Transforme tes images en vidéos cinématiques</div>
+            <div class="version-badge">✨ Bientôt disponible</div>
+          </div>
+        </a>
       </div>
-    </a>
-
-    <a href="#" class="version-card">
-      <div class="version-card-inner">
-        <div class="version-icon">🎬</div>
-        <div class="version-name">NEORA VIDEO</div>
-        <div class="version-desc">Transforme tes images en vidéos cinématiques</div>
-        <div class="version-badge">✨ Bientôt disponible</div>
-      </div>
-    </a>
-  </div>
-</main>
-
+    </main>
+  </div><!-- ✅ fermeture page-container -->
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="neora-auth-persist.js"></script>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCKPepYjXiY92hZPEdKxqOow9AACfMTOoc",
@@ -405,69 +358,57 @@
       appId: "1:275455765566:web:c2cf516fcb8f13de7e356f",
       measurementId: "G-2HWXD3297V"
     };
-    
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    
-    // Variable pour stocker le plan une fois chargé
+
     let userPlan = null;
     let authReady = false;
-    
-    // Fonction pour cacher le loading
+
     function hideLoading() {
       document.getElementById('loadingOverlay').classList.add('hidden');
     }
-    
-    // Vérifier d'abord le cache pour une réponse instantanée
+
     (function checkCacheFirst() {
       if (typeof NeoraAuth !== 'undefined') {
         const cached = NeoraAuth.getCachedUser();
         if (cached && cached.plan) {
           userPlan = cached.plan;
-          // Si le cache dit FREE, rediriger immédiatement
           if (cached.plan === 'free') {
             window.location.href = 'NEORASIMPLE.html';
             return;
           }
-          // Si PRO dans le cache, on peut afficher la page
           hideLoading();
         }
       }
     })();
-    
-    // Vérifier l'authentification Firebase (source de vérité)
+
     auth.onAuthStateChanged(async (user) => {
       authReady = true;
-      
+
       if (!user) {
-        // Non connecté → retour à l'accueil
         if (typeof NeoraAuth !== 'undefined') NeoraAuth.clear();
         window.location.href = 'index.html';
         return;
       }
-      
-      // Sauvegarder l'utilisateur dans le cache
+
       if (typeof NeoraAuth !== 'undefined') NeoraAuth.saveUser(user);
-      
+
       try {
-        // Récupérer le plan depuis Firestore
         const userDoc = await db.collection('users').doc(user.uid).get();
-        
+
         if (userDoc.exists) {
           const plan = userDoc.data().plan || 'free';
           userPlan = plan;
-          
-          // Sauvegarder le plan dans le cache
+
           if (typeof NeoraAuth !== 'undefined') NeoraAuth.savePlan(plan);
-          
-          // Si plan gratuit, rediriger vers NEORASIMPLE
+
           if (plan === 'free') {
             window.location.href = 'NEORASIMPLE.html';
             return;
           }
         } else {
-          // Document n'existe pas = plan free
           userPlan = 'free';
           window.location.href = 'NEORASIMPLE.html';
           return;
@@ -475,89 +416,69 @@
       } catch (error) {
         console.error('Erreur lors de la récupération du plan:', error);
       }
-      
-      // Tout est OK, cacher le loading
+
       hideLoading();
     });
-    
-    // Timeout de sécurité - si Firebase ne répond pas en 3s, utiliser le cache
+
     setTimeout(() => {
       if (!authReady) {
         console.log('Firebase timeout, using cache');
         hideLoading();
       }
     }, 3000);
-    
+
     function logout() {
       if (typeof NeoraAuth !== 'undefined') NeoraAuth.clear();
       auth.signOut().then(() => {
         window.location.href = 'index.html';
       });
     }
-    
-    // Fonction goToApp améliorée - attend que l'auth soit prête
+
     async function goToApp() {
-      // Si on a déjà le plan en cache ou en mémoire
       if (userPlan) {
-        if (userPlan === 'free') {
-          window.location.href = 'NEORASIMPLE.html';
-        } else {
-          window.location.href = 'selector.html';
-        }
+        window.location.href = (userPlan === 'free') ? 'NEORASIMPLE.html' : 'selector.html';
         return;
       }
-      
-      // Vérifier le cache
+
       if (typeof NeoraAuth !== 'undefined') {
         const cached = NeoraAuth.getCachedUser();
         if (cached && cached.plan) {
-          if (cached.plan === 'free') {
-            window.location.href = 'NEORASIMPLE.html';
-          } else {
-            window.location.href = 'selector.html';
-          }
+          window.location.href = (cached.plan === 'free') ? 'NEORASIMPLE.html' : 'selector.html';
           return;
         }
       }
-      
-      // Si pas de cache, attendre Firebase
+
       const user = auth.currentUser;
       if (!user) {
-        // Attendre un peu que Firebase soit prêt
         await new Promise(resolve => {
           const unsubscribe = auth.onAuthStateChanged((u) => {
             unsubscribe();
             resolve(u);
           });
-          // Timeout de 2 secondes
           setTimeout(() => resolve(null), 2000);
         });
       }
-      
+
       const currentUser = auth.currentUser;
       if (!currentUser) {
         window.location.href = 'index.html';
         return;
       }
-      
+
       try {
         const userDoc = await db.collection('users').doc(currentUser.uid).get();
         const plan = userDoc.exists ? (userDoc.data().plan || 'free') : 'free';
-        
-        // Sauvegarder dans le cache
+
         if (typeof NeoraAuth !== 'undefined') NeoraAuth.savePlan(plan);
-        
-        if (plan === 'free') {
-          window.location.href = 'NEORASIMPLE.html';
-        } else {
-          window.location.href = 'selector.html';
-        }
+
+        window.location.href = (plan === 'free') ? 'NEORASIMPLE.html' : 'selector.html';
       } catch (error) {
         console.error('Erreur:', error);
         window.location.href = 'NEORASIMPLE.html';
       }
     }
   </script>
+
   <script src="neora-cache.js"></script>
   <script src="neora-mobile-nav.js"></script>
 </body>
