@@ -366,6 +366,13 @@
     let userPlan = null;
     let authReady = false;
 
+    function normalizePlan(plan) {
+      const p = String(plan || 'free').toLowerCase();
+      if (p === 'one' || p === 'standard') return 'standard';
+      if (p === 'pro') return 'pro';
+      return 'free';
+    }
+
     function hideLoading() {
       document.getElementById('loadingOverlay').classList.add('hidden');
     }
@@ -374,8 +381,8 @@
       if (typeof NeoraAuth !== 'undefined') {
         const cached = NeoraAuth.getCachedUser();
         if (cached && cached.plan) {
-          userPlan = cached.plan;
-          if (cached.plan === 'free') {
+          userPlan = normalizePlan(cached.plan);
+          if (userPlan === 'free') {
             window.location.href = 'NEORASIMPLE.html';
             return;
           }
@@ -399,7 +406,7 @@
         const userDoc = await db.collection('users').doc(user.uid).get();
 
         if (userDoc.exists) {
-          const plan = userDoc.data().plan || 'free';
+          const plan = normalizePlan(userDoc.data().plan || 'free');
           userPlan = plan;
 
           if (typeof NeoraAuth !== 'undefined') NeoraAuth.savePlan(plan);
@@ -443,7 +450,8 @@
       if (typeof NeoraAuth !== 'undefined') {
         const cached = NeoraAuth.getCachedUser();
         if (cached && cached.plan) {
-          window.location.href = (cached.plan === 'free') ? 'NEORASIMPLE.html' : 'selector.html';
+          const p = normalizePlan(cached.plan);
+          window.location.href = (p === 'free') ? 'NEORASIMPLE.html' : 'selector.html';
           return;
         }
       }
@@ -467,7 +475,7 @@
 
       try {
         const userDoc = await db.collection('users').doc(currentUser.uid).get();
-        const plan = userDoc.exists ? (userDoc.data().plan || 'free') : 'free';
+        const plan = userDoc.exists ? normalizePlan(userDoc.data().plan || 'free') : 'free';
 
         if (typeof NeoraAuth !== 'undefined') NeoraAuth.savePlan(plan);
 

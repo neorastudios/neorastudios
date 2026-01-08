@@ -609,10 +609,31 @@
     let currentFilter = 'all';
     let selectedGeneration = null;
     
-    // Auth state listener
+    
+    let userPlan = null;
+
+    function normalizePlan(plan) {
+      const p = String(plan || 'free').toLowerCase();
+      if (p === 'one' || p === 'standard') return 'standard';
+      if (p === 'pro') return 'pro';
+      return 'free';
+    }
+// Auth state listener
     auth.onAuthStateChanged(async (user) => {
       if (user) {
         currentUser = user;
+        if (typeof NeoraAuth !== 'undefined') NeoraAuth.saveUser(user);
+
+        // Charger le plan (pour gérer PRO + STANDARD)
+        try {
+          const userDoc = await db.collection('users').doc(user.uid).get();
+          const plan = userDoc.exists ? normalizePlan(userDoc.data().plan || 'free') : 'free';
+          userPlan = plan;
+          if (typeof NeoraAuth !== 'undefined') NeoraAuth.savePlan(plan);
+        } catch (e) {
+          console.warn('Plan load error:', e);
+        }
+
         await loadGenerations();
         document.getElementById('loadingState').style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
@@ -779,18 +800,39 @@
     
     // Fonction pour aller à l'app selon le plan
     async function goToApp() {
+      // 1) Cache instant (NeoraAuth)
+      if (typeof NeoraAuth !== 'undefined') {
+        const cached = NeoraAuth.getCachedUser?.();
+        if (cached && cached.plan) {
+          const p = normalizePlan(cached.plan);
+          window.location.href = (p === 'pro' || p === 'standard') ? 'selector.html' : 'NEORASIMPLE.html';
+          return;
+        }
+      }
+
+      // 2) Plan déjà chargé
+      if (userPlan) {
+        window.location.href = (userPlan === 'pro' || userPlan === 'standard') ? 'selector.html' : 'NEORASIMPLE.html';
+        return;
+      }
+
+      // 3) Fallback Firestore
       const user = auth.currentUser;
       if (!user) {
         window.location.href = 'index.html';
         return;
       }
-      
-      const userDoc = await db.collection('users').doc(user.uid).get();
-      const plan = userDoc.exists ? (userDoc.data().plan || 'free') : 'free';
-      
-      if (plan === 'pro') {
-        window.location.href = 'selector.html';
-      } else {
+
+      try {
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        const plan = userDoc.exists ? normalizePlan(userDoc.data().plan || 'free') : 'free';
+        userPlan = plan;
+
+        if (typeof NeoraAuth !== 'undefined') NeoraAuth.savePlan(plan);
+
+        window.location.href = (plan === 'pro' || plan === 'standard') ? 'selector.html' : 'NEORASIMPLE.html';
+      } catch (error) {
+        console.error('Erreur:', error);
         window.location.href = 'NEORASIMPLE.html';
       }
     }
