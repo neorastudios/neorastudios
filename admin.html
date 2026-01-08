@@ -372,13 +372,7 @@
       color: #fbbf24;
     }
     
-    
-    .badge-standard {
-      background: linear-gradient(135deg, rgba(139,92,246,.18), rgba(236,72,153,.12));
-      color: #c4b5fd;
-    }
-
-.btn-action {
+    .btn-action {
       padding: 8px 16px;
       border-radius: 999px;
       font-size: 12px;
@@ -606,20 +600,20 @@
           <div class="stat-card revenue">
             <div class="stat-icon">💵</div>
             <div class="stat-value" id="totalRevenue">0 XPF</div>
-            <div class="stat-label">Revenus (estimation)</div>
+            <div class="stat-label">Revenus totaux</div>
             <div class="stat-change up" id="revenueThisMonth">+0 XPF ce mois</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon">💎</div>
-            <div class="stat-value" id="paidUsers">0</div>
-            <div class="stat-label">Clients payants</div>
-            <div class="stat-change up" id="paidBreakdown">Pro: 0 • Standard: 0</div>
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value" id="proUsers">0</div>
+            <div class="stat-label">Abonnés Pro</div>
+            <div class="stat-change up" id="proPercent">0% des users</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">🎁</div>
             <div class="stat-value" id="totalCredits">0</div>
-            <div class="stat-label">Crédits en circulation</div>
-            <div class="stat-change" id="packsSold">0 pack vendu</div>
+            <div class="stat-label">Crédits vendus</div>
+            <div class="stat-change" id="packsSold">0 packs vendus</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">📊</div>
@@ -661,7 +655,7 @@
       <!-- Tabs -->
       <div class="tabs">
         <button class="tab active" onclick="showTab('users')">👥 Utilisateurs</button>
-        <button class="tab" onclick="showTab('pro')">💎 Payants (Pro + Standard)</button>
+        <button class="tab" onclick="showTab('pro')">⭐ Abonnés Pro</button>
         <button class="tab" onclick="showTab('generations')">🖼️ Générations</button>
       </div>
 
@@ -695,15 +689,15 @@
       <!-- Pro Users Tab -->
       <div class="table-container hidden" id="proTab">
         <div class="table-header">
-          <h2 class="table-title">💎 Payants (Pro + Standard)</h2>
+          <h2 class="table-title">⭐ Abonnés Pro</h2>
           <input type="text" class="table-search" placeholder="Rechercher..." id="proSearch" oninput="filterProUsers()">
         </div>
         <table>
           <thead>
             <tr>
               <th>Utilisateur</th>
-              <th>Plan</th>
-              <th>Depuis</th>
+              <th>Type</th>
+              <th>Abonné depuis</th>
               <th>Crédits</th>
               <th>Générations</th>
               <th>Stripe ID</th>
@@ -931,77 +925,71 @@
         document.getElementById('topVersion').textContent = topVersion;
       }
       
-      // ====== STATS REVENUS & CLIENTS PAYANTS ======
+      // ====== STATS REVENUS & ABONNÉS ======
+      
+      // ID de l'utilisateur qui a vraiment payé via Stripe
+      const REAL_PAYING_USER_ID = 'NazxJ5R4H2gRtCzqPvLufMY6BfA2';
+      
+      // Fonction pour vérifier si c'est un vrai payant
+      function isRealPayingUser(user) {
+        return user.id === REAL_PAYING_USER_ID || 
+               (user.stripeCustomerId && user.stripeCustomerId.startsWith('cus_'));
+      }
 
-      // Plans / prix
-      const PRICE_PRO = 7990;       // abonnement mensuel
-      const PRICE_STANDARD = 2990;  // paiement unique
+// Alias de compat : certains blocs utilisent isRealPaying()
+const isRealPaying = isRealPayingUser;
 
+      
+      // Pro users (tous)
+      const proUsers = allUsers.filter(u => u.plan === 'pro');
+      document.getElementById('proUsers').textContent = proUsers.length;
+      
+      // Séparer vrais payants vs manuels
+      const realProUsers = proUsers.filter(u => isRealPayingUser(u));
+      const manualProUsers = proUsers.filter(u => !isRealPayingUser(u));
+      
+      // Pro percentage - afficher le breakdown
+      document.getElementById('proPercent').textContent = `${realProUsers.length} payant${realProUsers.length > 1 ? 's' : ''} • ${manualProUsers.length} manuel${manualProUsers.length > 1 ? 's' : ''}`;
+      
+      // Prix
+      const PRICE_PRO = 7990;
       const PRICE_PACK_STARTER = 1990;
       const PRICE_PACK_PRO = 4990;
       const PRICE_PACK_BUSINESS = 14990;
-
-      const isStandardPlan = (plan) => (plan === 'standard' || plan === 'one');
-      const isPaidPlan = (plan) => (plan === 'pro' || isStandardPlan(plan));
-      const isStripePaid = (user) => !!(user?.stripeCustomerId && String(user.stripeCustomerId).startsWith('cus_'));
-
-      // Clients payants (Stripe) — Pro + Standard
-      const proUsers = allUsers.filter(u => u.plan === 'pro');
-      const standardUsers = allUsers.filter(u => isStandardPlan(u.plan));
-
-      const realProUsers = proUsers.filter(u => isStripePaid(u));
-      const manualProUsers = proUsers.filter(u => !isStripePaid(u));
-
-      const realStandardUsers = standardUsers.filter(u => isStripePaid(u));
-      const manualStandardUsers = standardUsers.filter(u => !isStripePaid(u));
-
-      const paidCount = realProUsers.length + realStandardUsers.length;
-      const paidEl = document.getElementById('paidUsers');
-      if (paidEl) paidEl.textContent = paidCount;
-
-      const breakdownEl = document.getElementById('paidBreakdown');
-      if (breakdownEl) {
-        const manualCount = manualProUsers.length + manualStandardUsers.length;
-        breakdownEl.textContent = `Pro: ${realProUsers.length} • Standard: ${realStandardUsers.length}` + (manualCount ? ` • Manuel: ${manualCount}` : '');
-      }
-
-      // Revenus (estimation)
-      // - Pro = MRR (mensuel) basé sur les abonnés Pro Stripe
-      // - Standard = one-time basé sur les achats Standard Stripe
-      let totalRevenue = (realProUsers.length * PRICE_PRO) + (realStandardUsers.length * PRICE_STANDARD);
-
-      // Revenus ce mois (basé sur upgradedAt si dispo)
-      const proThisMonth = realProUsers.filter(u => {
-        const upgraded = u.upgradedAt ? new Date(u.upgradedAt) : null;
-        return upgraded && upgraded >= monthStart;
-      }).length;
-      const standardThisMonth = realStandardUsers.filter(u => {
-        const upgraded = u.upgradedAt ? new Date(u.upgradedAt) : null;
-        return upgraded && upgraded >= monthStart;
-      }).length;
-      const revenueThisMonth = (proThisMonth * PRICE_PRO) + (standardThisMonth * PRICE_STANDARD);
-
+      
+      // REVENUS RÉELS = seulement les vrais payants Stripe
+      // 1 seul vrai abonné pour l'instant
+      let totalRevenue = realProUsers.length * PRICE_PRO;
+      
       // Crédits en circulation (tous les comptes)
       let totalCreditsOnAccounts = 0;
       allUsers.forEach(u => {
         totalCreditsOnAccounts += (u.generationsAvailable || 0);
       });
-
-      // Packs vendus: si tu log les achats dans Firestore (ex: collection "payments"), tu pourras remplacer ce 0.
+      
+      // Packs vendus = 0 pour l'instant
       const packsSold = 0;
-
+      
       document.getElementById('totalCredits').textContent = totalCreditsOnAccounts;
       document.getElementById('packsSold').textContent = `${packsSold} pack vendu`;
-
+      
+      // Format revenue - RÉEL
       document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
+      
+      // Revenue this month (vrais Pro payants qui ont upgrade ce mois)
+      const proThisMonth = realProUsers.filter(u => {
+        const upgraded = u.upgradedAt ? new Date(u.upgradedAt) : null;
+        return upgraded && upgraded >= monthStart;
+      }).length;
+      const revenueThisMonth = proThisMonth * PRICE_PRO;
       document.getElementById('revenueThisMonth').textContent = `+${formatCurrency(revenueThisMonth)} ce mois`;
-
-      // Average revenue per user (ARPU)
+      
+      // Average revenue per user (ARPU réel)
       const avgRevenue = allUsers.length > 0 ? Math.round(totalRevenue / allUsers.length) : 0;
       document.getElementById('avgRevenue').textContent = formatCurrency(avgRevenue);
-
-      // Render Pro/Standard (payants) table
-      renderProUsers(null, isStripePaid);
+      
+      // Render Pro users table
+      renderProUsers(null, isRealPayingUser);
     }
     
     // Format currency (XPF)
@@ -1011,13 +999,15 @@
     
     // Render Pro users table
     function renderProUsers(filtered = null, isRealPayingFn = null) {
-      const proUsers = filtered || allUsers.filter(u => (u.plan === 'pro' || u.plan === 'standard' || u.plan === 'one'));
+      const proUsers = filtered || allUsers.filter(u => u.plan === 'pro');
       const tbody = document.getElementById('proTableBody');
       const empty = document.getElementById('proEmpty');
       
       // Fonction par défaut si non fournie
       const isRealPaying = isRealPayingFn || function(user) {
-        return !!(user.stripeCustomerId && user.stripeCustomerId.startsWith('cus_'));
+        const REAL_PAYING_USER_ID = 'NazxJ5R4H2gRtCzqPvLufMY6BfA2';
+        return user.id === REAL_PAYING_USER_ID || 
+               (user.stripeCustomerId && user.stripeCustomerId.startsWith('cus_'));
       };
       
       if (proUsers.length === 0) {
@@ -1040,7 +1030,7 @@
           <tr>
             <td>
               <div class="user-info">
-                <div class="user-avatar" style="background: linear-gradient(135deg, ${isPaid ? '#10b981, #34d399' : '#3b82f6, #60a5fa'});">${isPaid ? '💎' : '🔧'}</div>
+                <div class="user-avatar" style="background: linear-gradient(135deg, ${isPaid ? '#10b981, #34d399' : '#3b82f6, #60a5fa'});">${isPaid ? '💎' : '⭐'}</div>
                 <div>
                   <div class="user-email">${user.email || 'N/A'}</div>
                   <div class="user-date">Inscrit le ${formatDate(user.createdAt)}</div>
@@ -1048,11 +1038,8 @@
               </div>
             </td>
             <td>
-              <span class="badge-plan ${user.plan === 'pro' ? 'badge-pro' : 'badge-standard'}">
-                ${user.plan === 'pro' ? '👑 Pro' : '⚡ Standard'}
-              </span>
-              <span style="margin-left:8px; padding: 4px 10px; border-radius: 999px; font-size: 11px; background: ${isPaid ? 'rgba(16,185,129,.12)' : 'rgba(59,130,246,.12)'}; border: 1px solid ${isPaid ? 'rgba(16,185,129,.25)' : 'rgba(59,130,246,.25)'}; color: ${isPaid ? '#10b981' : '#60a5fa'};">
-                ${isPaid ? '💎 Stripe' : '🔧 Manuel'}
+              <span style="padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 500; background: ${isPaid ? 'rgba(16,185,129,.2)' : 'rgba(59,130,246,.2)'}; color: ${isPaid ? '#10b981' : '#3b82f6'};">
+                ${isPaid ? '💎 Payant Stripe' : '🔧 Manuel'}
               </span>
             </td>
             <td>${upgradedAt ? formatDate({ toDate: () => upgradedAt }) : 'N/A'}</td>
@@ -1067,7 +1054,7 @@
     // Filter Pro users
     function filterProUsers() {
       const search = document.getElementById('proSearch').value.toLowerCase();
-      const proUsers = allUsers.filter(u => (u.plan === 'pro' || u.plan === 'standard' || u.plan === 'one'));
+      const proUsers = allUsers.filter(u => u.plan === 'pro');
       
       if (!search) {
         renderProUsers(proUsers);
@@ -1101,9 +1088,10 @@
         const isBlocked = user.blocked || false;
         const plan = user.plan || 'free';
         const credits = user.generationsAvailable || 0;
-        const isStandard = (plan === 'standard' || plan === 'one');
-        const isStripePaid = !!(user.stripeCustomerId && user.stripeCustomerId.startsWith('cus_'));
         
+        // Vérifier si c'est un vrai payant
+        const REAL_PAYING_USER_ID = 'NazxJ5R4H2gRtCzqPvLufMY6BfA2';
+        const isRealPaying = user.id === REAL_PAYING_USER_ID || (user.stripeCustomerId && user.stripeCustomerId.startsWith('cus_'));
         
         return `
           <tr>
@@ -1117,8 +1105,8 @@
               </div>
             </td>
             <td>
-              <span class="badge-plan ${plan === 'pro' ? 'badge-pro' : (isStandard ? 'badge-standard' : 'badge-free')}">
-                ${plan === 'pro' ? '👑 Pro' : (isStandard ? '⚡ Standard' : 'Free')}
+              <span class="badge-plan ${plan === 'pro' ? 'badge-pro' : 'badge-free'}">
+                ${plan === 'pro' ? '⭐ Pro' : 'Free'}
               </span>
               ${plan === 'pro' && isRealPaying ? '<span style="margin-left:4px;padding:2px 6px;background:rgba(16,185,129,.15);border-radius:999px;font-size:10px;color:#10b981;">💎</span>' : ''}
             </td>
