@@ -105,6 +105,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 16px;
     }
     
     .logo {
@@ -118,12 +119,14 @@
       width: 40px; height: 40px;
       border-radius: var(--radius-md);
       background: url('logo.jpg') center/cover no-repeat;
+      flex: 0 0 auto;
     }
     
     .logo-text {
       font-size: 22px;
       font-weight: 700;
       color: var(--text-primary);
+      white-space: nowrap;
     }
     
     .logo-text span {
@@ -136,6 +139,8 @@
       display: flex;
       align-items: center;
       gap: 24px;
+      flex: 1 1 auto;
+      justify-content: center;
     }
     
     .nav-link {
@@ -144,6 +149,7 @@
       font-size: 14px;
       font-weight: 500;
       transition: color 0.2s;
+      white-space: nowrap;
     }
     
     .nav-link:hover { color: var(--text-primary); }
@@ -162,6 +168,7 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
+      white-space: nowrap;
     }
     
     .btn-ghost {
@@ -249,51 +256,6 @@
       margin: 0 auto;
     }
     
-    /* Toggle */
-    .pricing-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      margin-bottom: 48px;
-    }
-    
-    .toggle-label {
-      font-size: 14px;
-      color: var(--text-secondary);
-      font-weight: 500;
-    }
-    
-    .toggle-label.active {
-      color: var(--text-primary);
-    }
-    
-    .toggle-switch {
-      width: 56px;
-      height: 30px;
-      background: rgba(255,255,255,0.1);
-      border-radius: var(--radius-full);
-      padding: 3px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    
-    .toggle-switch.active {
-      background: var(--gradient-main);
-    }
-    
-    .toggle-knob {
-      width: 24px;
-      height: 24px;
-      background: #fff;
-      border-radius: 50%;
-      transition: transform 0.3s;
-    }
-    
-    .toggle-switch.active .toggle-knob {
-      transform: translateX(26px);
-    }
-    
     /* Section titles */
     .section-title {
       text-align: center;
@@ -312,18 +274,19 @@
       margin-bottom: 80px;
     }
     
-    .subscription-grid {
+    /* ✅ 3 plans, responsive */
+    .subscription-grid{
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 24px;
-      max-width: 900px;
+      max-width: 1100px;
       margin: 0 auto;
     }
-    
-    @media (max-width: 768px) {
-      .subscription-grid {
-        grid-template-columns: 1fr;
-      }
+    @media (max-width: 1024px){
+      .subscription-grid{ grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px){
+      .subscription-grid{ grid-template-columns: 1fr; }
     }
     
     .pricing-card {
@@ -367,6 +330,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      color: #fff;
     }
     
     .card-icon {
@@ -488,6 +452,7 @@
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.5px;
+      color: #fff;
     }
     
     .credit-icon {
@@ -550,9 +515,7 @@
       text-align: left;
     }
     
-    .faq-question:hover {
-      color: var(--accent-violet);
-    }
+    .faq-question:hover { color: var(--accent-violet); }
     
     .faq-icon {
       font-size: 20px;
@@ -570,7 +533,7 @@
     }
     
     .faq-item.active .faq-answer {
-      max-height: 200px;
+      max-height: 220px;
       padding-bottom: 24px;
     }
     
@@ -605,7 +568,7 @@
     .user-menu {
       display: none;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
     }
     
     .user-email {
@@ -631,17 +594,9 @@
     }
     
     @media (max-width: 768px) {
-      .nav-links {
-        display: none;
-      }
-      
-      .pricing-card {
-        padding: 24px;
-      }
-      
-      .price-amount {
-        font-size: 32px;
-      }
+      .nav-links { display: none; }
+      .pricing-card { padding: 24px; }
+      .price-amount { font-size: 32px; }
     }
   </style>
 </head>
@@ -659,7 +614,7 @@
       
       <div class="nav-links">
         <a href="index.html" class="nav-link">🏠 Accueil</a>
-        <a href="#" class="nav-link" onclick="goToApp()">🚀 App</a>
+        <a href="#" class="nav-link" onclick="goToApp(); return false;">🚀 App</a>
         <a href="pricing.html" class="nav-link" style="color: var(--text-primary);">💎 Tarifs</a>
         <a href="historique.html" class="nav-link">📁 Historique</a>
         <a href="profil.html" class="nav-link">👤 Profil</a>
@@ -672,6 +627,8 @@
       </div>
       
       <div class="user-menu" id="userMenu">
+        <span class="user-email" id="userEmail"></span>
+        <span class="user-plan" id="userPlan"></span>
         <button class="btn btn-ghost" onclick="logout()">Déconnexion</button>
       </div>
     </div>
@@ -679,14 +636,12 @@
   
   <!-- Main content -->
   <main class="main">
-    <!-- Header -->
     <div class="pricing-header">
       <div class="pricing-badge">💎 Tarification simple</div>
       <h1 class="pricing-title">Choisissez votre <span class="gradient">plan</span></h1>
       <p class="pricing-subtitle">Commencez gratuitement, passez à Pro quand vous êtes prêt.</p>
     </div>
     
-    <!-- Subscription plans -->
     <section class="subscription-section">
       <h2 class="section-title"><span class="icon">⚡</span>Abonnements</h2>
       
@@ -709,7 +664,29 @@
             <li><span class="cross">✗</span> Pas d'accès aux versions Pro</li>
           </ul>
           
-          <button class="btn btn-outline btn-large" onclick="selectPlan('free')">Plan actuel</button>
+          <button class="btn btn-outline btn-large" data-plan-btn="free" onclick="selectPlan('free')">Utiliser Free</button>
+        </div>
+
+        <!-- Standard (One-time) -->
+        <div class="pricing-card">
+          <div class="card-badge">Paiement unique</div>
+          <div class="card-icon">⚡</div>
+          <h3 class="card-name">Standard</h3>
+          <p class="card-description">Accès à NEORA PRO avec un achat unique. Idéal pour un besoin ponctuel.</p>
+          
+          <div class="card-price">
+            <span class="price-amount">2 990 XPF</span>
+          </div>
+          
+          <ul class="card-features">
+            <li><span class="check">✓</span> NEORA PRO</li>
+            <li><span class="check">✓</span> 10 générations</li>
+            <li><span class="check">✓</span> Sans filigrane</li>
+            <li><span class="check">✓</span> Images en 1K</li>
+            <li><span class="cross">✗</span> Support prioritaire</li>
+          </ul>
+          
+          <button class="btn btn-outline btn-large" data-plan-btn="standard" onclick="selectPlan('standard')">Acheter</button>
         </div>
         
         <!-- Pro Plan -->
@@ -728,10 +705,11 @@
             <li><span class="check">✓</span> NEORA PRO, NEORA VIDEO</li>
             <li><span class="check">✓</span> 50 générations par mois</li>
             <li><span class="check">✓</span> Sans filigrane</li>
+            <li><span class="check">✓</span> Images en 2K</li>
             <li><span class="check">✓</span> Support prioritaire</li>
           </ul>
           
-          <button class="btn btn-primary btn-large" onclick="selectPlan('pro')">Passer à Pro</button>
+          <button class="btn btn-primary btn-large" data-plan-btn="pro" onclick="selectPlan('pro')">Passer à Pro</button>
         </div>
       </div>
     </section>
@@ -741,33 +719,27 @@
       <h2 class="section-title"><span class="icon">🎁</span>Packs de crédits</h2>
       
       <div class="credits-grid">
-        <!-- Starter Pack -->
         <div class="credit-card">
           <div class="credit-icon">🌱</div>
           <h3 class="credit-name">Starter</h3>
           <div class="credit-amount">10 crédits</div>
           <div class="credit-price">1 990 XPF</div>
-          
           <button class="btn btn-outline btn-large" onclick="buyCredits('starter')">Acheter</button>
         </div>
         
-        <!-- Pro Pack -->
         <div class="credit-card popular">
           <div class="credit-icon">🚀</div>
           <h3 class="credit-name">Pro</h3>
           <div class="credit-amount">30 crédits</div>
           <div class="credit-price">4 990 XPF</div>
-          
           <button class="btn btn-primary btn-large" onclick="buyCredits('pro')">Acheter</button>
         </div>
         
-        <!-- Business Pack -->
         <div class="credit-card">
           <div class="credit-icon">💼</div>
           <h3 class="credit-name">Business</h3>
           <div class="credit-amount">100 crédits</div>
           <div class="credit-price">14 990 XPF</div>
-          
           <button class="btn btn-outline btn-large" onclick="buyCredits('business')">Acheter</button>
         </div>
       </div>
@@ -829,15 +801,20 @@
   </main>
   
   <script>
-    // Stripe Payment Links
+    // ===============================
+    // Stripe Payment Links (TEST)
+    // ===============================
     const PAYMENT_LINKS = {
-      pro: 'https://buy.stripe.com/5kQ3cvggjggt5eegvHao800',           // Abonnement Pro mensuel
-      starter: 'https://buy.stripe.com/28E00j1lpggtbCC2ERao801',       // Pack Starter 10 crédits
-      proPack: 'https://buy.stripe.com/28E9AT2pt7JXdKK0wJao802',       // Pack Pro 30 crédits
-      business: 'https://buy.stripe.com/28E8wP7JN4xLeOO5R3ao803'       // Pack Business 100 crédits
+      pro:      'https://buy.stripe.com/test_8x2cN5dNjagJ3Ew8vkgjC01', // Plan Pro (abonnement)
+      standard: 'https://buy.stripe.com/test_7sY4gzgZv60t1wodPEgjC05', // Plan Standard (paiement unique)
+      starter:  'https://buy.stripe.com/test_3cI5kD24BgF7df6aDsgjC02', // 10 crédits
+      proPack:  'https://buy.stripe.com/test_6oUdR98sZewZa2U3b0gjC03', // 30 crédits
+      business: 'https://buy.stripe.com/test_eVqeVd9x34Wp8YQ4f4gjC04'  // 100 crédits
     };
-    
-    // Firebase config
+
+    // ===============================
+    // Firebase
+    // ===============================
     const firebaseConfig = {
       apiKey: "AIzaSyCKPepYjXiY92hZPEdKxqOow9AACfMTOoc",
       authDomain: "neorastudiosnc.firebaseapp.com",
@@ -846,138 +823,200 @@
       messagingSenderId: "275455765566",
       appId: "1:275455765566:web:c2cf516fcb8f13de7e356f"
     };
-    
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    
+
     let currentUser = null;
-    let userPlan = 'free';
-    
-    // Auth state listener
+    let userPlan = null; // free | standard | pro
     let authChecked = false;
-    
+
+    function normalizePlan(plan) {
+      const p = String(plan || 'free').toLowerCase();
+      if (p === 'one' || p === 'standard') return 'standard';
+      if (p === 'pro') return 'pro';
+      return 'free';
+    }
+
     auth.onAuthStateChanged(async (user) => {
-      currentUser = user;
-      
+      currentUser = user || null;
+
       if (user) {
-        // Get user plan
-        const userDoc = await db.collection('users').doc(user.uid).get();
-        if (userDoc.exists) {
-          userPlan = userDoc.data().plan || 'free';
+        // Cache user
+        if (typeof NeoraAuth !== 'undefined') NeoraAuth.saveUser(user);
+
+        // Read plan
+        try {
+          const userDoc = await db.collection('users').doc(user.uid).get();
+          const planRaw = userDoc.exists ? (userDoc.data().plan || 'free') : 'free';
+          userPlan = normalizePlan(planRaw);
+
+          if (typeof NeoraAuth !== 'undefined') NeoraAuth.savePlan(userPlan);
+        } catch (e) {
+          console.warn('Erreur plan Firestore:', e);
+          userPlan = normalizePlan(userPlan);
         }
-        
-        // Update UI
-        document.getElementById('navButtons').style.display = 'none';
-        document.getElementById('userMenu').style.display = 'flex';
-        document.getElementById('userEmail').textContent = user.email;
-        
+
+        // Update UI nav
+        const navButtons = document.getElementById('navButtons');
+        const userMenu = document.getElementById('userMenu');
+        if (navButtons) navButtons.style.display = 'none';
+        if (userMenu) userMenu.style.display = 'flex';
+
+        const emailEl = document.getElementById('userEmail');
+        if (emailEl) emailEl.textContent = user.email || '';
+
         const planBadge = document.getElementById('userPlan');
-        planBadge.textContent = userPlan.charAt(0).toUpperCase() + userPlan.slice(1);
-        if (userPlan === 'pro') {
-          planBadge.classList.add('pro');
+        if (planBadge) {
+          planBadge.textContent = (userPlan || 'free').toUpperCase();
+          planBadge.classList.toggle('pro', userPlan === 'pro');
+          // (optionnel) tu peux ajouter une classe 'standard' si tu veux un style dédié
         }
-        
-        // Update buttons based on plan
-        if (userPlan === 'free') {
-          const freeBtn = document.querySelector('.pricing-card:not(.featured) .btn');
-          if (freeBtn) {
-            freeBtn.textContent = 'Plan actuel';
-            freeBtn.disabled = true;
-          }
-        } else if (userPlan === 'pro') {
-          const proBtn = document.querySelector('.pricing-card.featured .btn');
-          if (proBtn) {
-            proBtn.textContent = 'Plan actuel';
-            proBtn.classList.remove('btn-primary');
-            proBtn.classList.add('btn-outline');
-            proBtn.disabled = true;
-          }
+
+        // Plan buttons
+        const btnFree = document.querySelector('[data-plan-btn="free"]');
+        const btnStandard = document.querySelector('[data-plan-btn="standard"]');
+        const btnPro = document.querySelector('[data-plan-btn="pro"]');
+
+        function setCurrent(btn) {
+          if (!btn) return;
+          btn.textContent = 'Plan actuel';
+          btn.disabled = true;
+          btn.classList.remove('btn-primary');
+          btn.classList.add('btn-outline');
         }
+
+        if (userPlan === 'free') setCurrent(btnFree);
+        if (userPlan === 'standard') setCurrent(btnStandard);
+        if (userPlan === 'pro') setCurrent(btnPro);
+
       } else {
-        document.getElementById('navButtons').style.display = 'flex';
-        document.getElementById('userMenu').style.display = 'none';
+        userPlan = null;
+
+        const navButtons = document.getElementById('navButtons');
+        const userMenu = document.getElementById('userMenu');
+        if (navButtons) navButtons.style.display = 'flex';
+        if (userMenu) userMenu.style.display = 'none';
       }
-      
-      // Marquer l'auth comme vérifiée et afficher le contenu
+
       if (!authChecked) {
         authChecked = true;
         document.body.classList.add('auth-ready');
       }
     });
-    
+
     function logout() {
       if (typeof NeoraAuth !== "undefined") NeoraAuth.clear();
-      auth.signOut().then(() => {
-        window.location.href = 'index.html';
-      });
+      auth.signOut().then(() => window.location.href = 'index.html');
     }
-    
+
     function toggleFaq(btn) {
       btn.parentElement.classList.toggle('active');
     }
-    
+
+    function buildStripeUrl(link) {
+      return link
+        + '?prefilled_email=' + encodeURIComponent(currentUser.email || '')
+        + '&client_reference_id=' + encodeURIComponent(currentUser.uid || '');
+    }
+
     function selectPlan(plan) {
       if (!currentUser) {
-        alert('Veuillez vous connecter pour souscrire à un plan.');
+        alert('Veuillez vous connecter pour continuer.');
         window.location.href = 'index.html';
         return;
       }
-      
-      if (plan === 'free') {
-        alert('Vous êtes déjà sur le plan gratuit !');
+
+      const p = normalizePlan(plan);
+
+      if (p === 'free') {
+        alert("Plan gratuit sélectionné.");
         return;
       }
-      
-      if (plan === 'pro') {
+
+      if (p === 'standard') {
+        if (userPlan === 'standard') {
+          alert('Vous êtes déjà sur le plan Standard !');
+          return;
+        }
+        window.location.href = buildStripeUrl(PAYMENT_LINKS.standard);
+        return;
+      }
+
+      if (p === 'pro') {
         if (userPlan === 'pro') {
           alert('Vous êtes déjà abonné au plan Pro !');
           return;
         }
-        // Ajouter l'email et l'uid dans l'URL pour identifier l'utilisateur après paiement
-        const url = PAYMENT_LINKS.pro + '?prefilled_email=' + encodeURIComponent(currentUser.email) + '&client_reference_id=' + currentUser.uid;
-        window.location.href = url;
+        window.location.href = buildStripeUrl(PAYMENT_LINKS.pro);
+        return;
       }
     }
-    
+
     function buyCredits(pack) {
       if (!currentUser) {
         alert('Veuillez vous connecter pour acheter des crédits.');
         window.location.href = 'index.html';
         return;
       }
-      
-      const packLinks = {
+
+      const links = {
         starter: PAYMENT_LINKS.starter,
         pro: PAYMENT_LINKS.proPack,
         business: PAYMENT_LINKS.business
       };
-      
-      if (packLinks[pack]) {
-        // Ajouter l'email et l'uid dans l'URL
-        const url = packLinks[pack] + '?prefilled_email=' + encodeURIComponent(currentUser.email) + '&client_reference_id=' + currentUser.uid;
-        window.location.href = url;
-      }
+
+      const link = links[pack];
+      if (link) window.location.href = buildStripeUrl(link);
     }
-    
-    // Fonction pour aller à l'app selon le plan
+
+    // PRO + STANDARD -> selector | FREE -> simple
     async function goToApp() {
+      // 1) Cache instant si dispo
+      if (typeof NeoraAuth !== 'undefined') {
+        const cached = NeoraAuth.getCachedUser?.();
+        const cachedPlan = normalizePlan(cached?.plan);
+        if (cached?.plan) {
+          window.location.href = (cachedPlan === 'pro' || cachedPlan === 'standard')
+            ? 'selector.html'
+            : 'NEORASIMPLE.html';
+          return;
+        }
+      }
+
+      // 2) Plan déjà chargé
+      if (userPlan) {
+        window.location.href = (userPlan === 'pro' || userPlan === 'standard')
+          ? 'selector.html'
+          : 'NEORASIMPLE.html';
+        return;
+      }
+
+      // 3) Fallback Firestore
       if (!currentUser) {
         window.location.href = 'index.html';
         return;
       }
-      
-      const userDoc = await db.collection('users').doc(currentUser.uid).get();
-      const plan = userDoc.exists ? (userDoc.data().plan || 'free') : 'free';
-      
-      if (plan === 'pro') {
-        window.location.href = 'selector.html';
-      } else {
+
+      try {
+        const userDoc = await db.collection('users').doc(currentUser.uid).get();
+        const planRaw = userDoc.exists ? (userDoc.data().plan || 'free') : 'free';
+        const p = normalizePlan(planRaw);
+
+        if (typeof NeoraAuth !== 'undefined') NeoraAuth.savePlan(p);
+
+        window.location.href = (p === 'pro' || p === 'standard')
+          ? 'selector.html'
+          : 'NEORASIMPLE.html';
+      } catch (e) {
+        console.error('goToApp error:', e);
         window.location.href = 'NEORASIMPLE.html';
       }
     }
   </script>
-<script src="neora-cache.js"></script>
-<script src="neora-mobile-nav.js"></script>
+
+  <script src="neora-cache.js"></script>
+  <script src="neora-mobile-nav.js"></script>
 </body>
 </html>
