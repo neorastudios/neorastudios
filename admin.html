@@ -1020,7 +1020,8 @@ const isRealPaying = isRealPayingUser;
       
       tbody.innerHTML = proUsers.map(user => {
         const initials = getInitials(user.email || '?');
-        const genCount = allGenerations.filter(g => g.userId === user.id).length;
+        const genCountRecent = allGenerations.filter(g => g.userId === user.id).length;
+        const genCount = (typeof user.totalGenerations === 'number' ? user.totalGenerations : genCountRecent);
         const upgradedAt = user.upgradedAt ? new Date(user.upgradedAt) : null;
         const stripeId = user.stripeCustomerId || '-';
         const generationsAvailable = user.generationsAvailable || 0;
