@@ -886,8 +886,15 @@
       // Total users
       document.getElementById('totalUsers').textContent = allUsers.length;
       
-      // Total generations
-      document.getElementById('totalGenerations').textContent = allGenerations.length;
+      // Total generations (vrai total à vie basé sur les champs users.totalGenerations)
+      const totalGenerationsAllTime = allUsers.reduce((sum, u) => {
+        const raw = u.totalGenerations;
+        const n = (typeof raw === 'number') ? raw : parseInt(raw, 10);
+        return sum + (Number.isFinite(n) ? n : 0);
+      }, 0);
+      document.getElementById('totalGenerations').textContent = (totalGenerationsAllTime > 0)
+        ? totalGenerationsAllTime.toLocaleString('fr-FR')
+        : allGenerations.length.toLocaleString('fr-FR');
       
       // Today's stats
       const today = new Date();
