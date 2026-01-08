@@ -1086,7 +1086,8 @@ const isRealPaying = isRealPayingUser;
         const genCount = allGenerations.filter(g => g.userId === user.id).length;
         const lastActivity = user.lastGenerationAt?.toDate?.() || user.createdAt?.toDate?.() || null;
         const isBlocked = user.blocked || false;
-        const plan = user.plan || 'free';
+        const planRaw = (user.plan || 'free').toString().toLowerCase();
+        const plan = (planRaw === 'one' || planRaw === 'standard') ? 'standard' : planRaw;
         const credits = user.generationsAvailable || 0;
         
         // Vérifier si c'est un vrai payant
@@ -1105,10 +1106,10 @@ const isRealPaying = isRealPayingUser;
               </div>
             </td>
             <td>
-              <span class="badge-plan ${plan === 'pro' ? 'badge-pro' : 'badge-free'}">
-                ${plan === 'pro' ? '⭐ Pro' : 'Free'}
+              <span class="badge-plan ${plan === 'pro' ? 'badge-pro' : (plan === 'standard' ? 'badge-standard' : 'badge-free')}">
+                ${plan === 'pro' ? '⭐ Pro' : (plan === 'standard' ? '⚡ Standard' : 'Free')}
               </span>
-              ${plan === 'pro' && isRealPaying ? '<span style="margin-left:4px;padding:2px 6px;background:rgba(16,185,129,.15);border-radius:999px;font-size:10px;color:#10b981;">💎</span>' : ''}
+              ${(plan === 'pro' || plan === 'standard') && isRealPaying ? '<span style="margin-left:4px;padding:2px 6px;background:rgba(16,185,129,.15);border-radius:999px;font-size:10px;color:#10b981;">💎</span>' : ''}
             </td>
             <td><span style="color: var(--green);">⚡ ${credits}</span></td>
             <td>${genCount}</td>
