@@ -416,6 +416,31 @@
       color: rgba(255,255,255,.95) !important;
       font-weight: 800 !important;
     }
+    
+    /* Compteur de crédits */
+    .credits-counter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(99,102,241,.12);
+      border: 1px solid rgba(99,102,241,.25);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .credits-counter .icon { font-size: 15px; }
+    .credits-counter .count { color: #a5b4fc; font-weight: 700; }
+    .credits-counter.low {
+      background: rgba(245,158,11,.12);
+      border-color: rgba(245,158,11,.3);
+    }
+    .credits-counter.low .count { color: #fbbf24; }
+    .credits-counter.empty {
+      background: rgba(239,68,68,.12);
+      border-color: rgba(239,68,68,.3);
+    }
+    .credits-counter.empty .count { color: #f87171; }
   </style>
 </head>
 
@@ -427,6 +452,11 @@
         <div class="logo-text" style="font-size:22px;font-weight:700;">Neora<span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">.ai</span></div>
       </a>
       <div style="display: flex; align-items: center; gap: 24px;">
+        <div class="credits-counter" id="creditsCounter">
+          <span class="icon">✨</span>
+          <span class="count" id="creditsCount">-</span>
+          <span>crédits</span>
+        </div>
         <a href="index.html" style="color: rgba(255,255,255,.7); text-decoration: none; font-size: 14px;">🏠 Accueil</a>
         <a href="pricing.html" style="color: rgba(255,255,255,.7); text-decoration: none; font-size: 14px;">💎 Tarifs</a>
         <a href="historique.html" style="color: rgba(255,255,255,.7); text-decoration: none; font-size: 14px;">📁 Historique</a>
@@ -656,6 +686,10 @@
           lastGenerationAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         console.log('✅ Crédit déduit');
+        
+        // Mettre à jour le compteur affiché
+        const currentCount = parseInt(document.getElementById('creditsCount').textContent) || 0;
+        updateCreditsDisplay(Math.max(0, currentCount - 1));
       } catch (error) {
         console.error('Erreur déduction crédit:', error);
       }
@@ -687,7 +721,43 @@
       
       // Vérifier si bloqué
       await checkIfBlocked(user);
+      
+      // Charger et afficher les crédits
+      await loadCredits(user);
     });
+    
+    // Fonction pour charger et afficher les crédits
+    async function loadCredits(user) {
+      if (!user) return;
+      
+      try {
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        const userData = userDoc.exists ? userDoc.data() : {};
+        const credits = userData.generationsAvailable || 0;
+        
+        updateCreditsDisplay(credits);
+      } catch (error) {
+        console.error('Erreur chargement crédits:', error);
+      }
+    }
+    
+    // Fonction pour mettre à jour l'affichage des crédits
+    function updateCreditsDisplay(credits) {
+      const counter = document.getElementById('creditsCounter');
+      const countEl = document.getElementById('creditsCount');
+      
+      if (!counter || !countEl) return;
+      
+      countEl.textContent = credits;
+      
+      // Changer le style selon le nombre de crédits
+      counter.classList.remove('low', 'empty');
+      if (credits === 0) {
+        counter.classList.add('empty');
+      } else if (credits <= 2) {
+        counter.classList.add('low');
+      }
+    }
     
     // Initialisation du tracker NEORA
     initNeoraTracker('NEORASIMPLE');
