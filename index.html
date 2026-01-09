@@ -2302,8 +2302,11 @@
       window.closeModal = function(type) { 
         document.getElementById(type + 'Modal').classList.remove('active'); 
         document.body.style.overflow = ''; 
-        document.getElementById(type + 'Error').textContent = ''; 
-        document.getElementById(type + 'Error').classList.remove('show'); 
+        const errorEl = document.getElementById(type + 'Error');
+        if (errorEl) {
+          errorEl.textContent = ''; 
+          errorEl.classList.remove('show');
+        }
       };
       
       window.switchModal = function(to) { 
