@@ -1382,6 +1382,12 @@
         return;
       }
 
+      // Vérifier si l'utilisateur a des crédits disponibles
+      if (!canGenerate()) {
+        setModStatus("Plus de crédits disponibles ❌");
+        return;
+      }
+
       modifyBtn.disabled = true;
       submitBtn.disabled = true;
       recheckBtn.disabled = true;
@@ -1410,6 +1416,20 @@
           setModStatus("Done ✅");
           showImage(r.image, { final:true });
           editInstrEl.value = "";
+          
+          // Décrémenter le compteur de générations pour la modification
+          const user = firebase.auth().currentUser;
+          if (user) {
+            await decrementGeneration(user);
+          }
+          
+          // Sauvegarde dans l'historique
+          saveGeneration({
+            imageUrl: r.image,
+            prompt: edit_instructions,
+            aspectRatio: aspectEl.value,
+            mode: 'modification'
+          });
         } else if(r.status === "failed"){
           setOverlay(false);
           setModStatus("Failed ❌ " + (r.errorMessage || ""));
