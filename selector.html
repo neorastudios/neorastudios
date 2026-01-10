@@ -250,6 +250,61 @@
       color: #f9a8d4;
     }
 
+    /* Icon image style */
+    .version-icon .icon-img {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      object-fit: cover;
+    }
+
+    /* Disabled card (Coming Soon) */
+    .version-card-disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .version-card-disabled:hover {
+      transform: none;
+      border-color: var(--border-light);
+      box-shadow: none;
+    }
+
+    .version-card-disabled:hover::before {
+      opacity: 0;
+    }
+
+    .coming-soon-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .version-card-disabled:hover .coming-soon-overlay {
+      opacity: 1;
+    }
+
+    .coming-soon-overlay span {
+      background: rgba(139,92,246,0.9);
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .badge-coming-soon {
+      background: rgba(100,100,100,0.3) !important;
+      border-color: rgba(150,150,150,0.4) !important;
+      color: rgba(255,255,255,0.6) !important;
+    }
+
     /* Loading overlay */
     .loading-overlay {
       position: fixed;
@@ -323,21 +378,28 @@
       <div class="version-grid">
         <a href="NEORA.html" class="version-card">
           <div class="version-card-inner">
-            <div class="version-icon">⚡</div>
+            <div class="version-icon">
+              <img src="Design_sans_titre__2_.png" alt="NEORA" class="icon-img">
+            </div>
             <div class="version-name">NEORA PRO</div>
-            <div class="version-desc">Transforme tes images en visuels       de qualités</div>
+            <div class="version-desc">Transforme tes images en visuels de qualités</div>
             <div class="version-badge">PRO</div>
           </div>
         </a>
 
-        <a href="#" class="version-card">
+        <div class="version-card version-card-disabled" onclick="showComingSoon()">
           <div class="version-card-inner">
-            <div class="version-icon">🎬</div>
+            <div class="version-icon">
+              <img src="Design_sans_titre__2_.png" alt="NEORA VIDEO" class="icon-img">
+            </div>
             <div class="version-name">NEORA VIDEO</div>
             <div class="version-desc">Transforme tes images en vidéos cinématiques</div>
-            <div class="version-badge">✨ Bientôt disponible</div>
+            <div class="version-badge badge-coming-soon">✨ Bientôt disponible</div>
           </div>
-        </a>
+          <div class="coming-soon-overlay">
+            <span>🔒 Bientôt</span>
+          </div>
+        </div>
       </div>
     </main>
   </div><!-- ✅ fermeture page-container -->
@@ -439,6 +501,11 @@
       auth.signOut().then(() => {
         window.location.href = 'index.html';
       });
+    }
+
+    function showComingSoon() {
+      // Ne rien faire - la carte est désactivée
+      // L'overlay s'affiche au hover
     }
 
     async function goToApp() {
