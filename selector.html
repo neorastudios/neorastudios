@@ -167,175 +167,102 @@
       margin-bottom: 48px;
     }
 
-    /* ✅ FIX: 2 cartes au centre */
+    /* ✅ Grille centrée */
     .version-grid {
-      width: min(900px, 100%);
+      width: min(700px, 100%);
       display: grid;
-      grid-template-columns: repeat(2, minmax(260px, 360px));
+      grid-template-columns: repeat(2, 200px);
       justify-content: center;
-      gap: 20px;
+      gap: 48px;
     }
 
     .version-card {
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-      border: 1px solid var(--border-light);
-      border-radius: 20px;
-      padding: 0;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       text-decoration: none;
       color: inherit;
-      display: block;
-      height: 280px;
-    }
-
-    .version-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: var(--gradient-main);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: 2;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
 
     .version-card:hover {
       transform: translateY(-8px);
-      border-color: rgba(139,92,246,.5);
-      box-shadow: 0 30px 60px rgba(139,92,246,.25);
     }
 
-    .version-card:hover::before { opacity: 0.08; }
-
-    .version-card-inner { 
-      position: relative; 
-      width: 100%;
-      height: 100%;
+    .version-card:hover .version-icon {
+      box-shadow: 0 30px 60px rgba(139,92,246,.4);
+      transform: scale(1.05);
     }
 
-    /* Image plein cadre */
     .version-icon {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
+      width: 160px;
+      height: 160px;
+      border-radius: 36px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 20px 50px rgba(139,92,246,.25);
     }
 
-    .version-icon .icon-img {
+    .version-icon img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
     }
 
-    /* Overlay sombre pour lisibilité du texte */
-    .version-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%);
-      z-index: 1;
-    }
-
-    /* Texte en overlay */
-    .version-info {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 24px;
-      z-index: 3;
+    .version-label {
+      margin-top: 20px;
       text-align: center;
     }
 
     .version-name {
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       letter-spacing: 0.05em;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
 
     .version-desc {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text-secondary);
-      line-height: 1.5;
-      margin-bottom: 12px;
-      text-shadow: 0 1px 5px rgba(0,0,0,0.5);
-    }
-
-    .version-badge {
-      display: inline-block;
-      padding: 6px 14px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      border-radius: 20px;
-      background: rgba(255,255,255,.15);
-      border: 1px solid rgba(255,255,255,.25);
-      backdrop-filter: blur(10px);
-    }
-
-    .version-card:nth-child(1) .version-badge {
-      background: rgba(139,92,246,.2);
-      border-color: rgba(139,92,246,.4);
-      color: #a5b4fc;
-    }
-
-    .version-card:nth-child(2) .version-badge {
-      background: linear-gradient(135deg, rgba(236,72,153,.25), rgba(168,85,247,.25));
-      border-color: rgba(236,72,153,.4);
-      color: #f9a8d4;
+      line-height: 1.4;
     }
 
     /* Disabled card (Coming Soon) */
     .version-card-disabled {
       cursor: not-allowed;
-      opacity: 0.7;
     }
 
     .version-card-disabled:hover {
       transform: none;
-      border-color: var(--border-light);
-      box-shadow: none;
     }
 
-    .version-card-disabled:hover::before {
-      opacity: 0;
+    .version-card-disabled:hover .version-icon {
+      transform: none;
+      box-shadow: 0 20px 50px rgba(139,92,246,.15);
     }
 
-    .coming-soon-overlay {
+    .version-card-disabled .version-icon {
+      opacity: 0.5;
+      filter: grayscale(0.4);
+      position: relative;
+    }
+
+    .version-card-disabled .version-icon::after {
+      content: '🔒';
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(2px);
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 20px;
-      opacity: 0;
-      transition: opacity 0.3s;
+      font-size: 48px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 36px;
     }
 
-    .version-card-disabled:hover .coming-soon-overlay {
-      opacity: 1;
-    }
-
-    .coming-soon-overlay span {
-      background: rgba(139,92,246,0.9);
-      padding: 12px 24px;
-      border-radius: 30px;
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .badge-coming-soon {
-      background: rgba(100,100,100,0.3) !important;
-      border-color: rgba(150,150,150,0.4) !important;
-      color: rgba(255,255,255,0.6) !important;
+    .version-card-disabled .version-desc {
+      color: var(--text-muted);
     }
 
     /* Loading overlay */
@@ -367,7 +294,15 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     @media (max-width: 600px) {
-      .version-grid { grid-template-columns: 1fr; width: min(400px, 100%); }
+      .version-grid { 
+        grid-template-columns: 150px; 
+        gap: 32px;
+      }
+      .version-icon {
+        width: 120px;
+        height: 120px;
+        border-radius: 28px;
+      }
       .selector-title { font-size: 32px; }
       .nav-links { display: none; }
     }
@@ -410,33 +345,22 @@
 
       <div class="version-grid">
         <a href="NEORA.html" class="version-card">
-          <div class="version-card-inner">
-            <div class="version-icon">
-              <img src="Design_sans_titre__2_.png" alt="NEORA" class="icon-img">
-            </div>
-            <div class="version-overlay"></div>
-            <div class="version-info">
-              <div class="version-name">NEORA PRO</div>
-              <div class="version-desc">Transforme tes images en visuels de qualités</div>
-              <div class="version-badge">PRO</div>
-            </div>
+          <div class="version-icon">
+            <img src="icôneapp.png" alt="NEORA PRO">
+          </div>
+          <div class="version-label">
+            <div class="version-name">NEORA PRO</div>
+            <div class="version-desc">Images professionnelles</div>
           </div>
         </a>
 
-        <div class="version-card version-card-disabled" onclick="showComingSoon()">
-          <div class="version-card-inner">
-            <div class="version-icon">
-              <img src="Design_sans_titre__2_.png" alt="NEORA VIDEO" class="icon-img">
-            </div>
-            <div class="version-overlay"></div>
-            <div class="version-info">
-              <div class="version-name">NEORA VIDEO</div>
-              <div class="version-desc">Transforme tes images en vidéos cinématiques</div>
-              <div class="version-badge badge-coming-soon">✨ Bientôt disponible</div>
-            </div>
+        <div class="version-card version-card-disabled">
+          <div class="version-icon">
+            <img src="icôneapp.png" alt="NEORA VIDEO">
           </div>
-          <div class="coming-soon-overlay">
-            <span>🔒 Bientôt</span>
+          <div class="version-label">
+            <div class="version-name">NEORA VIDEO</div>
+            <div class="version-desc">Bientôt disponible</div>
           </div>
         </div>
       </div>
@@ -540,11 +464,6 @@
       auth.signOut().then(() => {
         window.location.href = 'index.html';
       });
-    }
-
-    function showComingSoon() {
-      // Ne rien faire - la carte est désactivée
-      // L'overlay s'affiche au hover
     }
 
     async function goToApp() {
