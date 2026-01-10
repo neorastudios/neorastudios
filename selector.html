@@ -129,12 +129,10 @@
     }
 
     .brand-logo {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: url('logo.jpg') center/cover no-repeat;
-      box-shadow: 0 0 20px rgba(139,92,246,0.3);
-    }
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
 
     .logo-text {
       font-size: 20px;
@@ -451,7 +449,7 @@
     <nav class="topbar">
       <div class="topbar-inner">
         <a href="index.html" class="brand">
-          <div class="brand-logo"></div>
+          <img src="logo.png" alt="Neora" class="brand-logo">
           <div class="logo-text">Neora<span>.ai</span></div>
         </a>
 
@@ -469,9 +467,9 @@
     <!-- Main content -->
     <main class="main-content">
       <header class="header">
-        <div class="header-badge">Workspace Pro</div>
+        <div class="header-badge">App</div>
         <h1 class="header-title">
-          Choisissez votre<br><span class="gradient">expérience</span>
+          Choisissez votre<br><span class="gradient">version</span>
         </h1>
         <p class="header-subtitle">
           Sélectionnez l'outil adapté à votre créativité
