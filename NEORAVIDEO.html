@@ -771,9 +771,9 @@
 
     // Config
     const KLING_WEBHOOK_URL = 'https://n8n.srv1125399.hstgr.cloud/webhook/kling-video';
+    const KLING_STATUS_URL = 'https://n8n.srv1125399.hstgr.cloud/webhook/kling-status';
     const CLOUDINARY_UPLOAD_URL = 'https://api.cloudinary.com/v1_1/diegfxcyl/image/upload';
     const CLOUDINARY_UPLOAD_PRESET = 'neora_upload';
-    const FAL_API_KEY = 'fe2232cd-be9e-411f-9e5b-4e88bfcb3930:4539ba5f78d39afecdf730b00b3cba10';
 
     // State
     let selectedFile = null;
@@ -973,43 +973,37 @@
       return data.secure_url;
     }
 
-    // Poll for result
+    // Poll for result via n8n (évite CORS)
     async function pollForResult(requestId, creditsNeeded) {
-      const POLL_URL = `https://queue.fal.run/fal-ai/kling-video/v2.1/standard/image-to-video/requests/${requestId}`;
-      const maxAttempts = 60; // ~3 minutes
+      const maxAttempts = 40; // ~2 minutes
       let attempts = 0;
       
       const poll = async () => {
         attempts++;
-        statusBar.textContent = `⏳ Traitement en cours... (${attempts * 3}s)`;
+        const elapsed = attempts * 3;
+        statusBar.textContent = `⏳ Traitement en cours... (${elapsed}s)`;
         
         try {
-          // Check status first
-          const statusResponse = await fetch(`${POLL_URL}/status`, {
-            headers: { 'Authorization': `Key ${FAL_API_KEY}` }
+          const response = await fetch(KLING_STATUS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ request_id: requestId })
           });
-          const statusData = await statusResponse.json();
           
-          if (statusData.status === 'COMPLETED') {
-            // Get result
-            const resultResponse = await fetch(POLL_URL, {
-              headers: { 'Authorization': `Key ${FAL_API_KEY}` }
-            });
-            const resultData = await resultResponse.json();
-            
-            if (resultData.video?.url) {
-              showResult(resultData.video.url);
-              await deductVideoCredits(creditsNeeded);
-              return;
-            }
-          } else if (statusData.status === 'FAILED') {
+          const data = await response.json();
+          
+          if (data.success && data.video_url) {
+            // Vidéo prête !
+            showResult(data.video_url);
+            await deductVideoCredits(creditsNeeded);
+            return;
+          } else if (data.status === 'FAILED') {
             throw new Error('La génération a échoué');
-          }
-          
-          if (attempts < maxAttempts) {
+          } else if (attempts < maxAttempts) {
+            // Encore en cours, on repoll
             setTimeout(poll, 3000);
           } else {
-            throw new Error('Timeout - réessayez plus tard');
+            throw new Error('Timeout - la vidéo prend trop de temps');
           }
           
         } catch (error) {
@@ -1020,6 +1014,7 @@
         }
       };
       
+      // Premier poll après 5s
       setTimeout(poll, 5000);
     }
 
