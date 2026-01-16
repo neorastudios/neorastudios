@@ -441,48 +441,312 @@
       border-color: rgba(239,68,68,.3);
     }
     .credits-counter.empty .count { color: #f87171; }
+
+    /* ========== PREMIUM DESIGN ========== */
+    
+    /* Background effects */
+    .bg-effects {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .bg-gradient {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.5;
+    }
+    .bg-gradient-1 {
+      width: 800px;
+      height: 800px;
+      top: -400px;
+      left: -200px;
+      background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%);
+    }
+    .bg-gradient-2 {
+      width: 600px;
+      height: 600px;
+      bottom: -300px;
+      right: -150px;
+      background: radial-gradient(circle, rgba(236,72,153,0.25) 0%, transparent 70%);
+    }
+    .bg-gradient-3 {
+      width: 500px;
+      height: 500px;
+      top: 30%;
+      right: 10%;
+      background: radial-gradient(circle, rgba(34,211,238,0.15) 0%, transparent 70%);
+    }
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
+    }
+
+    .page-container {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+    }
+
+    /* Enhanced Topbar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(5,7,20,0.75);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .topbar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: url('logo.jpg') center/cover no-repeat;
+      box-shadow: 0 8px 30px rgba(99,102,241,0.25);
+    }
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .logo-text span {
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Navigation */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .nav-link {
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      color: rgba(255,255,255,0.65);
+      transition: all 0.2s ease;
+    }
+    .nav-link:hover {
+      color: rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.08);
+    }
+    .nav-link.active {
+      color: rgba(255,255,255,0.95);
+      background: rgba(99,102,241,0.15);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-logout {
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.85);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .btn-logout:hover {
+      background: rgba(255,255,255,0.1);
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+    }
+    @media (max-width: 600px) {
+      .topbar-inner { padding: 12px 16px; }
+      .logo-text { display: none; }
+    }
+
+    /* Enhanced Panel */
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      box-shadow: 
+        0 25px 80px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .panel .head {
+      padding: 20px 22px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent);
+    }
+    .title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: rgba(255,255,255,0.95);
+    }
+    .subtitle {
+      margin: 8px 0 0;
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.5;
+    }
+    .panel .body {
+      padding: 18px 22px 22px;
+    }
+
+    /* Enhanced Frame */
+    .frame {
+      margin-top: 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.3);
+      overflow: hidden;
+      position: relative;
+      min-height: 340px;
+      display: grid;
+      place-items: center;
+      box-shadow: 
+        0 20px 60px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    /* Enhanced Buttons */
+    .btn-primary {
+      border: none;
+      background: var(--grad);
+      color: #fff;
+      box-shadow: 
+        0 15px 40px rgba(99,102,241,0.3),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.15), transparent);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .btn-primary:hover::before {
+      opacity: 1;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        0 20px 50px rgba(99,102,241,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    /* Badge FREE */
+    .badge-free {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: linear-gradient(135deg, rgba(34,211,238,0.15), rgba(99,102,241,0.15));
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #22d3ee;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
   </style>
 </head>
 
 <body>
-  <div class="topbar">
-    <div class="topbar-inner">
-      <a href="index.html" class="brand" style="text-decoration:none;">
-        <div class="logo"></div>
-        <div class="logo-text" style="font-size:22px;font-weight:700;">Neora<span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">.ai</span></div>
-      </a>
-      <div style="display: flex; align-items: center; gap: 24px;">
-        <div class="credits-counter" id="creditsCounter">
-          <span class="icon">✨</span>
-          <span class="count" id="creditsCount">-</span>
-          <span>crédits</span>
-        </div>
-        <a href="index.html" style="color: rgba(255,255,255,.7); text-decoration: none; font-size: 14px;">🏠 Accueil</a>
-        <a href="pricing.html" style="color: rgba(255,255,255,.7); text-decoration: none; font-size: 14px;">💎 Tarifs</a>
-        <a href="historique.html" style="color: rgba(255,255,255,.7); text-decoration: none; font-size: 14px;">📁 Historique</a>
-        <a href="profil.html" style="color: rgba(255,255,255,.7); text-decoration: none; font-size: 14px;">👤 Profil</a>
-        <a href="contact.html" style="color: rgba(255,255,255,.7); text-decoration: none; font-size: 14px;">📬 Contact</a>
-        <button onclick="logout()" style="padding:10px 20px;font-size:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.9);border-radius:999px;cursor:pointer;font-family:inherit;">Déconnexion</button>
-      </div>
-    </div>
+  <!-- Background effects -->
+  <div class="bg-effects">
+    <div class="bg-gradient bg-gradient-1"></div>
+    <div class="bg-gradient bg-gradient-2"></div>
+    <div class="bg-gradient bg-gradient-3"></div>
+    <div class="bg-grid"></div>
   </div>
+
+  <div class="page-container">
+    <nav class="topbar">
+      <div class="topbar-inner">
+        <a href="index.html" class="brand">
+          <div class="logo"></div>
+          <div class="logo-text">Neora<span>.ai</span></div>
+        </a>
+
+        <div class="nav-links">
+          <a href="index.html" class="nav-link">Accueil</a>
+          <a href="pricing.html" class="nav-link">Tarifs</a>
+          <a href="historique.html" class="nav-link">Historique</a>
+          <a href="profil.html" class="nav-link">Profil</a>
+          <a href="contact.html" class="nav-link">Contact</a>
+        </div>
+
+        <div class="topbar-right">
+          <span class="badge-free">✨ Free</span>
+          <div class="credits-counter" id="creditsCounter">
+            <span class="icon">⚡</span>
+            <span class="count" id="creditsCount">-</span>
+            <span>crédits</span>
+          </div>
+          <button class="btn-logout" onclick="logout()">Déconnexion</button>
+        </div>
+      </div>
+    </nav>
 
   <div class="wrap">
     <div class="grid">
       <!-- Controls -->
       <div class="panel">
         <div class="head">
-          <h2 class="title">Create</h2>
-          <p class="subtitle">Décris ce que tu veux. Ajoute une image seulement si tu veux transformer un produit existant.</p>
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <h2 class="title">🎨 Create</h2>
+            <span class="badge-free">Version Gratuite</span>
+          </div>
+          <p class="subtitle">Décris ce que tu veux générer. Ajoute une image si tu veux transformer un produit existant.</p>
         </div>
         <div class="body">
           <!-- Templates de prompts -->
           <div id="promptTemplates"></div>
           
-          <label for="prompt_user">Prompt</label>
+          <label for="prompt_user">✨ Prompt</label>
           <textarea id="prompt_user" placeholder="Ex: Visuel marketing premium, éclairage studio, rendu photoréaliste, fond sombre minimal..."></textarea>
 
-          <label>Image (optionnel)</label>
+          <label>📷 Image (optionnel)</label>
           <div class="drop" id="dropZone">
             <div class="drop-left">
               <div class="upload-ico">
@@ -505,11 +769,11 @@
 
           <div class="row2" style="margin-top:12px;">
             <div>
-              <label>Resolution</label>
+              <label>📐 Resolution</label>
               <div class="pill"><span class="mono">2K</span></div>
             </div>
             <div>
-              <label for="aspectRatio">Aspect ratio</label>
+              <label for="aspectRatio">📏 Aspect ratio</label>
               <select id="aspectRatio">
                 <option value="16:9" selected>16:9</option>
                 <option value="1:1">1:1</option>
@@ -521,9 +785,9 @@
           </div>
 
           <div class="btnrow">
-            <button class="btn btn-primary" id="submit-btn">Generate</button>
-            <button class="btn" id="recheck-btn" disabled>Re-check</button>
-            <button class="btn" id="reset-btn">Reset</button>
+            <button class="btn btn-primary" id="submit-btn">⚡ Generate</button>
+            <button class="btn" id="recheck-btn" disabled>🔄 Re-check</button>
+            <button class="btn" id="reset-btn">🗑️ Reset</button>
           </div>
 
           <div class="status" id="status">Ready.</div>
@@ -533,20 +797,21 @@
       <!-- Preview -->
       <div class="panel">
         <div class="head">
-          <div class="preview-head">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
             <div>
-              <h2 class="title">Result</h2>
-              <div class="hint">Ton image finale s’affiche ici.</div>
+              <h2 class="title">🖼️ Result</h2>
+              <p class="subtitle" style="margin-top: 6px;">Ton image générée apparaît ici.</p>
             </div>
-            <a class="link" id="downloadLink" href="#" target="_blank" rel="noreferrer" style="display:none;">Download</a>
+            <a class="link" id="downloadLink" href="#" target="_blank" rel="noreferrer" style="display:none; color: rgba(255,255,255,.92); text-decoration: none; font-weight: 700; padding: 8px 16px; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); border-radius: 999px; font-size: 13px;">⬇️ Download</a>
           </div>
         </div>
 
         <div class="body">
           <div class="frame" id="frame">
             <div class="empty" id="empty">
-              <div style="font-size:14px;margin-bottom:8px;"><strong>No output yet</strong></div>
-              <div>Écris un prompt, ajoute une image si besoin, puis clique <b>Generate</b>.</div>
+              <div style="font-size: 48px; margin-bottom: 16px;">🎨</div>
+              <div style="font-size: 16px; font-weight: 700; margin-bottom: 8px; color: rgba(255,255,255,0.9);">Aucune image générée</div>
+              <div style="font-size: 14px; color: rgba(255,255,255,0.5);">Écris un prompt et clique <b style="color: rgba(255,255,255,0.8);">Generate</b> pour créer</div>
             </div>
             <img id="preview-image" alt="Neora result" style="display:none;" />
             <div class="overlay" id="overlay">
@@ -566,6 +831,7 @@
       </div>
     </div>
   </div>
+  </div> <!-- Fermeture page-container -->
 
   <!-- Modal Upgrade Pro -->
   <div id="upgradeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); backdrop-filter:blur(8px); z-index:1000; align-items:center; justify-content:center;">
@@ -682,7 +948,6 @@
         const userRef = db.collection('users').doc(user.uid);
         await userRef.update({
           generationsAvailable: firebase.firestore.FieldValue.increment(-1),
-          totalGenerations: firebase.firestore.FieldValue.increment(1),
           lastGenerationAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         console.log('✅ Crédit déduit');
@@ -692,6 +957,26 @@
         updateCreditsDisplay(Math.max(0, currentCount - 1));
       } catch (error) {
         console.error('Erreur déduction crédit:', error);
+      }
+    }
+    
+    // Rembourser un crédit en cas d'échec
+    async function refundCredit() {
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      try {
+        const userRef = db.collection('users').doc(user.uid);
+        await userRef.update({
+          generationsAvailable: firebase.firestore.FieldValue.increment(1)
+        });
+        console.log('🔄 Crédit remboursé');
+        
+        // Mettre à jour le compteur affiché
+        const currentCount = parseInt(document.getElementById('creditsCount').textContent) || 0;
+        updateCreditsDisplay(currentCount + 1);
+      } catch (error) {
+        console.error('Erreur remboursement crédit:', error);
       }
     }
     
@@ -932,8 +1217,7 @@
             setOverlay(false);
             setStatus("Done ✅");
             showImage(r.image);
-            // Déduire un crédit (polling)
-            await deductCredit();
+            // Note: crédit déjà déduit dans submitBtn, pas besoin ici
           } else if(r.status === "failed"){
             stopPolling();
             setOverlay(false);
@@ -1046,6 +1330,15 @@
       submitBtn.disabled = true;
       recheckBtn.disabled = true;
 
+      // === DÉDUIRE LE CRÉDIT IMMÉDIATEMENT ===
+      let creditDeducted = false;
+      try {
+        await deductCredit();
+        creditDeducted = true;
+      } catch (e) {
+        console.error('Erreur déduction crédit:', e);
+      }
+
       setOverlay(true, "Generating…");
       setStatus("Processing…");
       clearResult();
@@ -1079,9 +1372,6 @@
           setStatus("Done ✅");
           showImage(r.image);
           
-          // Déduire un crédit
-          await deductCredit();
-          
           // Sauvegarde dans l'historique
           saveGeneration({
             imageUrl: r.image,
@@ -1092,6 +1382,10 @@
         } else if(r.status === "failed"){
           setOverlay(false);
           setStatus("Failed ❌ " + (r.errorMessage || ""));
+          // Rembourser le crédit si échec
+          if (creditDeducted) {
+            await refundCredit();
+          }
         } else {
           setStatus("Processing… (not ready on first check)");
           if(r.taskId && N8N_STATUS_URL) startPolling(r.taskId);
@@ -1100,6 +1394,10 @@
       } catch(e){
         setOverlay(false);
         setStatus("Error: " + (e.message || e));
+        // Rembourser le crédit si erreur
+        if (creditDeducted) {
+          await refundCredit();
+        }
       } finally {
         submitBtn.disabled = false;
       }
