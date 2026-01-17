@@ -230,10 +230,15 @@
       justify-content:space-between;
       transition: border .15s ease, background .15s ease;
       box-shadow: 0 10px 30px rgba(0,0,0,.18);
+      cursor: pointer;
     }
     .drop:hover{
       border-color: rgba(99,102,241,.45);
       background: rgba(0,0,0,.28);
+    }
+    .drop.dragover {
+      border-color: rgba(99,102,241,.65);
+      background: rgba(99,102,241,.12);
     }
     .drop-left{ display:flex; gap:12px; align-items:center; min-width:0; }
     .upload-ico{
@@ -270,6 +275,82 @@
     .btn-small:active{ transform: translateY(0px); }
 
     input[type="file"]{ display:none; }
+
+    /* ✅ NEW: Multi-image previews grid */
+    .image-previews {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .image-previews:empty {
+      display: none;
+    }
+    .preview-item {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(0,0,0,.3);
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+    }
+    .preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .preview-item .remove-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      background: rgba(0,0,0,.75);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      line-height: 1;
+      transition: background .15s ease, transform .15s ease;
+    }
+    .preview-item .remove-btn:hover {
+      background: rgba(239,68,68,.85);
+      transform: scale(1.1);
+    }
+    .preview-item.uploading::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .preview-item.uploading::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      z-index: 1;
+    }
+    .image-count {
+      font-size: 11px;
+      color: var(--muted2);
+      margin-top: 8px;
+    }
 
     /* Buttons */
     .btnrow{
@@ -881,7 +962,7 @@ body{
       <div class="panel">
         <div class="head">
           <h2 class="title">Create</h2>
-          <p class="subtitle">Décris ce que tu veux. Ajoute une image seulement si tu veux transformer un produit existant.</p>
+          <p class="subtitle">Décris ce que tu veux. Ajoute des images seulement si tu veux transformer des produits existants.</p>
         </div>
         <div class="body">
           <!-- Templates de prompts -->
@@ -890,7 +971,7 @@ body{
           <label for="prompt_user">Prompt</label>
           <textarea id="prompt_user" placeholder="Ex: Visuel marketing premium, éclairage studio, rendu photoréaliste, fond sombre minimal..."></textarea>
 
-          <label>Image (optionnel)</label>
+          <label>Images (optionnel) — max 5</label>
           <div class="drop" id="dropZone">
             <div class="drop-left">
               <div class="upload-ico">
@@ -900,16 +981,20 @@ body{
                 </svg>
               </div>
               <div class="drop-meta">
-                <p class="drop-title" id="fileTitle">Drop image here (or browse)</p>
-                <p class="drop-sub" id="fileSub">PNG / JPG • optional</p>
+                <p class="drop-title" id="fileTitle">Drop images here (or browse)</p>
+                <p class="drop-sub" id="fileSub">PNG / JPG • jusqu'à 5 images</p>
               </div>
             </div>
             <div class="drop-actions">
               <button type="button" class="btn-small" id="browseBtn">Browse</button>
-              <button type="button" class="btn-small" id="clearBtn">Clear</button>
+              <button type="button" class="btn-small" id="clearBtn">Clear all</button>
             </div>
-            <input type="file" id="product_image" accept="image/*" />
+            <input type="file" id="product_image" accept="image/*" multiple />
           </div>
+          
+          <!-- ✅ NEW: Multi-image previews -->
+          <div class="image-previews" id="imagePreviews"></div>
+          <div class="image-count" id="imageCount"></div>
 
           <div class="row2" style="margin-top:12px;">
             <div>
@@ -944,7 +1029,7 @@ body{
           <div class="preview-head">
             <div>
               <h2 class="title">Result</h2>
-              <div class="hint">Ton image finale s’affiche ici.</div>
+              <div class="hint">Ton image finale s'affiche ici.</div>
             </div>
             <a class="link" id="downloadLink" href="#" target="_blank" rel="noreferrer" style="display:none;">Download</a>
             <button class="btn-edit" id="editBtn" onclick="openEditor()" style="display:none;">✏️ Éditer</button>
@@ -955,7 +1040,7 @@ body{
           <div class="frame" id="frame">
             <div class="empty" id="empty">
               <div style="font-size:14px;margin-bottom:8px;"><strong>No output yet</strong></div>
-              <div>Écris un prompt, ajoute une image si besoin, puis clique <b>Generate</b>.</div>
+              <div>Écris un prompt, ajoute des images si besoin, puis clique <b>Generate</b>.</div>
             </div>
             <img id="preview-image" alt="Neora result" style="display:none;" />
             <div class="overlay" id="overlay">
@@ -976,7 +1061,7 @@ body{
             <div class="top">
               <div>
                 <div class="t">Modifications</div>
-                <div class="s">Décris les changements à appliquer à l’image.</div>
+                <div class="s">Décris les changements à appliquer à l'image.</div>
               </div>
               <span class="pill">Base: <span class="mono" id="baseInfo">final</span></span>
             </div>
@@ -1205,6 +1290,8 @@ body{
     const N8N_MODIFY_URL = ""; // ex: "https://.../webhook/xxxxx"
     const N8N_MODIFY_STATUS_URL = ""; // optionnel (sinon N8N_STATUS_URL est utilisé)
 
+    const MAX_IMAGES = 5; // ✅ Limite max d'images
+
     const $ = (id) => document.getElementById(id);
 
     const promptEl = $("prompt_user");
@@ -1232,6 +1319,10 @@ body{
     const clearBtn = $("clearBtn");
     const fileTitle = $("fileTitle");
     const fileSub = $("fileSub");
+    
+    // ✅ NEW: Multi-image refs
+    const imagePreviews = $("imagePreviews");
+    const imageCountEl = $("imageCount");
 
     // ✅ modify refs
     const modifyBox = $("modifyBox");
@@ -1260,6 +1351,9 @@ body{
     // track final image url (for edits)
     let currentFinalImageUrl = "";
     let hasFinalOutput = false;
+    
+    // ✅ NEW: Stockage des URLs Cloudinary uploadées
+    let uploadedImageUrls = [];
 
     function setStatus(msg){ statusEl.textContent = msg || ""; }
     function setModStatus(msg){ modStatusEl.textContent = msg || ""; }
@@ -1270,8 +1364,8 @@ body{
     }
     function stopPolling(){ if(pollTimer) clearInterval(pollTimer); pollTimer = null; }
 
-    function setModeFromImage(imageUrl){
-      modeEl.textContent = imageUrl ? "image-to-image" : "text-to-image";
+    function setModeFromImages(count){
+      modeEl.textContent = count > 0 ? "image-to-image" : "text-to-image";
     }
 
     function setTask(taskId){
@@ -1432,64 +1526,119 @@ body{
       }, 2000);
     }
 
-    function updateFileUI(file){
-      if(!file){
-        fileTitle.textContent = "Drop image here (or browse)";
-        fileSub.textContent = "PNG / JPG • optional";
+    // ✅ NEW: Render les previews des images uploadées
+    function renderImagePreviews() {
+      imagePreviews.innerHTML = "";
+      
+      uploadedImageUrls.forEach((urlObj, index) => {
+        const div = document.createElement("div");
+        div.className = "preview-item" + (urlObj.uploading ? " uploading" : "");
+        div.innerHTML = `
+          <img src="${urlObj.preview || urlObj.url}" alt="Preview ${index + 1}">
+          <button class="remove-btn" onclick="removeImage(${index})">×</button>
+        `;
+        imagePreviews.appendChild(div);
+      });
+      
+      // Update count
+      const count = uploadedImageUrls.length;
+      if (count > 0) {
+        imageCountEl.textContent = `${count}/${MAX_IMAGES} image${count > 1 ? 's' : ''} sélectionnée${count > 1 ? 's' : ''}`;
+        fileTitle.textContent = `${count} image${count > 1 ? 's' : ''} prête${count > 1 ? 's' : ''}`;
+        fileSub.textContent = count < MAX_IMAGES ? `Ajoute jusqu'à ${MAX_IMAGES - count} image${MAX_IMAGES - count > 1 ? 's' : ''} de plus` : "Limite atteinte";
+      } else {
+        imageCountEl.textContent = "";
+        fileTitle.textContent = "Drop images here (or browse)";
+        fileSub.textContent = "PNG / JPG • jusqu'à 5 images";
+      }
+      
+      setModeFromImages(count);
+    }
+    
+    // ✅ NEW: Supprimer une image
+    window.removeImage = function(index) {
+      uploadedImageUrls.splice(index, 1);
+      renderImagePreviews();
+      setStatus(uploadedImageUrls.length > 0 ? "Image removed." : "All images cleared.");
+    };
+    
+    // ✅ NEW: Gérer l'ajout de fichiers (multi)
+    async function handleFiles(files) {
+      const filesToProcess = Array.from(files).slice(0, MAX_IMAGES - uploadedImageUrls.length);
+      
+      if (filesToProcess.length === 0) {
+        setStatus(`Limite de ${MAX_IMAGES} images atteinte.`);
         return;
       }
-      fileTitle.textContent = file.name;
-      fileSub.textContent = `${Math.round(file.size/1024)} KB • ready`;
+      
+      for (const file of filesToProcess) {
+        // Ajouter preview immédiat
+        const previewUrl = URL.createObjectURL(file);
+        const index = uploadedImageUrls.length;
+        uploadedImageUrls.push({ preview: previewUrl, url: null, uploading: true, file });
+        renderImagePreviews();
+        
+        try {
+          setStatus(`Upload image ${index + 1}...`);
+          const cloudinaryUrl = await uploadToCloudinary(file);
+          uploadedImageUrls[index].url = cloudinaryUrl;
+          uploadedImageUrls[index].uploading = false;
+          renderImagePreviews();
+          setStatus(`Image ${index + 1} uploadée ✅`);
+        } catch (e) {
+          // Échec upload → retirer de la liste
+          uploadedImageUrls.splice(index, 1);
+          renderImagePreviews();
+          setStatus(`Erreur upload: ${e.message}`);
+        }
+      }
+      
+      if (uploadedImageUrls.length > 0) {
+        setStatus(`${uploadedImageUrls.length} image${uploadedImageUrls.length > 1 ? 's' : ''} prête${uploadedImageUrls.length > 1 ? 's' : ''}.`);
+      }
     }
 
-    browseBtn.addEventListener("click", () => fileInput.click());
-    clearBtn.addEventListener("click", () => {
-      fileInput.value = "";
-      updateFileUI(null);
-      setModeFromImage("");
-      setStatus("Image cleared.");
+    browseBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      fileInput.click();
     });
+    
+    clearBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      uploadedImageUrls = [];
+      fileInput.value = "";
+      renderImagePreviews();
+      clearResult();
+      setStatus("All images cleared.");
+    });
+    
+    dropZone.addEventListener("click", () => fileInput.click());
 
     fileInput.addEventListener("change", () => {
-      const f = fileInput.files?.[0] || null;
-      updateFileUI(f);
-      if(f){
-        setModeFromImage("x");
-        const url = URL.createObjectURL(f);
-        clearResult();
-        // preview only
-        showImage(url, { final:false });
-        setStatus("Image ready (optional).");
-      } else {
-        setModeFromImage("");
+      const files = fileInput.files;
+      if (files && files.length > 0) {
+        handleFiles(files);
       }
+      fileInput.value = ""; // Reset pour permettre re-sélection du même fichier
     });
 
     ;["dragenter","dragover"].forEach(evt => {
       dropZone.addEventListener(evt, (e) => {
         e.preventDefault();
-        dropZone.style.borderColor = "rgba(99,102,241,.55)";
-        dropZone.style.background = "rgba(0,0,0,.30)";
+        dropZone.classList.add("dragover");
       });
     });
     ;["dragleave","drop"].forEach(evt => {
       dropZone.addEventListener(evt, (e) => {
         e.preventDefault();
-        dropZone.style.borderColor = "rgba(255,255,255,.20)";
-        dropZone.style.background = "rgba(0,0,0,.22)";
+        dropZone.classList.remove("dragover");
       });
     });
     dropZone.addEventListener("drop", (e) => {
-      const f = e.dataTransfer.files?.[0];
-      if(!f) return;
-      fileInput.files = e.dataTransfer.files;
-      updateFileUI(f);
-      setModeFromImage("x");
-      const url = URL.createObjectURL(f);
-      clearResult();
-      // preview only
-      showImage(url, { final:false });
-      setStatus("Image ready (optional).");
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        handleFiles(files);
+      }
     });
 
     submitBtn.addEventListener("click", async () => {
@@ -1510,6 +1659,13 @@ body{
         setStatus("Write a prompt first.");
         return;
       }
+      
+      // ✅ Vérifier si des images sont encore en cours d'upload
+      const stillUploading = uploadedImageUrls.some(img => img.uploading);
+      if (stillUploading) {
+        setStatus("Attends que les images soient uploadées...");
+        return;
+      }
 
       submitBtn.disabled = true;
       recheckBtn.disabled = true;
@@ -1521,22 +1677,24 @@ body{
 
       try{
         const aspectRatio = aspectEl.value;
-        const file = fileInput.files?.[0] || null;
-        let image_url = "";
+        
+        // ✅ Récupérer toutes les URLs Cloudinary
+        const imageUrls = uploadedImageUrls
+          .filter(img => img.url)
+          .map(img => img.url);
 
-        if(file){
-          setOverlay(true, "Uploading image…");
-          image_url = await uploadToCloudinary(file);
-        }
-
-        setModeFromImage(image_url);
+        setModeFromImages(imageUrls.length);
 
         const payload = {
           prompt_user: prompt,
           resolution: FIXED_RESOLUTION,
           aspectRatio
         };
-        if(image_url) payload.image_url = image_url;
+        
+        // ✅ Envoyer image_urls (tableau) au lieu de image_url (string)
+        if (imageUrls.length > 0) {
+          payload.image_urls = imageUrls;
+        }
 
         const data = await callGenerate(payload);
         const r = normalizeResponse(data);
@@ -1560,7 +1718,7 @@ body{
             imageUrl: r.image,
             prompt: prompt,
             aspectRatio: aspectRatio,
-            mode: image_url ? 'image-to-image' : 'text-to-image'
+            mode: imageUrls.length > 0 ? 'image-to-image' : 'text-to-image'
           });
         } else if(r.status === "failed"){
           setOverlay(false);
@@ -1645,7 +1803,7 @@ body{
 
         const payload = {
           image_url: currentFinalImageUrl,
-          edit_instructions,              // ✅ renamed key
+          edit_instructions,
           resolution: FIXED_RESOLUTION,
           aspectRatio: aspectEl.value,
           mode: "modify"
@@ -1705,8 +1863,8 @@ body{
       stopPolling();
       promptEl.value = "";
       fileInput.value = "";
-      updateFileUI(null);
-      setModeFromImage("");
+      uploadedImageUrls = [];
+      renderImagePreviews();
       setTask(null);
       clearResult();
       setOverlay(false);
@@ -1714,8 +1872,7 @@ body{
     });
 
     setStatus("Ready.");
-    updateFileUI(null);
-    setModeFromImage("");
+    renderImagePreviews();
     
     // Fonction pour ouvrir l'éditeur
     function openEditor() {
@@ -1850,7 +2007,6 @@ body{
 })();
 </script>
 
-<script src="neora-mobile-nav.js"></script>
 <script src="neora-mobile-nav.js"></script>
 
   </div>
