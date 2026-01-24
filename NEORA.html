@@ -918,6 +918,46 @@ body{
   .badge{ display:none; }
 }
 
+/* Bouton Améliorer le prompt */
+.btn-improve {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fbbf24;
+  background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(245,158,11,0.1));
+  border: 1px solid rgba(251,191,36,0.3);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.btn-improve:hover {
+  background: linear-gradient(135deg, rgba(251,191,36,0.25), rgba(245,158,11,0.15));
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(251,191,36,0.2);
+}
+.btn-improve:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn-improve.loading {
+  pointer-events: none;
+}
+.btn-improve.loading::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(251,191,36,0.3);
+  border-top-color: #fbbf24;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-left: 6px;
+}
+
 </style>
 </head>
 
@@ -968,7 +1008,12 @@ body{
           <!-- Templates de prompts -->
           <div id="promptTemplates"></div>
           
-          <label for="prompt_user">Prompt</label>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <label for="prompt_user" style="margin: 0;">Prompt</label>
+            <button type="button" id="improvePromptBtn" class="btn-improve">
+              ✨ Améliorer
+            </button>
+          </div>
           <textarea id="prompt_user" placeholder="Ex: Visuel marketing premium, éclairage studio, rendu photoréaliste, fond sombre minimal..."></textarea>
 
           <label>Images (optionnel) — max 5</label>
@@ -1297,6 +1342,7 @@ body{
     const promptEl = $("prompt_user");
     const fileInput = $("product_image");
     const aspectEl = $("aspectRatio");
+    const improvePromptBtn = $("improvePromptBtn");
 
     const statusEl = $("status");
     const submitBtn = $("submit-btn");
@@ -1597,6 +1643,51 @@ body{
         setStatus(`${uploadedImageUrls.length} image${uploadedImageUrls.length > 1 ? 's' : ''} prête${uploadedImageUrls.length > 1 ? 's' : ''}.`);
       }
     }
+
+    // ✨ Améliorer le prompt avec l'IA
+    const IMPROVE_PROMPT_URL = 'https://n8n.srv1125399.hstgr.cloud/webhook/improve-prompt';
+    
+    async function improvePrompt() {
+      const currentPrompt = promptEl.value.trim();
+      
+      if (!currentPrompt) {
+        setStatus("⚠️ Écris d'abord un prompt à améliorer.");
+        return;
+      }
+      
+      improvePromptBtn.disabled = true;
+      improvePromptBtn.classList.add('loading');
+      improvePromptBtn.innerHTML = '✨ Amélioration...';
+      setStatus("🔄 Amélioration du prompt en cours...");
+      
+      try {
+        const response = await fetch(IMPROVE_PROMPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: currentPrompt })
+        });
+        
+        if (!response.ok) throw new Error('Erreur serveur');
+        
+        const data = await response.json();
+        
+        if (data.improved_prompt) {
+          promptEl.value = data.improved_prompt;
+          setStatus("✅ Prompt amélioré !");
+        } else {
+          throw new Error('Pas de prompt amélioré reçu');
+        }
+      } catch (error) {
+        console.error('Erreur amélioration:', error);
+        setStatus("❌ Erreur lors de l'amélioration. Réessaie.");
+      } finally {
+        improvePromptBtn.disabled = false;
+        improvePromptBtn.classList.remove('loading');
+        improvePromptBtn.innerHTML = '✨ Améliorer';
+      }
+    }
+    
+    improvePromptBtn.addEventListener("click", improvePrompt);
 
     browseBtn.addEventListener("click", (e) => {
       e.stopPropagation();
