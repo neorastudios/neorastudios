@@ -2109,156 +2109,212 @@ body{
   }
 </script>
 
-<!-- ====== STYLE TEMPLATES → BOUTONS ====== -->
+<!-- ====== STYLE TEMPLATES → BOUTON UNIQUE + DROPDOWN ====== -->
 <style id="tpl-buttons-override">
-/* Container principal des templates → layout boutons */
-#promptTemplates {
-  display: block !important;
-}
 
-/* Le wrapper interne (titre + carrousel) → compact */
-#promptTemplates > div,
-#promptTemplates > section {
-  background: rgba(255,255,255,0.03) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: var(--radius-lg) !important;
-  padding: 14px 16px !important;
-  margin-bottom: 12px !important;
-}
-
-/* Titre "Choisis un style" → plus petit, intégré */
-#promptTemplates h3,
-#promptTemplates .tpl-title,
-#promptTemplates [class*="title"] {
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  margin-bottom: 10px !important;
-  color: var(--text-secondary) !important;
-}
-
-/* Le carrousel / scroll container → flex wrap en grille de boutons */
-#promptTemplates .tpl-scroll,
-#promptTemplates .tpl-carousel,
-#promptTemplates [class*="scroll"],
-#promptTemplates [class*="carousel"],
-#promptTemplates [style*="overflow"] {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 8px !important;
-  overflow: visible !important;
-  overflow-x: visible !important;
-  padding-bottom: 0 !important;
-}
-
-/* Masquer la barre de progression / scrollbar indicator */
-#promptTemplates .tpl-progress,
-#promptTemplates [class*="progress"],
-#promptTemplates [class*="indicator"],
-#promptTemplates [class*="scrollbar"] {
+/* Masquer le contenu original des templates */
+#promptTemplates > * {
   display: none !important;
 }
 
-/* Chaque card template → bouton compact */
-#promptTemplates .tpl-card,
-#promptTemplates [class*="card"],
-#promptTemplates [class*="template-item"],
-#promptTemplates [class*="style-item"] {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  width: auto !important;
-  min-width: auto !important;
-  max-width: none !important;
-  flex: 0 0 auto !important;
-  padding: 8px 14px !important;
-  border-radius: 999px !important;
-  background: rgba(255,255,255,0.05) !important;
-  border: 1px solid var(--border) !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  flex-direction: row !important;
+/* Le bouton toggle qu'on injecte */
+#styleToggleBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font);
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-bottom: 12px;
+  white-space: nowrap;
+}
+#styleToggleBtn:hover {
+  background: rgba(139,92,246,0.12);
+  border-color: rgba(139,92,246,0.35);
+}
+#styleToggleBtn.open {
+  background: rgba(139,92,246,0.15);
+  border-color: rgba(139,92,246,0.4);
+  box-shadow: 0 4px 20px rgba(139,92,246,0.15);
+}
+#styleToggleBtn .chevron {
+  transition: transform 0.25s ease;
+  font-size: 11px;
+  opacity: 0.5;
+}
+#styleToggleBtn.open .chevron {
+  transform: rotate(180deg);
 }
 
-#promptTemplates .tpl-card:hover,
-#promptTemplates [class*="card"]:hover,
-#promptTemplates [class*="template-item"]:hover,
-#promptTemplates [class*="style-item"]:hover {
-  background: rgba(139,92,246,0.15) !important;
-  border-color: rgba(139,92,246,0.4) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 15px rgba(139,92,246,0.2) !important;
+/* Le label du style sélectionné */
+#styleToggleBtn .selected-label {
+  color: rgba(139,92,246,0.9);
+  font-weight: 500;
+  font-size: 12px;
 }
 
-/* État actif / sélectionné */
-#promptTemplates .tpl-card.active,
-#promptTemplates .tpl-card.selected,
-#promptTemplates [class*="card"].active,
-#promptTemplates [class*="card"].selected,
-#promptTemplates [class*="card"][class*="active"],
-#promptTemplates [class*="template-item"].active,
-#promptTemplates [class*="style-item"].active {
-  background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(236,72,153,0.15)) !important;
-  border-color: rgba(139,92,246,0.5) !important;
-  box-shadow: 0 0 20px rgba(139,92,246,0.25) !important;
+/* Le dropdown panel */
+#styleDropdown {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease;
+  opacity: 0;
+  margin-bottom: 0;
+}
+#styleDropdown.open {
+  max-height: 600px;
+  opacity: 1;
+  margin-bottom: 12px;
+}
+#styleDropdownInner {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
 }
 
-/* Image dans la card → petite thumbnail ronde */
-#promptTemplates .tpl-card img,
-#promptTemplates [class*="card"] img,
-#promptTemplates [class*="template-item"] img,
-#promptTemplates [class*="style-item"] img {
-  width: 28px !important;
-  height: 28px !important;
-  min-width: 28px !important;
-  border-radius: 50% !important;
-  object-fit: cover !important;
-  flex-shrink: 0 !important;
+/* Chaque style card dans le dropdown */
+.style-btn-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px;
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
-
-/* Label texte dans la card → inline */
-#promptTemplates .tpl-card span,
-#promptTemplates .tpl-card p,
-#promptTemplates .tpl-card div:not(:has(img)),
-#promptTemplates [class*="card"] > span,
-#promptTemplates [class*="card"] > p,
-#promptTemplates [class*="template-item"] > span,
-#promptTemplates [class*="style-item"] > span {
-  font-size: 12px !important;
-  font-weight: 500 !important;
-  color: var(--text-primary) !important;
-  white-space: nowrap !important;
-  line-height: 1.2 !important;
-  margin: 0 !important;
-  padding: 0 !important;
+.style-btn-item:hover {
+  background: rgba(139,92,246,0.1);
+  border-color: rgba(139,92,246,0.3);
+  transform: translateY(-2px);
+}
+.style-btn-item.active {
+  background: linear-gradient(135deg, rgba(139,92,246,0.18), rgba(236,72,153,0.12));
+  border-color: rgba(139,92,246,0.5);
+  box-shadow: 0 0 16px rgba(139,92,246,0.2);
+}
+.style-btn-item img {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.style-btn-item span {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.3;
+}
+.style-btn-item.active span {
+  color: var(--text-primary);
 }
 </style>
 
 <script>
-// Observe le DOM pour transformer les templates en boutons dès qu'ils sont injectés
+// Transforme #promptTemplates en bouton unique + dropdown
 (function() {
-  const target = document.getElementById('promptTemplates');
-  if (!target) return;
-  
-  const observer = new MutationObserver(function() {
-    // Supprimer les barres de progression / indicateurs de scroll
-    target.querySelectorAll('[class*="progress"], [class*="indicator"]').forEach(el => {
-      el.style.display = 'none';
-    });
-    
-    // Forcer overflow visible sur les containers scroll
-    target.querySelectorAll('*').forEach(el => {
-      const style = getComputedStyle(el);
-      if (style.overflowX === 'auto' || style.overflowX === 'scroll') {
-        el.style.overflowX = 'visible';
-        el.style.overflow = 'visible';
-        el.style.flexWrap = 'wrap';
-        el.style.display = 'flex';
-        el.style.gap = '8px';
-      }
-    });
+  const container = document.getElementById('promptTemplates');
+  if (!container) return;
+
+  // Éléments injectés
+  const toggleBtn = document.createElement('button');
+  toggleBtn.type = 'button';
+  toggleBtn.id = 'styleToggleBtn';
+  toggleBtn.innerHTML = '✨ Style <span class="selected-label" id="styleBtnLabel"></span> <span class="chevron">▼</span>';
+
+  const dropdown = document.createElement('div');
+  dropdown.id = 'styleDropdown';
+  dropdown.innerHTML = '<div id="styleDropdownInner"></div>';
+
+  // Insérer avant le container
+  container.parentNode.insertBefore(toggleBtn, container);
+  container.parentNode.insertBefore(dropdown, container);
+
+  let isOpen = false;
+
+  toggleBtn.addEventListener('click', () => {
+    isOpen = !isOpen;
+    toggleBtn.classList.toggle('open', isOpen);
+    dropdown.classList.toggle('open', isOpen);
   });
-  
-  observer.observe(target, { childList: true, subtree: true });
+
+  // Observer le contenu de promptTemplates pour extraire les cards
+  function extractAndBuild() {
+    const inner = document.getElementById('styleDropdownInner');
+    if (!inner) return;
+
+    // Chercher toutes les cards/items cliquables dans le contenu original
+    const cards = container.querySelectorAll('[class*="card"], [class*="item"], [class*="tpl"]');
+    if (cards.length === 0) return;
+
+    inner.innerHTML = '';
+
+    cards.forEach((card) => {
+      const img = card.querySelector('img');
+      const textEls = card.querySelectorAll('span, p, div');
+      let label = '';
+      textEls.forEach(t => {
+        const txt = t.textContent.trim();
+        if (txt && txt.length < 40 && !t.querySelector('img')) label = txt;
+      });
+      if (!label) label = card.textContent.trim().substring(0, 25);
+
+      const btn = document.createElement('div');
+      btn.className = 'style-btn-item';
+      btn.innerHTML = (img ? '<img src="' + img.src + '" alt="' + label + '">' : '') +
+                       '<span>' + label + '</span>';
+
+      // Au clic, simuler le clic sur la card originale + fermer le dropdown
+      btn.addEventListener('click', () => {
+        // Retirer active des autres
+        inner.querySelectorAll('.style-btn-item').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Mettre à jour le label du bouton
+        document.getElementById('styleBtnLabel').textContent = '— ' + label;
+
+        // Cliquer sur la card originale
+        card.click();
+
+        // Fermer le dropdown après un court délai
+        setTimeout(() => {
+          isOpen = false;
+          toggleBtn.classList.remove('open');
+          dropdown.classList.remove('open');
+        }, 200);
+      });
+
+      inner.appendChild(btn);
+    });
+  }
+
+  // Observer les mutations pour capter le rendu initial par neora-templates.js
+  const obs = new MutationObserver(() => {
+    const cards = container.querySelectorAll('[class*="card"], [class*="item"], [class*="tpl"]');
+    if (cards.length > 0) {
+      extractAndBuild();
+      obs.disconnect();
+    }
+  });
+  obs.observe(container, { childList: true, subtree: true });
+
+  // Aussi tenter après un délai au cas où le contenu est déjà là
+  setTimeout(extractAndBuild, 500);
+  setTimeout(extractAndBuild, 1500);
 })();
 </script>
 
