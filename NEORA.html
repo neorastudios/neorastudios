@@ -1009,6 +1009,9 @@ body{
           <div id="promptTemplates"></div>
           
           <textarea id="prompt_user" placeholder="Ex: Visuel marketing premium, éclairage studio, rendu photoréaliste, fond sombre minimal..."></textarea>
+          <div style="margin-top:8px;margin-bottom:12px;">
+            <button type="button" class="btn-improve" id="improvePromptBtn">✨ Améliorer</button>
+          </div>
 
           <label>Images (optionnel) — max 5</label>
           <div class="drop" id="dropZone">
@@ -1681,7 +1684,7 @@ body{
       }
     }
     
-    improvePromptBtn.addEventListener("click", improvePrompt);
+    if (improvePromptBtn) improvePromptBtn.addEventListener("click", improvePrompt);
 
     browseBtn.addEventListener("click", (e) => {
       e.stopPropagation();
