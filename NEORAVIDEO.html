@@ -693,8 +693,9 @@
       const container = $('neoraImagesContainer');
 
       try {
-        const snap = await db.collection('users').doc(currentUser.uid)
-          .collection('generations')
+        // Collection racine /generations avec filtre userId
+        const snap = await db.collection('generations')
+          .where('userId', '==', currentUser.uid)
           .orderBy('createdAt', 'desc')
           .limit(30)
           .get();
@@ -709,8 +710,10 @@
           const d = doc.data();
           const url = d.imageUrl || d.image_url || d.resultUrl || '';
           if (!url) return;
+          // Escape quotes in URL for safety
+          const safeUrl = url.replace(/'/g, "\\'");
           html += `
-            <div class="neora-img-card" data-url="${url}" onclick="selectNeoraImage(this, '${url}')">
+            <div class="neora-img-card" data-url="${url}" onclick="selectNeoraImage(this, '${safeUrl}')">
               <img src="${url}" alt="NEORA" loading="lazy">
               <div class="check">✓</div>
             </div>`;
@@ -820,7 +823,19 @@
           })
         });
 
-        const data = await response.json();
+        // Vérifier que la réponse est valide
+        if (!response.ok) {
+          throw new Error(`Erreur serveur n8n (${response.status})`);
+        }
+
+        const responseText = await response.text();
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch (e) {
+          console.error('n8n raw response:', responseText);
+          throw new Error('Réponse invalide du serveur. Vérifie que le workflow n8n est actif.');
+        }
 
         if (data.success && data.video_url) {
           // Immediate result (rare but possible)
@@ -874,7 +889,22 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ request_id: requestId })
           });
-          const data = await res.json();
+
+          if (!res.ok) {
+            console.warn(`Status check HTTP ${res.status}, retrying...`);
+            if (attempts < maxAttempts) { setTimeout(poll, 3000); return; }
+            throw new Error(`Erreur serveur n8n (${res.status})`);
+          }
+
+          const resText = await res.text();
+          let data;
+          try {
+            data = JSON.parse(resText);
+          } catch (e) {
+            console.warn('Status response not JSON, retrying...', resText.substring(0, 200));
+            if (attempts < maxAttempts) { setTimeout(poll, 3000); return; }
+            throw new Error('Réponse invalide du serveur status');
+          }
 
           if (data.success && data.video_url) {
             await onVideoReady(data.video_url, imageUrl, creditsNeeded);
@@ -973,15 +1003,16 @@
     async function saveVideoToHistory(videoUrl, sourceImageUrl) {
       if (!currentUser) return;
       try {
-        await db.collection('users').doc(currentUser.uid)
-          .collection('videos')
-          .add({
-            videoUrl,
-            sourceImageUrl: sourceImageUrl || '',
-            animationStyle: selectedStyle,
-            duration: selectedDuration,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
+        // Collection racine /videos avec userId (même pattern que /generations)
+        await db.collection('videos').add({
+          videoUrl,
+          sourceImageUrl: sourceImageUrl || '',
+          animationStyle: selectedStyle,
+          duration: selectedDuration,
+          userId: currentUser.uid,
+          userEmail: currentUser.email || '',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
       } catch (err) { console.error('Save history error:', err); }
     }
 
@@ -1001,8 +1032,9 @@
       const grid = $('historyGrid');
 
       try {
-        const snap = await db.collection('users').doc(currentUser.uid)
-          .collection('videos')
+        // Collection racine /videos avec filtre userId
+        const snap = await db.collection('videos')
+          .where('userId', '==', currentUser.uid)
           .orderBy('createdAt', 'desc')
           .limit(20)
           .get();
