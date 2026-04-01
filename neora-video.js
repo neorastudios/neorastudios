@@ -465,7 +465,9 @@
 
   // ─── Poll via n8n (secure, no API key client-side) ───
   async function pollStatus(requestId) {
-    const maxAttempts = 60;
+    const POLL_INTERVAL = 15000;
+    const FIRST_POLL = 20000;
+    const maxAttempts = 16;
     let attempts = 0;
 
     const poll = async () => {
@@ -479,7 +481,7 @@
 
         if (!res.ok) {
           console.warn(`Status check HTTP ${res.status}, retrying...`);
-          if (attempts < maxAttempts) { setTimeout(poll, 3000); return; }
+          if (attempts < maxAttempts) { setTimeout(poll, POLL_INTERVAL); return; }
           throw new Error(`Erreur serveur n8n (${res.status})`);
         }
 
@@ -489,7 +491,7 @@
           data = JSON.parse(resText);
         } catch (e) {
           console.warn('Status response not JSON, retrying...');
-          if (attempts < maxAttempts) { setTimeout(poll, 3000); return; }
+          if (attempts < maxAttempts) { setTimeout(poll, POLL_INTERVAL); return; }
           throw new Error('Réponse invalide du serveur');
         }
 
@@ -498,7 +500,7 @@
         } else if (data.status === 'FAILED') {
           throw new Error('Génération échouée côté Veo 3.1');
         } else if (attempts < maxAttempts) {
-          setTimeout(poll, 3000);
+          setTimeout(poll, POLL_INTERVAL);
         } else {
           throw new Error('Timeout — vidéo trop longue');
         }
@@ -512,7 +514,7 @@
       }
     };
 
-    setTimeout(poll, 5000);
+    setTimeout(poll, FIRST_POLL);
   }
 
   // ─── Video Ready ───

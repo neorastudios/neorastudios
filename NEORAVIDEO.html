@@ -1021,13 +1021,15 @@
     // POLLING (via n8n — no API key exposed)
     // ═══════════════════════════════════════════
     async function pollForResult(requestId, imageUrl, creditsNeeded, statusUrl) {
-      const maxAttempts = 60; // ~3 min
+      const POLL_INTERVAL = 15000; // 15 secondes entre chaque check
+      const FIRST_POLL = 20000;    // Premier check après 20s
+      const maxAttempts = 16;      // 16 × 15s = ~4 min max
       let attempts = 0;
 
       const poll = async () => {
         attempts++;
         const pct = Math.min(25 + (attempts / maxAttempts) * 70, 95);
-        const elapsed = attempts * 3;
+        const elapsed = 20 + (attempts * 15);
         setStatus(`⏳ Traitement... (${elapsed}s)`, pct);
 
         try {
@@ -1039,7 +1041,7 @@
 
           if (!res.ok) {
             console.warn(`Status check HTTP ${res.status}, retrying...`);
-            if (attempts < maxAttempts) { setTimeout(poll, 3000); return; }
+            if (attempts < maxAttempts) { setTimeout(poll, POLL_INTERVAL); return; }
             throw new Error(`Erreur serveur n8n (${res.status})`);
           }
 
@@ -1049,16 +1051,16 @@
             data = JSON.parse(resText);
           } catch (e) {
             console.warn('Status response not JSON, retrying...', resText.substring(0, 200));
-            if (attempts < maxAttempts) { setTimeout(poll, 3000); return; }
+            if (attempts < maxAttempts) { setTimeout(poll, POLL_INTERVAL); return; }
             throw new Error('Réponse invalide du serveur status');
           }
 
           if (data.success && data.video_url) {
             await onVideoReady(data.video_url, imageUrl, creditsNeeded);
           } else if (data.status === 'FAILED') {
-            throw new Error('La génération a échoué côté Kling');
+            throw new Error('La génération a échoué côté Veo 3.1');
           } else if (attempts < maxAttempts) {
-            setTimeout(poll, 3000);
+            setTimeout(poll, POLL_INTERVAL);
           } else {
             throw new Error('Timeout — la vidéo prend trop de temps');
           }
@@ -1071,7 +1073,7 @@
         }
       };
 
-      setTimeout(poll, 5000);
+      setTimeout(poll, FIRST_POLL);
     }
 
     // ═══════════════════════════════════════════
