@@ -250,6 +250,40 @@
     /* ─── Generate ─── */
     .generate-section { text-align: center; margin-top: 8px; }
 
+    /* ─── Resolution Picker ─── */
+    .resolution-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .res-card {
+      padding: 18px 16px; background: rgba(255,255,255,.03);
+      border: 2px solid rgba(255,255,255,.08); border-radius: 16px;
+      cursor: pointer; transition: all .25s;
+    }
+    .res-card:hover { background: var(--card-hover); border-color: rgba(255,255,255,.16); }
+    .res-card.selected {
+      border-color: var(--pink);
+      background: rgba(236,72,153,.06);
+      box-shadow: 0 0 0 1px rgba(236,72,153,.12), 0 6px 24px rgba(236,72,153,.08);
+    }
+    .res-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .res-label { font-size: 18px; font-weight: 700; }
+    .res-badge {
+      padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 700;
+      background: rgba(16,185,129,.1); color: var(--green); border: 1px solid rgba(16,185,129,.2);
+    }
+    .res-badge-pro {
+      background: rgba(236,72,153,.1); color: var(--pink); border-color: rgba(236,72,153,.2);
+    }
+    .res-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+    @media (max-width: 640px) { .resolution-options { grid-template-columns: 1fr; } }
+
+    /* ─── Credit Summary ─── */
+    .credit-summary {
+      margin-top: 16px; padding: 14px 18px;
+      background: rgba(245,158,11,.06); border: 1px solid rgba(245,158,11,.16);
+      border-radius: 12px; font-size: 13px; color: rgba(255,255,255,.75);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .credit-summary strong { color: var(--amber); }
+
     /* ─── Veo Info Bar ─── */
     .veo-info-bar { margin-bottom: 16px; }
     .veo-specs { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -540,34 +574,52 @@
       <div class="section-label"><span>⏱️</span> Durée</div>
       <div class="duration-options">
         <button class="duration-btn" data-duration="4">
-          <div class="time">4s</div><div class="dlabel">Court • 1 crédit</div>
+          <div class="time">4s</div><div class="dlabel">Court</div>
         </button>
         <button class="duration-btn selected" data-duration="6">
-          <div class="time">6s</div><div class="dlabel">Standard • 2 crédits</div>
+          <div class="time">6s</div><div class="dlabel">Standard</div>
         </button>
         <button class="duration-btn" data-duration="8">
-          <div class="time">8s</div><div class="dlabel">Long • 3 crédits</div>
+          <div class="time">8s</div><div class="dlabel">Long</div>
         </button>
+      </div>
+    </section>
+
+    <!-- ── Qualité ── -->
+    <section class="section-card">
+      <div class="section-label"><span>📺</span> Qualité vidéo</div>
+      <div class="resolution-options">
+        <div class="res-card selected" data-res="720p">
+          <div class="res-head">
+            <span class="res-label">720p</span>
+            <span class="res-badge">×1</span>
+          </div>
+          <div class="res-desc">HD — Rapide, idéal pour les réseaux sociaux</div>
+        </div>
+        <div class="res-card" data-res="1080p">
+          <div class="res-head">
+            <span class="res-label">1080p</span>
+            <span class="res-badge res-badge-pro">×2</span>
+          </div>
+          <div class="res-desc">Full HD — Qualité cinéma, parfait pour les pubs</div>
+        </div>
       </div>
     </section>
 
     <!-- ── Options Veo 3.1 ── -->
     <section class="section-card">
-      <div class="section-label"><span>🎬</span> Moteur — Google Veo 3.1</div>
-      <div class="veo-info-bar">
-        <div class="veo-specs">
-          <span class="veo-spec">1080p</span>
-          <span class="veo-spec">Audio synchronisé</span>
-          <span class="veo-spec">Qualité cinéma</span>
-        </div>
-      </div>
+      <div class="section-label"><span>🎬</span> Options — Google Veo 3.1</div>
       <div class="model-audio-toggle" id="veoAudioToggle">
         <label class="toggle-row">
           <span>🔊 Générer l'audio synchronisé</span>
           <input type="checkbox" id="generateAudio" checked>
           <span class="toggle-slider"></span>
         </label>
-        <div class="toggle-hint">Veo 3.1 génère des effets sonores et ambiance alignés à la vidéo</div>
+        <div class="toggle-hint">Effets sonores et ambiance alignés à la vidéo</div>
+      </div>
+      <div class="credit-summary" id="creditSummary">
+        <span>💰</span>
+        <span><strong id="totalCreditsText">2 crédits</strong> seront utilisés</span>
       </div>
     </section>
 
@@ -655,6 +707,7 @@
     let selectedImageUrl = null;
     let selectedStyle = 'zoom_in';
     let selectedDuration = '6';
+    let selectedResolution = '720p';
     let loadingTimerInterval = null;
 
     // ─── DOM ───
@@ -827,14 +880,41 @@
         document.querySelectorAll('.duration-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
         selectedDuration = btn.dataset.duration;
+        updateCreditSummary();
       });
     });
 
-    function getCreditsNeeded() {
-      // Veo: 4s=1, 6s=2, 8s=3 crédits
+    // ═══════════════════════════════════════════
+    // RESOLUTION SELECTION
+    // ═══════════════════════════════════════════
+    document.querySelectorAll('.res-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.res-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedResolution = card.dataset.res;
+        updateCreditSummary();
+      });
+    });
+
+    // ═══════════════════════════════════════════
+    // CREDITS CALCULATION
+    // ═══════════════════════════════════════════
+    function getBaseCredits() {
+      // Durée : 4s=1, 6s=2, 8s=3
       if (selectedDuration === '4') return 1;
       if (selectedDuration === '8') return 3;
       return 2;
+    }
+
+    function getCreditsNeeded() {
+      const base = getBaseCredits();
+      // 720p = ×1, 1080p = ×2
+      return selectedResolution === '1080p' ? base * 2 : base;
+    }
+
+    function updateCreditSummary() {
+      const total = getCreditsNeeded();
+      $('totalCreditsText').textContent = `${total} crédit${total > 1 ? 's' : ''}`;
     }
 
     // ═══════════════════════════════════════════
@@ -883,6 +963,7 @@
             image_url: imageUrl,
             animation_style: selectedStyle,
             duration: durationPayload,
+            resolution: selectedResolution,
             custom_prompt: customPromptText,
             model: 'veo',
             generate_audio: generateAudioChecked
@@ -1074,6 +1155,7 @@
           sourceImageUrl: sourceImageUrl || '',
           animationStyle: selectedStyle,
           duration: selectedDuration,
+          resolution: selectedResolution,
           model: 'veo',
           userId: currentUser.uid,
           userEmail: currentUser.email || '',
@@ -1123,7 +1205,7 @@
               <video src="${d.videoUrl}" muted playsinline preload="metadata"
                 onmouseenter="this.play()" onmouseleave="this.pause();this.currentTime=0;"></video>
               <div class="h-info">
-                <div class="h-style">🎬 Veo • ${styleLabel} • ${d.duration || '6s'}</div>
+                <div class="h-style">🎬 Veo • ${styleLabel} • ${d.duration || '6s'} • ${d.resolution || '720p'}</div>
                 <div class="h-date">${date}</div>
                 <div class="h-actions">
                   <a class="h-btn" href="${d.videoUrl}" download="neora-video.mp4">📥 Télécharger</a>

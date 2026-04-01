@@ -1,11 +1,11 @@
 // ============================================
-// NEORA Video Animation — Kling Integration
+// NEORA Video Animation — Veo 3.1 Integration
 // ============================================
 // Ajoute ce script sur tes pages NEORA (NEORA.html, NEORASIMPLE.html)
 // <script src="neora-video.js"></script>
 //
 // SÉCURITÉ: Tout passe par n8n, aucune clé API exposée côté client.
-// HISTORIQUE: Les vidéos sont sauvegardées dans Firestore /users/{uid}/videos
+// HISTORIQUE: Les vidéos sont sauvegardées dans Firestore /videos
 // ============================================
 
 (function () {
@@ -13,8 +13,8 @@
 
   // ─── Configuration ───
   const N8N_BASE = 'https://n8n.srv1125399.hstgr.cloud/webhook';
-  const KLING_WEBHOOK_URL = `${N8N_BASE}/kling-video`;
-  const KLING_STATUS_URL  = `${N8N_BASE}/kling-status`;
+  const VEO_WEBHOOK_URL = `${N8N_BASE}/veo-video`;
+  const VEO_STATUS_URL  = `${N8N_BASE}/veo-status`;
 
   // ─── Animation styles ───
   const ANIMATION_STYLES = [
@@ -32,7 +32,8 @@
 
   // ─── State ───
   let selectedStyle = 'zoom_in';
-  let selectedDuration = '5';
+  let selectedDuration = '6';
+  let selectedResolution = '720p';
   let currentImageUrl = '';
   let timerInterval = null;
 
@@ -134,10 +135,17 @@
         text-align: center; transition: all .2s; font-family: inherit;
       }
       .nv-dur-btn:hover { background: rgba(236,72,153,.08); }
-      .nv-dur-btn.nv-selected {
+      .nv-dur-btn.nv-selected, .nv-res-btn.nv-selected {
         background: rgba(236,72,153,.12); border-color: rgba(236,72,153,.4);
       }
-      .nv-dur-btn .nv-d-sub { font-size: 10px; color: rgba(255,255,255,.4); margin-top: 2px; font-weight: 500; }
+      .nv-dur-btn .nv-d-sub, .nv-res-btn .nv-d-sub { font-size: 10px; color: rgba(255,255,255,.4); margin-top: 2px; font-weight: 500; }
+      .nv-res-btn {
+        flex: 1; padding: 14px 10px; background: rgba(255,255,255,.04);
+        border: 1px solid rgba(255,255,255,.08); border-radius: 12px;
+        color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
+        text-align: center; transition: all .2s; font-family: inherit;
+      }
+      .nv-res-btn:hover { background: rgba(236,72,153,.08); }
 
       /* ── Cost Info ── */
       .nv-cost {
@@ -246,13 +254,20 @@
 
         <div class="nv-label">⏱️ DURÉE</div>
         <div class="nv-durations">
-          <button class="nv-dur-btn nv-selected" data-dur="5">5s<div class="nv-d-sub">1 crédit</div></button>
-          <button class="nv-dur-btn" data-dur="10">10s<div class="nv-d-sub">2 crédits</div></button>
+          <button class="nv-dur-btn" data-dur="4">4s<div class="nv-d-sub">Court</div></button>
+          <button class="nv-dur-btn nv-selected" data-dur="6">6s<div class="nv-d-sub">Standard</div></button>
+          <button class="nv-dur-btn" data-dur="8">8s<div class="nv-d-sub">Long</div></button>
+        </div>
+
+        <div class="nv-label">📺 QUALITÉ</div>
+        <div class="nv-durations">
+          <button class="nv-res-btn nv-selected" data-res="720p">720p<div class="nv-d-sub">×1 crédit</div></button>
+          <button class="nv-res-btn" data-res="1080p">1080p<div class="nv-d-sub">×2 crédits</div></button>
         </div>
 
         <div class="nv-cost">
           <span>💰</span>
-          <span><strong id="nv-cost-text">1 crédit vidéo</strong> sera utilisé</span>
+          <span><strong id="nv-cost-text">2 crédits</strong> seront utilisés</span>
         </div>
 
         <button class="nv-generate-btn" id="nv-generate-btn">🎬 Générer la vidéo</button>
@@ -260,7 +275,7 @@
         <div class="nv-loading" id="nv-loading">
           <div class="nv-spinner"></div>
           <div class="nv-timer" id="nv-timer">00:00</div>
-          <p>Kling AI génère ta vidéo...</p>
+          <p>Google Veo 3.1 génère ta vidéo...</p>
         </div>
 
         <div class="nv-result" id="nv-result">
@@ -295,10 +310,29 @@
         document.querySelectorAll('.nv-dur-btn').forEach(b => b.classList.remove('nv-selected'));
         btn.classList.add('nv-selected');
         selectedDuration = btn.dataset.dur;
-        document.getElementById('nv-cost-text').textContent =
-          selectedDuration === '10' ? '2 crédits vidéo' : '1 crédit vidéo';
+        updateNvCost();
       });
     });
+
+    // ── Event: Resolution ──
+    document.querySelectorAll('.nv-res-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nv-res-btn').forEach(b => b.classList.remove('nv-selected'));
+        btn.classList.add('nv-selected');
+        selectedResolution = btn.dataset.res;
+        updateNvCost();
+      });
+    });
+
+    function getNvCredits() {
+      const base = selectedDuration === '8' ? 3 : (selectedDuration === '4' ? 1 : 2);
+      return selectedResolution === '1080p' ? base * 2 : base;
+    }
+
+    function updateNvCost() {
+      const total = getNvCredits();
+      document.getElementById('nv-cost-text').textContent = `${total} crédit${total > 1 ? 's' : ''}`;
+    }
 
     // ── Event: Generate ──
     document.getElementById('nv-generate-btn').addEventListener('click', generateVideo);
@@ -329,19 +363,23 @@
   // ─── Reset State ───
   function resetModalState() {
     selectedStyle = 'zoom_in';
-    selectedDuration = '5';
+    selectedDuration = '6';
+    selectedResolution = '720p';
     document.querySelectorAll('.nv-style-card').forEach(c => c.classList.remove('nv-selected'));
     const first = document.querySelector('[data-style="zoom_in"]');
     if (first) first.classList.add('nv-selected');
     document.querySelectorAll('.nv-dur-btn').forEach(b => b.classList.remove('nv-selected'));
-    const dur5 = document.querySelector('[data-dur="5"]');
-    if (dur5) dur5.classList.add('nv-selected');
+    const dur6 = document.querySelector('[data-dur="6"]');
+    if (dur6) dur6.classList.add('nv-selected');
+    document.querySelectorAll('.nv-res-btn').forEach(b => b.classList.remove('nv-selected'));
+    const res720 = document.querySelector('[data-res="720p"]');
+    if (res720) res720.classList.add('nv-selected');
     document.getElementById('nv-custom-prompt').classList.remove('active');
     document.getElementById('nv-loading').classList.remove('active');
     document.getElementById('nv-result').classList.remove('active');
     document.getElementById('nv-generate-btn').style.display = 'block';
     document.getElementById('nv-generate-btn').disabled = false;
-    document.getElementById('nv-cost-text').textContent = '1 crédit vidéo';
+    document.getElementById('nv-cost-text').textContent = '2 crédits';
     stopTimer();
   }
 
@@ -371,7 +409,7 @@
           const doc = await firebase.firestore().collection('users').doc(user.uid).get();
           const data = doc.exists ? doc.data() : {};
           const credits = data.videoCreditsAvailable || 0;
-          const needed = selectedDuration === '10' ? 2 : 1;
+          const needed = getNvCredits();
           if (credits < needed) {
             alert('Crédits vidéo insuffisants. Rendez-vous sur la page pricing.');
             return;
@@ -391,15 +429,18 @@
         ? document.getElementById('nv-custom-input').value
         : '';
 
-      // 1) Submit to n8n
-      const res = await fetch(KLING_WEBHOOK_URL, {
+      // Submit to n8n → fal.ai Veo 3.1
+      const res = await fetch(VEO_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           image_url: currentImageUrl,
           animation_style: selectedStyle,
-          duration: selectedDuration,
-          custom_prompt: customPrompt
+          duration: `${selectedDuration}s`,
+          resolution: selectedResolution,
+          custom_prompt: customPrompt,
+          model: 'veo',
+          generate_audio: true
         })
       });
       const data = await res.json();
@@ -430,17 +471,32 @@
     const poll = async () => {
       attempts++;
       try {
-        const res = await fetch(KLING_STATUS_URL, {
+        const res = await fetch(VEO_STATUS_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ request_id: requestId })
         });
-        const data = await res.json();
+
+        if (!res.ok) {
+          console.warn(`Status check HTTP ${res.status}, retrying...`);
+          if (attempts < maxAttempts) { setTimeout(poll, 3000); return; }
+          throw new Error(`Erreur serveur n8n (${res.status})`);
+        }
+
+        const resText = await res.text();
+        let data;
+        try {
+          data = JSON.parse(resText);
+        } catch (e) {
+          console.warn('Status response not JSON, retrying...');
+          if (attempts < maxAttempts) { setTimeout(poll, 3000); return; }
+          throw new Error('Réponse invalide du serveur');
+        }
 
         if (data.success && data.video_url) {
           onVideoReady(data.video_url);
         } else if (data.status === 'FAILED') {
-          throw new Error('Génération échouée côté Kling');
+          throw new Error('Génération échouée côté Veo 3.1');
         } else if (attempts < maxAttempts) {
           setTimeout(poll, 3000);
         } else {
@@ -473,7 +529,7 @@
     if (typeof firebase !== 'undefined' && firebase.auth) {
       const user = firebase.auth().currentUser;
       if (user) {
-        const creditsNeeded = selectedDuration === '10' ? 2 : 1;
+        const creditsNeeded = getNvCredits();
         try {
           // Deduct
           await firebase.firestore().collection('users').doc(user.uid).update({
@@ -487,7 +543,9 @@
               videoUrl,
               sourceImageUrl: currentImageUrl,
               animationStyle: selectedStyle,
-              duration: selectedDuration,
+              duration: `${selectedDuration}s`,
+              resolution: selectedResolution,
+              model: 'veo',
               userId: user.uid,
               userEmail: user.email || '',
               source: 'neora-modal',
