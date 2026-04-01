@@ -249,6 +249,36 @@
 
     /* ─── Generate ─── */
     .generate-section { text-align: center; margin-top: 8px; }
+
+    /* ─── Veo Info Bar ─── */
+    .veo-info-bar { margin-bottom: 16px; }
+    .veo-specs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .veo-spec {
+      padding: 6px 12px; background: rgba(59,130,246,.08);
+      border: 1px solid rgba(59,130,246,.18); border-radius: 8px;
+      font-size: 11px; font-weight: 600; color: #60a5fa;
+    }
+    .model-audio-toggle {
+      margin-top: 4px; padding: 16px; background: rgba(59,130,246,.05);
+      border: 1px solid rgba(59,130,246,.12); border-radius: 14px;
+    }
+    .toggle-row {
+      display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; font-weight: 600;
+    }
+    .toggle-row input[type="checkbox"] { display: none; }
+    .toggle-slider {
+      width: 40px; height: 22px; background: rgba(255,255,255,.15);
+      border-radius: 999px; position: relative; transition: all .2s; flex-shrink: 0;
+      margin-left: auto;
+    }
+    .toggle-slider::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 16px; height: 16px; background: #fff; border-radius: 50%;
+      transition: all .2s;
+    }
+    .toggle-row input:checked + .toggle-slider { background: #3b82f6; }
+    .toggle-row input:checked + .toggle-slider::after { left: 21px; }
+    .toggle-hint { font-size: 11px; color: var(--muted2); margin-top: 8px; }
     .btn-generate {
       padding: 18px 56px; background: var(--grad-video); border: none;
       border-radius: 999px; color: #fff; font-size: 17px; font-weight: 700;
@@ -423,7 +453,7 @@
     <!-- Hero -->
     <div class="hero">
       <h2>Anime tes images en <span class="gradient">vidéo pub</span></h2>
-      <p>Transforme tes visuels NEORA en vidéos cinématiques prêtes à poster</p>
+      <p>Transforme tes visuels en vidéos cinématiques avec Google Veo 3.1</p>
     </div>
 
     <!-- ── Source Section ── -->
@@ -509,12 +539,35 @@
     <section class="section-card">
       <div class="section-label"><span>⏱️</span> Durée</div>
       <div class="duration-options">
-        <button class="duration-btn selected" data-duration="5">
-          <div class="time">5s</div><div class="dlabel">Rapide • 1 crédit</div>
+        <button class="duration-btn" data-duration="4">
+          <div class="time">4s</div><div class="dlabel">Court • 1 crédit</div>
         </button>
-        <button class="duration-btn" data-duration="10">
-          <div class="time">10s</div><div class="dlabel">Long • 2 crédits</div>
+        <button class="duration-btn selected" data-duration="6">
+          <div class="time">6s</div><div class="dlabel">Standard • 2 crédits</div>
         </button>
+        <button class="duration-btn" data-duration="8">
+          <div class="time">8s</div><div class="dlabel">Long • 3 crédits</div>
+        </button>
+      </div>
+    </section>
+
+    <!-- ── Options Veo 3.1 ── -->
+    <section class="section-card">
+      <div class="section-label"><span>🎬</span> Moteur — Google Veo 3.1</div>
+      <div class="veo-info-bar">
+        <div class="veo-specs">
+          <span class="veo-spec">1080p</span>
+          <span class="veo-spec">Audio synchronisé</span>
+          <span class="veo-spec">Qualité cinéma</span>
+        </div>
+      </div>
+      <div class="model-audio-toggle" id="veoAudioToggle">
+        <label class="toggle-row">
+          <span>🔊 Générer l'audio synchronisé</span>
+          <input type="checkbox" id="generateAudio" checked>
+          <span class="toggle-slider"></span>
+        </label>
+        <div class="toggle-hint">Veo 3.1 génère des effets sonores et ambiance alignés à la vidéo</div>
       </div>
     </section>
 
@@ -557,7 +610,7 @@
     <div class="spinner-ring"></div>
     <div class="loading-timer" id="loadingTimer">00:00</div>
     <div class="loading-text">Génération en cours...</div>
-    <div class="loading-sub">Kling AI crée ta vidéo</div>
+    <div class="loading-sub" id="loadingSub">Google Veo 3.1 crée ta vidéo</div>
   </div>
 
   <!-- ═══════ Upgrade Modal ═══════ -->
@@ -590,8 +643,8 @@
 
     // ─── Config ───
     const N8N_BASE = 'https://n8n.srv1125399.hstgr.cloud/webhook';
-    const KLING_WEBHOOK_URL = `${N8N_BASE}/kling-video`;
-    const KLING_STATUS_URL  = `${N8N_BASE}/kling-status`;
+    const VEO_WEBHOOK_URL   = `${N8N_BASE}/veo-video`;
+    const VEO_STATUS_URL    = `${N8N_BASE}/veo-status`;
     const CLOUDINARY_UPLOAD_URL = 'https://api.cloudinary.com/v1_1/diegfxcyl/image/upload';
     const CLOUDINARY_UPLOAD_PRESET = 'neora_upload';
 
@@ -599,9 +652,9 @@
     let currentUser = null;
     let videoCredits = 0;
     let selectedFile = null;
-    let selectedImageUrl = null; // URL from NEORA or Cloudinary
+    let selectedImageUrl = null;
     let selectedStyle = 'zoom_in';
-    let selectedDuration = '5';
+    let selectedDuration = '6';
     let loadingTimerInterval = null;
 
     // ─── DOM ───
@@ -777,6 +830,13 @@
       });
     });
 
+    function getCreditsNeeded() {
+      // Veo: 4s=1, 6s=2, 8s=3 crédits
+      if (selectedDuration === '4') return 1;
+      if (selectedDuration === '8') return 3;
+      return 2;
+    }
+
     // ═══════════════════════════════════════════
     // UPDATE BUTTON STATE
     // ═══════════════════════════════════════════
@@ -790,10 +850,12 @@
     generateBtn.addEventListener('click', async () => {
       if (!selectedFile && !selectedImageUrl) return;
 
-      const creditsNeeded = selectedDuration === '10' ? 2 : 1;
+      // Calculate credits
+      const creditsNeeded = getCreditsNeeded();
       if (videoCredits < creditsNeeded) { showUpgradeModal(); return; }
 
       // Show loading
+      $('loadingSub').textContent = 'Google Veo 3.1 crée ta vidéo';
       loadingOverlay.classList.add('active');
       statusBar.style.display = 'block';
       setStatus('📤 Upload de l\'image...', 5);
@@ -807,19 +869,23 @@
           imageUrl = await uploadToCloudinary(selectedFile);
         }
 
-        setStatus('🎬 Envoi à Kling AI...', 15);
+        setStatus('🎬 Envoi à Google Veo 3.1...', 15);
 
-        // 2) Submit to n8n → fal.ai Kling
+        // 2) Submit to n8n → fal.ai Veo 3.1
         const customPromptText = selectedStyle === 'custom' ? $('customPromptInput').value : '';
+        const generateAudioChecked = $('generateAudio').checked;
+        const durationPayload = `${selectedDuration}s`;
 
-        const response = await fetch(KLING_WEBHOOK_URL, {
+        const response = await fetch(VEO_WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             image_url: imageUrl,
             animation_style: selectedStyle,
-            duration: selectedDuration,
-            custom_prompt: customPromptText
+            duration: durationPayload,
+            custom_prompt: customPromptText,
+            model: 'veo',
+            generate_audio: generateAudioChecked
           })
         });
 
@@ -843,7 +909,7 @@
         } else if (data.request_id) {
           // Queue → poll via n8n
           setStatus('⏳ Traitement en cours...', 25);
-          await pollForResult(data.request_id, imageUrl, creditsNeeded);
+          await pollForResult(data.request_id, imageUrl, creditsNeeded, VEO_STATUS_URL);
         } else {
           throw new Error(data.message || 'Erreur inconnue');
         }
@@ -873,7 +939,7 @@
     // ═══════════════════════════════════════════
     // POLLING (via n8n — no API key exposed)
     // ═══════════════════════════════════════════
-    async function pollForResult(requestId, imageUrl, creditsNeeded) {
+    async function pollForResult(requestId, imageUrl, creditsNeeded, statusUrl) {
       const maxAttempts = 60; // ~3 min
       let attempts = 0;
 
@@ -884,7 +950,7 @@
         setStatus(`⏳ Traitement... (${elapsed}s)`, pct);
 
         try {
-          const res = await fetch(KLING_STATUS_URL, {
+          const res = await fetch(statusUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ request_id: requestId })
@@ -1003,12 +1069,12 @@
     async function saveVideoToHistory(videoUrl, sourceImageUrl) {
       if (!currentUser) return;
       try {
-        // Collection racine /videos avec userId (même pattern que /generations)
         await db.collection('videos').add({
           videoUrl,
           sourceImageUrl: sourceImageUrl || '',
           animationStyle: selectedStyle,
           duration: selectedDuration,
+          model: 'veo',
           userId: currentUser.uid,
           userEmail: currentUser.email || '',
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1057,7 +1123,7 @@
               <video src="${d.videoUrl}" muted playsinline preload="metadata"
                 onmouseenter="this.play()" onmouseleave="this.pause();this.currentTime=0;"></video>
               <div class="h-info">
-                <div class="h-style">${styleLabel} • ${d.duration || 5}s</div>
+                <div class="h-style">🎬 Veo • ${styleLabel} • ${d.duration || '6s'}</div>
                 <div class="h-date">${date}</div>
                 <div class="h-actions">
                   <a class="h-btn" href="${d.videoUrl}" download="neora-video.mp4">📥 Télécharger</a>
