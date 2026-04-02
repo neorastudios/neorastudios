@@ -992,7 +992,7 @@
       if (videoCredits < creditsNeeded) { showUpgradeModal(); return; }
 
       // Show loading
-      $('loadingSub').textContent = 'Google Veo 3.1 crée ta vidéo (1-3 min)';
+      $('loadingSub').textContent = 'Neora crée ta vidéo (1-3 min)';
       loadingOverlay.classList.add('active');
       statusBar.style.display = 'block';
       setStatus('📤 Upload de l\'image...', 5);
@@ -1006,7 +1006,7 @@
           imageUrl = await uploadToCloudinary(selectedFile);
         }
 
-        setStatus('🎬 Veo 3.1 génère ta vidéo... Patiente ~2 min', 20);
+        setStatus('🎬 Neora génère ta vidéo... Patiente ~2 min', 20);
 
         // 2) Single sync call to n8n → fal.run (attend la réponse complète)
         const customPromptText = selectedStyle === 'custom' ? $('customPromptInput').value : '';
