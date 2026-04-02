@@ -33,6 +33,7 @@
   let selectedStyle = 'zoom_in';
   let selectedDuration = '6';
   let selectedResolution = '720p';
+  let selectedRatio = '16:9';
   let currentImageUrl = '';
   let timerInterval = null;
 
@@ -145,6 +146,16 @@
         text-align: center; transition: all .2s; font-family: inherit;
       }
       .nv-res-btn:hover { background: rgba(236,72,153,.08); }
+      .nv-ratio-btn {
+        flex: 1; padding: 14px 10px; background: rgba(255,255,255,.04);
+        border: 1px solid rgba(255,255,255,.08); border-radius: 12px;
+        color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
+        text-align: center; transition: all .2s; font-family: inherit;
+      }
+      .nv-ratio-btn:hover { background: rgba(139,92,246,.08); }
+      .nv-ratio-btn.nv-selected {
+        background: rgba(139,92,246,.12); border-color: rgba(139,92,246,.4);
+      }
 
       /* ── Cost Info ── */
       .nv-cost {
@@ -264,6 +275,13 @@
           <button class="nv-res-btn" data-res="1080p">1080p<div class="nv-d-sub">×2 crédits</div></button>
         </div>
 
+        <div class="nv-label">📐 FORMAT</div>
+        <div class="nv-durations">
+          <button class="nv-ratio-btn nv-selected" data-ratio="16:9">16:9<div class="nv-d-sub">Paysage</div></button>
+          <button class="nv-ratio-btn" data-ratio="9:16">9:16<div class="nv-d-sub">Portrait</div></button>
+          <button class="nv-ratio-btn" data-ratio="auto">Auto<div class="nv-d-sub">Image source</div></button>
+        </div>
+
         <div class="nv-cost">
           <span>💰</span>
           <span><strong id="nv-cost-text">2 crédits</strong> seront utilisés</span>
@@ -323,6 +341,15 @@
       });
     });
 
+    // ── Event: Aspect Ratio ──
+    document.querySelectorAll('.nv-ratio-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nv-ratio-btn').forEach(b => b.classList.remove('nv-selected'));
+        btn.classList.add('nv-selected');
+        selectedRatio = btn.dataset.ratio;
+      });
+    });
+
     function getNvCredits() {
       const base = selectedDuration === '8' ? 3 : (selectedDuration === '4' ? 1 : 2);
       return selectedResolution === '1080p' ? base * 2 : base;
@@ -364,6 +391,7 @@
     selectedStyle = 'zoom_in';
     selectedDuration = '6';
     selectedResolution = '720p';
+    selectedRatio = '16:9';
     document.querySelectorAll('.nv-style-card').forEach(c => c.classList.remove('nv-selected'));
     const first = document.querySelector('[data-style="zoom_in"]');
     if (first) first.classList.add('nv-selected');
@@ -373,6 +401,9 @@
     document.querySelectorAll('.nv-res-btn').forEach(b => b.classList.remove('nv-selected'));
     const res720 = document.querySelector('[data-res="720p"]');
     if (res720) res720.classList.add('nv-selected');
+    document.querySelectorAll('.nv-ratio-btn').forEach(b => b.classList.remove('nv-selected'));
+    const ratio169 = document.querySelector('[data-ratio="16:9"]');
+    if (ratio169) ratio169.classList.add('nv-selected');
     document.getElementById('nv-custom-prompt').classList.remove('active');
     document.getElementById('nv-loading').classList.remove('active');
     document.getElementById('nv-result').classList.remove('active');
@@ -437,6 +468,7 @@
           animation_style: selectedStyle,
           duration: `${selectedDuration}s`,
           resolution: selectedResolution,
+          aspect_ratio: selectedRatio,
           custom_prompt: customPrompt,
           model: 'veo',
           generate_audio: true
@@ -496,6 +528,7 @@
               animationStyle: selectedStyle,
               duration: `${selectedDuration}s`,
               resolution: selectedResolution,
+              aspectRatio: selectedRatio,
               model: 'veo',
               userId: user.uid,
               userEmail: user.email || '',
