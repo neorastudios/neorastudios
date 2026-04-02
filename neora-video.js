@@ -14,7 +14,6 @@
   // ─── Configuration ───
   const N8N_BASE = 'https://n8n.srv1125399.hstgr.cloud/webhook';
   const VEO_WEBHOOK_URL = `${N8N_BASE}/veo-video`;
-  const VEO_STATUS_URL  = `${N8N_BASE}/veo-status`;
 
   // ─── Animation styles ───
   const ANIMATION_STYLES = [
@@ -429,7 +428,7 @@
         ? document.getElementById('nv-custom-input').value
         : '';
 
-      // Submit to n8n → fal.ai Veo 3.1
+      // Single sync call to n8n → fal.run Veo 3.1 (waits ~2 min)
       const res = await fetch(VEO_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -443,15 +442,19 @@
           generate_audio: true
         })
       });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error('n8n error:', errText);
+        throw new Error(`Erreur serveur (${res.status})`);
+      }
+
       const data = await res.json();
 
       if (data.success && data.video_url) {
         onVideoReady(data.video_url);
-      } else if (data.request_id) {
-        // Poll via n8n
-        pollStatus(data.request_id);
       } else {
-        throw new Error(data.message || 'Erreur inconnue');
+        throw new Error(data.message || 'Pas de video_url dans la réponse');
       }
     } catch (err) {
       console.error('Generate error:', err);
@@ -461,60 +464,6 @@
       genBtn.disabled = false;
       alert('Erreur: ' + err.message);
     }
-  }
-
-  // ─── Poll via n8n (secure, no API key client-side) ───
-  async function pollStatus(requestId) {
-    const POLL_INTERVAL = 15000;
-    const FIRST_POLL = 20000;
-    const maxAttempts = 16;
-    let attempts = 0;
-
-    const poll = async () => {
-      attempts++;
-      try {
-        const res = await fetch(VEO_STATUS_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ request_id: requestId })
-        });
-
-        if (!res.ok) {
-          console.warn(`Status check HTTP ${res.status}, retrying...`);
-          if (attempts < maxAttempts) { setTimeout(poll, POLL_INTERVAL); return; }
-          throw new Error(`Erreur serveur n8n (${res.status})`);
-        }
-
-        const resText = await res.text();
-        let data;
-        try {
-          data = JSON.parse(resText);
-        } catch (e) {
-          console.warn('Status response not JSON, retrying...');
-          if (attempts < maxAttempts) { setTimeout(poll, POLL_INTERVAL); return; }
-          throw new Error('Réponse invalide du serveur');
-        }
-
-        if (data.success && data.video_url) {
-          onVideoReady(data.video_url);
-        } else if (data.status === 'FAILED') {
-          throw new Error('Génération échouée côté Veo 3.1');
-        } else if (attempts < maxAttempts) {
-          setTimeout(poll, POLL_INTERVAL);
-        } else {
-          throw new Error('Timeout — vidéo trop longue');
-        }
-      } catch (err) {
-        console.error('Poll error:', err);
-        stopTimer();
-        document.getElementById('nv-loading').classList.remove('active');
-        document.getElementById('nv-generate-btn').style.display = 'block';
-        document.getElementById('nv-generate-btn').disabled = false;
-        alert('Erreur: ' + err.message);
-      }
-    };
-
-    setTimeout(poll, FIRST_POLL);
   }
 
   // ─── Video Ready ───
