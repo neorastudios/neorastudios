@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="neora-mobile.css">
+  <title>NEORA ADS</title>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="neora-auth-persist.js"></script>
+  <script src="neora-tracker.js"></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-primary: #000000;
+      --bg-secondary: #0a0a0a;
+      --bg-card: rgba(255,255,255,0.03);
+
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255,255,255,0.6);
+      --text-muted: rgba(255,255,255,0.4);
+
+      --accent: #8b5cf6;
+      --accent-pink: #ec4899;
+      --accent-cyan: #22d3ee;
+      --accent-amber: #f59e0b;
+
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.15);
+
+      --gradient-main: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      --gradient-ads: linear-gradient(135deg, #f59e0b 0%, #ef4444 40%, #ec4899 100%);
+
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+
+      --focus: 0 0 0 4px rgba(99,102,241,.22);
+
+      --field-bg: rgba(0,0,0,.38);
+      --field-border: rgba(255,255,255,.18);
+      --shadow2: 0 20px 70px rgba(0,0,0,.65);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: var(--font) !important;
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      overflow-x: hidden;
+    }
+
+    /* ── Background effects ── */
+    .bg-effects {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0;
+    }
+    .bg-gradient {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.4;
+    }
+    .bg-gradient-1 {
+      width: 800px; height: 800px;
+      top: -400px; left: -200px;
+      background: radial-gradient(circle, rgba(245,158,11,0.3) 0%, transparent 70%);
+    }
+    .bg-gradient-2 {
+      width: 700px; height: 700px;
+      bottom: -300px; right: -200px;
+      background: radial-gradient(circle, rgba(236,72,153,0.25) 0%, transparent 70%);
+    }
+    .bg-gradient-3 {
+      width: 1000px; height: 1000px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(239,68,68,0.08) 0%, transparent 60%);
+    }
+    .bg-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
+    }
+
+    .page-container {
+      position: relative; z-index: 1; min-height: 100vh;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(0,0,0,0.5);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-inner {
+      max-width: 1200px; margin: 0 auto;
+      padding: 16px 32px;
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 12px;
+      text-decoration: none; color: inherit; min-width: 160px;
+    }
+    .brand-logo {
+      width: 24px; height: 24px; object-fit: contain;
+    }
+    .logo-text {
+      font-size: 20px; font-weight: 700;
+      letter-spacing: -0.02em; white-space: nowrap;
+    }
+    .logo-text span {
+      background: var(--gradient-ads);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .nav-links {
+      display: flex; align-items: center; gap: 8px;
+      flex: 1; justify-content: center;
+    }
+    .nav-link {
+      color: var(--text-secondary) !important;
+      text-decoration: none; font-size: 14px; font-weight: 500;
+      padding: 10px 16px; border-radius: 10px;
+      transition: all 0.2s; white-space: nowrap;
+      border: 1px solid transparent;
+    }
+    .nav-link:hover {
+      color: var(--text-primary) !important;
+      background: rgba(255,255,255,0.05);
+    }
+    .nav-link.active {
+      color: var(--text-primary) !important;
+      background: rgba(255,255,255,0.07);
+      border-color: var(--border);
+    }
+    .topbar-right {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .badge {
+      font-size: 13px; font-weight: 700;
+      color: var(--text-primary);
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px; white-space: nowrap;
+    }
+    .btn-logout {
+      padding: 10px 20px; font-size: 14px; font-weight: 600;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 10px; cursor: pointer;
+      transition: all 0.2s; font-family: var(--font); white-space: nowrap;
+    }
+    .btn-logout:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: var(--border-hover);
+    }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .topbar-inner { padding: 14px 20px; }
+      .brand { min-width: auto; }
+      .badge { display: none; }
+    }
+
+    /* ── Layout ── */
+    .wrap {
+      max-width: 1200px; margin: 0 auto;
+      padding: 110px 20px 40px;
+    }
+
+    /* ── Page Header ── */
+    .page-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .page-header h2 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .page-header h2 em {
+      font-style: normal;
+      background: var(--gradient-ads);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .page-header p {
+      margin: 8px 0 0;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* ── Grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Panels ── */
+    .panel {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow2);
+      overflow: hidden;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    .panel .head {
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    }
+    .title {
+      margin: 0; font-size: 16px;
+      letter-spacing: .02em; color: rgba(255,255,255,.92);
+    }
+    .subtitle {
+      margin: 6px 0 0; font-size: 13px;
+      color: var(--text-secondary); line-height: 1.4;
+    }
+    .panel .body { padding: 16px 18px 18px; }
+
+    /* ── Form Elements ── */
+    label {
+      display: block; font-size: 12px;
+      color: var(--text-secondary);
+      margin: 14px 0 6px; letter-spacing: .02em;
+    }
+    label:first-child { margin-top: 0; }
+
+    textarea, select, input[type="text"] {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--field-border);
+      background: var(--field-bg);
+      color: rgba(255,255,255,.95);
+      padding: 12px;
+      outline: none;
+      font-family: var(--font);
+      font-size: 13px;
+      transition: border .15s ease, box-shadow .15s ease, background .15s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,.22);
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    textarea:focus, select:focus, input[type="text"]:focus {
+      border-color: rgba(245,158,11,.62);
+      box-shadow: var(--focus), 0 12px 34px rgba(0,0,0,.30);
+      background: rgba(0,0,0,.42);
+    }
+    select {
+      appearance: none; -webkit-appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, rgba(255,255,255,.95) 50%),
+        linear-gradient(135deg, rgba(255,255,255,.95) 50%, transparent 50%);
+      background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+      padding-right: 38px;
+      cursor: pointer;
+    }
+    select option {
+      background: #0b1026 !important;
+      color: rgba(255,255,255,.95) !important;
+      font-weight: 600 !important;
+    }
+
+    .row2 {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .row3 {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+    }
+    @media (max-width: 520px) {
+      .row2, .row3 { grid-template-columns: 1fr; }
+    }
+
+    /* ── Template Cards ── */
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 520px) {
+      .template-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .tpl-card {
+      position: relative;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 6px;
+      padding: 12px 6px;
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.03);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+    .tpl-card:hover {
+      background: rgba(245,158,11,0.08);
+      border-color: rgba(245,158,11,0.25);
+      transform: translateY(-2px);
+    }
+    .tpl-card.active {
+      background: linear-gradient(135deg, rgba(245,158,11,0.14), rgba(239,68,68,0.1));
+      border-color: rgba(245,158,11,0.5);
+      box-shadow: 0 0 20px rgba(245,158,11,0.15);
+    }
+    .tpl-icon {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      display: grid; place-items: center;
+      font-size: 22px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .tpl-card.active .tpl-icon {
+      background: rgba(245,158,11,0.15);
+      border-color: rgba(245,158,11,0.3);
+    }
+    .tpl-label {
+      font-size: 11px; font-weight: 600;
+      color: var(--text-secondary);
+      line-height: 1.3;
+    }
+    .tpl-card.active .tpl-label {
+      color: var(--text-primary);
+    }
+    .tpl-desc {
+      font-size: 10px;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+
+    /* ── Upload ── */
+    .drop {
+      border-radius: 16px;
+      border: 1px dashed rgba(255,255,255,.20);
+      background: rgba(0,0,0,.22);
+      padding: 14px;
+      display: flex; gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      transition: border .15s ease, background .15s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,.18);
+      cursor: pointer;
+    }
+    .drop:hover {
+      border-color: rgba(245,158,11,.45);
+      background: rgba(0,0,0,.28);
+    }
+    .drop.dragover {
+      border-color: rgba(245,158,11,.65);
+      background: rgba(245,158,11,.08);
+    }
+    .drop-left { display: flex; gap: 12px; align-items: center; min-width: 0; }
+    .upload-ico {
+      width: 38px; height: 38px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      display: grid; place-items: center;
+      flex: 0 0 auto;
+    }
+    .drop-meta { min-width: 0; }
+    .drop-title {
+      font-size: 13px; margin: 0;
+      color: rgba(255,255,255,.90);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .drop-sub {
+      margin: 4px 0 0; font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .drop-actions { display: flex; gap: 8px; align-items: center; flex: 0 0 auto; }
+    .btn-small {
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.92);
+      padding: 9px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform .12s ease, background .12s ease;
+      font-weight: 800; font-size: 12px;
+      font-family: var(--font);
+    }
+    .btn-small:hover { transform: translateY(-1px); background: rgba(255,255,255,.09); }
+    input[type="file"] { display: none; }
+
+    /* ── Image Previews ── */
+    .image-previews {
+      display: flex; flex-wrap: wrap;
+      gap: 10px; margin-top: 12px;
+    }
+    .image-previews:empty { display: none; }
+    .preview-item {
+      position: relative;
+      width: 66px; height: 66px;
+      border-radius: 12px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(0,0,0,.3);
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+    }
+    .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-item .remove-btn {
+      position: absolute; top: 4px; right: 4px;
+      width: 20px; height: 20px;
+      background: rgba(0,0,0,.75);
+      border: none; border-radius: 50%;
+      color: white; cursor: pointer;
+      display: flex; align-items: center;
+      justify-content: center; font-size: 14px; line-height: 1;
+      transition: background .15s ease;
+    }
+    .preview-item .remove-btn:hover { background: rgba(239,68,68,.85); }
+    .preview-item.uploading::after {
+      content: ""; position: absolute; inset: 0;
+      background: rgba(0,0,0,.6);
+    }
+    .preview-item.uploading::before {
+      content: ""; position: absolute;
+      top: 50%; left: 50%;
+      width: 18px; height: 18px;
+      margin: -9px 0 0 -9px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      z-index: 1;
+    }
+    .image-count {
+      font-size: 11px; color: var(--text-muted); margin-top: 6px;
+    }
+
+    /* ── Overlay Toggle ── */
+    .overlay-toggle {
+      display: flex; align-items: center; gap: 10px;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .overlay-toggle:hover {
+      background: rgba(245,158,11,0.06);
+      border-color: rgba(245,158,11,0.2);
+    }
+    .overlay-toggle.active {
+      background: rgba(245,158,11,0.08);
+      border-color: rgba(245,158,11,0.3);
+    }
+    .toggle-switch {
+      width: 38px; height: 22px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      position: relative;
+      transition: background 0.25s ease;
+      flex: 0 0 auto;
+    }
+    .toggle-switch::after {
+      content: "";
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: white;
+      transition: transform 0.25s ease;
+    }
+    .overlay-toggle.active .toggle-switch {
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+    }
+    .overlay-toggle.active .toggle-switch::after {
+      transform: translateX(16px);
+    }
+    .toggle-label {
+      font-size: 13px; font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .overlay-toggle.active .toggle-label {
+      color: var(--text-primary);
+    }
+    .overlay-fields {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease;
+      opacity: 0;
+    }
+    .overlay-fields.open {
+      max-height: 400px; opacity: 1;
+    }
+
+    /* ── Buttons ── */
+    .btnrow {
+      display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap;
+    }
+    .btn {
+      flex: 1 1 auto;
+      border-radius: 999px;
+      padding: 13px 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.94);
+      cursor: pointer; font-weight: 800;
+      font-size: 13px;
+      letter-spacing: .02em;
+      font-family: var(--font);
+      transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+      box-shadow: 0 12px 34px rgba(0,0,0,.28);
+    }
+    .btn:hover { transform: translateY(-1px); background: rgba(255,255,255,.09); }
+    .btn:active { transform: translateY(0px); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+    .btn-primary {
+      border: none;
+      background: var(--gradient-ads) !important;
+      color: #fff;
+      box-shadow: 0 18px 45px rgba(245,158,11,.18);
+    }
+
+    .status {
+      margin-top: 12px; font-size: 12.5px;
+      color: rgba(255,255,255,.72);
+      min-height: 1.2em; white-space: pre-wrap;
+    }
+
+    /* ── Preview Panel ── */
+    .preview-head {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 12px;
+    }
+    .hint {
+      font-size: 12px; color: var(--text-secondary);
+      margin-top: 6px; line-height: 1.45;
+    }
+    .frame {
+      margin-top: 14px;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      overflow: hidden; position: relative;
+      min-height: 340px;
+      display: grid; place-items: center;
+      box-shadow: 0 18px 60px rgba(0,0,0,.38);
+    }
+    .frame img {
+      width: 100%; height: 100%;
+      object-fit: contain; display: block;
+      max-height: 660px;
+    }
+    .empty {
+      padding: 40px 18px;
+      text-align: center;
+      color: rgba(255,255,255,.55);
+      font-size: 13px; line-height: 1.55;
+    }
+    .empty strong { color: rgba(255,255,255,.88); font-weight: 800; }
+    .gen-overlay {
+      position: absolute; inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,.62);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .gen-overlay-inner {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.94);
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+      font-weight: 800; font-size: 13px;
+    }
+    .spin {
+      width: 18px; height: 18px;
+      border-radius: 999px;
+      border: 3px solid rgba(255,255,255,.24);
+      border-top-color: rgba(255,255,255,.95);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .meta {
+      margin-top: 10px;
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 10px;
+      flex-wrap: wrap;
+      color: var(--text-muted); font-size: 12px;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      font-size: 12px;
+    }
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .link {
+      color: rgba(255,255,255,.92);
+      text-decoration: none; font-weight: 800;
+      border-bottom: 1px solid rgba(255,255,255,.22);
+      padding-bottom: 2px;
+    }
+
+    /* ── Modify Box ── */
+    .modify {
+      margin-top: 14px;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      padding: 16px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.28);
+      display: none;
+    }
+    .modify .top {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 10px;
+      margin-bottom: 10px;
+    }
+    .modify .top .t {
+      font-weight: 800;
+      color: rgba(255,255,255,.92);
+      font-size: 13px;
+    }
+    .modify .top .s {
+      margin-top: 4px; font-size: 12px;
+      color: var(--text-muted); line-height: 1.45;
+    }
+    .modify textarea { min-height: 100px; }
+    .modify .actions {
+      display: flex; gap: 10px;
+      margin-top: 10px; flex-wrap: wrap;
+    }
+
+    /* ── Section divider ── */
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      margin: 16px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Background effects -->
+  <div class="bg-effects">
+    <div class="bg-gradient bg-gradient-1"></div>
+    <div class="bg-gradient bg-gradient-2"></div>
+    <div class="bg-gradient bg-gradient-3"></div>
+    <div class="bg-grid"></div>
+  </div>
+
+  <div class="page-container">
+
+    <nav class="topbar">
+      <div class="topbar-inner">
+        <a href="index.html" class="brand">
+          <img src="logo.jpg" onerror="this.onerror=null;this.src='logo.png';" alt="Neora" class="brand-logo">
+          <div class="logo-text">Neora<span>.ads</span></div>
+        </a>
+
+        <div class="nav-links">
+          <a href="index.html" class="nav-link">Accueil</a>
+          <a href="selector.html" class="nav-link">App</a>
+          <a href="neora-ads.html" class="nav-link active">ADS</a>
+          <a href="pricing.html" class="nav-link">Tarifs</a>
+          <a href="historique.html" class="nav-link">Historique</a>
+          <a href="profil.html" class="nav-link">Profil</a>
+        </div>
+
+        <div class="topbar-right">
+          <div class="badge" id="generation-counter">--</div>
+          <button class="btn-logout" onclick="logout()">Déconnexion</button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="wrap">
+
+      <div class="page-header">
+        <h2>Crée tes visuels <em>produits & ads</em></h2>
+        <p>Choisis un template, décris ton produit, génère des visuels pub en un clic.</p>
+      </div>
+
+      <div class="grid">
+        <!-- ═══ Controls Panel ═══ -->
+        <div class="panel">
+          <div class="head">
+            <h2 class="title">Create ADS</h2>
+            <p class="subtitle">Sélectionne un template, décris ton produit, ajoute des images si besoin.</p>
+          </div>
+          <div class="body">
+
+            <!-- Template Selector -->
+            <label style="margin-top:0;">Template</label>
+            <div class="template-grid" id="templateGrid">
+              <div class="tpl-card active" data-template="lifestyle" onclick="selectTemplate(this)">
+                <div class="tpl-icon">🌿</div>
+                <div class="tpl-label">Lifestyle</div>
+                <div class="tpl-desc">Mise en scène naturelle</div>
+              </div>
+              <div class="tpl-card" data-template="packshot" onclick="selectTemplate(this)">
+                <div class="tpl-icon">📦</div>
+                <div class="tpl-label">Packshot</div>
+                <div class="tpl-desc">Studio, fond clean</div>
+              </div>
+              <div class="tpl-card" data-template="avant_apres" onclick="selectTemplate(this)">
+                <div class="tpl-icon">🔄</div>
+                <div class="tpl-label">Avant / Après</div>
+                <div class="tpl-desc">Comparaison split</div>
+              </div>
+              <div class="tpl-card" data-template="ugc" onclick="selectTemplate(this)">
+                <div class="tpl-icon">📱</div>
+                <div class="tpl-label">UGC</div>
+                <div class="tpl-desc">Style authentique</div>
+              </div>
+            </div>
+
+            <!-- Prompt -->
+            <label for="prompt_user">Description du visuel</label>
+            <textarea id="prompt_user" placeholder="Ex: Huile de tamanu dans un décor tropical avec des fleurs de tiaré, lumière dorée du coucher de soleil..."></textarea>
+
+            <div class="section-divider"></div>
+
+            <!-- Brand & Product -->
+            <div class="row2">
+              <div>
+                <label for="brand">Marque (optionnel)</label>
+                <input type="text" id="brand" placeholder="Ex: Tahitian Thai Care">
+              </div>
+              <div>
+                <label for="product_name">Produit (optionnel)</label>
+                <input type="text" id="product_name" placeholder="Ex: Huile de Tamanu">
+              </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <!-- Images Upload -->
+            <label>Images produit (optionnel) — max 5</label>
+            <div class="drop" id="dropZone">
+              <div class="drop-left">
+                <div class="upload-ico">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 16V4m0 0l-4 4m4-4l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="drop-meta">
+                  <p class="drop-title" id="fileTitle">Drop tes images produit ici</p>
+                  <p class="drop-sub" id="fileSub">PNG / JPG • jusqu'à 5 images</p>
+                </div>
+              </div>
+              <div class="drop-actions">
+                <button type="button" class="btn-small" id="browseBtn">Browse</button>
+                <button type="button" class="btn-small" id="clearBtn">Clear</button>
+              </div>
+              <input type="file" id="product_image" accept="image/*" multiple />
+            </div>
+            <div class="image-previews" id="imagePreviews"></div>
+            <div class="image-count" id="imageCount"></div>
+
+            <div class="section-divider"></div>
+
+            <!-- Settings Row -->
+            <div class="row2">
+              <div>
+                <label>Résolution</label>
+                <div class="pill"><span class="mono" id="resolutionPill">Chargement</span></div>
+              </div>
+              <div>
+                <label for="aspectRatio">Format</label>
+                <select id="aspectRatio">
+                  <option value="1:1" selected>1:1 — Carré</option>
+                  <option value="16:9">16:9 — Paysage</option>
+                  <option value="9:16">9:16 — Story/Reel</option>
+                  <option value="4:5">4:5 — Feed Instagram</option>
+                  <option value="auto">Auto</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Overlay Toggle -->
+            <div class="overlay-toggle" id="overlayToggle" onclick="toggleOverlay()">
+              <div class="toggle-switch"></div>
+              <div class="toggle-label">Ajouter du texte promo sur l'image</div>
+            </div>
+
+            <!-- Overlay Fields (hidden by default) -->
+            <div class="overlay-fields" id="overlayFields">
+              <label for="overlay_text">Texte promo</label>
+              <input type="text" id="overlay_text" placeholder="Ex: -30% cette semaine !">
+
+              <div class="row2" style="margin-top:4px;">
+                <div>
+                  <label for="overlay_position">Position</label>
+                  <select id="overlay_position">
+                    <option value="bottom" selected>Bas</option>
+                    <option value="top">Haut</option>
+                    <option value="center">Centre</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="overlay_style">Style texte</label>
+                  <select id="overlay_style">
+                    <option value="modern" selected>Modern</option>
+                    <option value="bold">Bold</option>
+                    <option value="minimal">Minimal</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="btnrow">
+              <button class="btn btn-primary" id="submit-btn">Generate ADS</button>
+              <button class="btn" id="reset-btn">Reset</button>
+            </div>
+
+            <div class="status" id="status">Ready.</div>
+          </div>
+        </div>
+
+        <!-- ═══ Preview Panel ═══ -->
+        <div class="panel">
+          <div class="head">
+            <div class="preview-head">
+              <div>
+                <h2 class="title">Result</h2>
+                <div class="hint">Ton visuel pub s'affiche ici.</div>
+              </div>
+              <a class="link" id="downloadLink" href="#" target="_blank" rel="noreferrer" style="display:none;">Download</a>
+            </div>
+          </div>
+
+          <div class="body">
+            <div class="frame" id="frame">
+              <div class="empty" id="empty">
+                <div style="font-size:22px;margin-bottom:10px;">🎯</div>
+                <div style="font-size:14px;margin-bottom:6px;"><strong>Prêt à créer</strong></div>
+                <div>Choisis un template, décris ton produit,<br>puis clique <b>Generate ADS</b>.</div>
+              </div>
+              <img id="preview-image" alt="Neora ADS result" style="display:none;" />
+              <div class="gen-overlay" id="genOverlay">
+                <div class="gen-overlay-inner">
+                  <span class="spin"></span>
+                  <span id="genOverlayText">Generating…</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="meta">
+              <span class="pill">Template: <span id="templatePill" class="mono">lifestyle</span></span>
+              <span class="pill">Mode: <span id="modePill" class="mono">text-to-image</span></span>
+            </div>
+
+            <!-- Modify Box -->
+            <div class="modify" id="modifyBox">
+              <div class="top">
+                <div>
+                  <div class="t">Modifications</div>
+                  <div class="s">Décris les changements à appliquer.</div>
+                </div>
+                <span class="pill">Base: <span class="mono" id="baseInfo">final</span></span>
+              </div>
+
+              <label for="edit_instructions">Instructions</label>
+              <textarea id="edit_instructions" placeholder="Ex: Rends le fond plus sombre, ajoute une lumière chaude, change la couleur du texte…"></textarea>
+
+              <div class="actions">
+                <button class="btn btn-primary" id="modify-btn">Apply changes</button>
+                <button class="btn" id="clear-mod-btn" type="button">Clear</button>
+              </div>
+
+              <div class="status" id="modStatus" style="margin-top:10px;min-height:1.2em;"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ═══════════════════════════════════════════════════════
+    // NEORA ADS — Frontend Logic
+    // ═══════════════════════════════════════════════════════
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCKPepYjXiY92hZPEdKxqOow9AACfMTOoc",
+      authDomain: "neorastudiosnc.firebaseapp.com",
+      projectId: "neorastudiosnc",
+      storageBucket: "neorastudiosnc.firebasestorage.app",
+      messagingSenderId: "275455765566",
+      appId: "1:275455765566:web:c2cf516fcb8f13de7e356f"
+    };
+    
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
+    // ── User Management (same as NEORA main) ──
+    async function ensureUserDocument(user) {
+      if (!user) return;
+      const userRef = db.collection('users').doc(user.uid);
+      const userDoc = await userRef.get();
+      if (!userDoc.exists) {
+        await userRef.set({
+          email: user.email, firstName: '', lastName: '',
+          avatarUrl: user.photoURL || '',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
+          blocked: false,
+          provider: user.providerData[0]?.providerId || 'email',
+          plan: 'free', generationsAvailable: 0,
+          lastBonusMonth: '', totalGenerations: 0,
+          monthlyGenerations: 0, lastGenerationMonth: ''
+        });
+      } else {
+        await userRef.update({ lastLoginAt: firebase.firestore.FieldValue.serverTimestamp() });
+      }
+    }
+
+    async function checkIfBlocked(user) {
+      if (!user) return false;
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (userDoc.exists && userDoc.data().blocked === true) {
+        alert('Votre compte a été suspendu.');
+        firebase.auth().signOut();
+        window.location.href = 'index.html';
+        return true;
+      }
+      return false;
+    }
+
+    async function checkPlanAccess(user) {
+      if (!user) return false;
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        const plan = userDoc.data().plan || 'free';
+        if (plan === 'free') {
+          alert('NEORA ADS nécessite un plan Pro. Redirection vers les tarifs.');
+          window.location.href = 'pricing.html';
+          return false;
+        }
+        return true;
+      }
+      return false;
+    }
+
+    // ── Generations System ──
+    const MONTHLY_BONUS = 50;
+    let generationsAvailable = 0;
+
+    function getCurrentMonth() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    async function loadGenerations(user) {
+      if (!user) return 0;
+      const userRef = db.collection('users').doc(user.uid);
+      const userDoc = await userRef.get();
+      if (userDoc.exists) {
+        const data = userDoc.data();
+        const currentMonth = getCurrentMonth();
+        const plan = normalizePlan(data.plan);
+        updateQualityFromPlan(plan);
+
+        if (plan === 'pro' && data.lastBonusMonth !== currentMonth) {
+          const current = data.generationsAvailable || 0;
+          generationsAvailable = current + MONTHLY_BONUS;
+          await userRef.update({ generationsAvailable, lastBonusMonth: currentMonth });
+        } else {
+          generationsAvailable = data.generationsAvailable || 0;
+        }
+        updateGenerationCounter();
+        return generationsAvailable;
+      }
+      return 0;
+    }
+
+    function canGenerate() { return generationsAvailable > 0; }
+
+    async function decrementGeneration(user) {
+      if (!user || generationsAvailable <= 0) return;
+      generationsAvailable--;
+      await db.collection('users').doc(user.uid).update({ generationsAvailable });
+      updateGenerationCounter();
+    }
+
+    function updateGenerationCounter() {
+      const el = document.getElementById('generation-counter');
+      if (el) {
+        el.textContent = `⚡ ${generationsAvailable} génération${generationsAvailable > 1 ? 's' : ''}`;
+        el.style.color = generationsAvailable > 20 ? '#10b981' : generationsAvailable > 5 ? '#f59e0b' : '#ef4444';
+      }
+    }
+
+    // ── Auth State ──
+    firebase.auth().onAuthStateChanged(async (user) => {
+      if (!user) {
+        if (typeof NeoraAuth !== 'undefined') NeoraAuth.clear();
+        window.location.href = 'index.html';
+        return;
+      }
+      if (typeof NeoraAuth !== 'undefined') NeoraAuth.saveUser(user);
+      await ensureUserDocument(user);
+      const isBlocked = await checkIfBlocked(user);
+      if (isBlocked) return;
+      const hasAccess = await checkPlanAccess(user);
+      if (!hasAccess) return;
+
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      const plan = userDoc.exists ? (userDoc.data().plan || 'free') : 'free';
+      if (typeof NeoraAuth !== 'undefined') NeoraAuth.savePlan(plan);
+      updateQualityFromPlan(plan);
+      await loadGenerations(user);
+    });
+
+    initNeoraTracker('NEORA_ADS');
+
+    // ═══════════════════════════════════════════════════════
+    // CONSTANTS & DOM REFS
+    // ═══════════════════════════════════════════════════════
+
+    const CLOUDINARY_UPLOAD_URL = "https://api.cloudinary.com/v1_1/diegfxcyl/image/upload";
+    const CLOUDINARY_UPLOAD_PRESET = "neora_upload";
+
+    // ⚡ NEORA ADS Webhook — Change this to your actual webhook URL after import
+    const N8N_ADS_URL = "https://n8n.srv1125399.hstgr.cloud/webhook/neora-ads";
+
+    const MAX_IMAGES = 5;
+
+    const el = (id) => document.getElementById(id);
+
+    const promptEl        = el("prompt_user");
+    const brandEl         = el("brand");
+    const productNameEl   = el("product_name");
+    const fileInput       = el("product_image");
+    const aspectEl        = el("aspectRatio");
+    const statusEl        = el("status");
+    const submitBtn       = el("submit-btn");
+    const resetBtn        = el("reset-btn");
+    const emptyEl         = el("empty");
+    const imgEl           = el("preview-image");
+    const genOverlay      = el("genOverlay");
+    const genOverlayText  = el("genOverlayText");
+    const modePill        = el("modePill");
+    const templatePill    = el("templatePill");
+    const downloadLink    = el("downloadLink");
+    const dropZone        = el("dropZone");
+    const browseBtn       = el("browseBtn");
+    const clearBtn        = el("clearBtn");
+    const fileTitle       = el("fileTitle");
+    const fileSub         = el("fileSub");
+    const imagePreviews   = el("imagePreviews");
+    const imageCountEl    = el("imageCount");
+    const overlayToggle   = el("overlayToggle");
+    const overlayFields   = el("overlayFields");
+    const overlayTextEl   = el("overlay_text");
+    const overlayPosEl    = el("overlay_position");
+    const overlayStyleEl  = el("overlay_style");
+    const modifyBox       = el("modifyBox");
+    const editInstrEl     = el("edit_instructions");
+    const modifyBtn       = el("modify-btn");
+    const clearModBtn     = el("clear-mod-btn");
+    const modStatusEl     = el("modStatus");
+
+    // ── State ──
+    let selectedTemplate = "lifestyle";
+    let overlayEnabled = false;
+    let uploadedImageUrls = [];
+    let currentFinalImageUrl = "";
+    let hasFinalOutput = false;
+    var FIXED_RESOLUTION = "2K";
+    var userPlan = "free";
+
+    // ═══════════════════════════════════════════════════════
+    // HELPERS
+    // ═══════════════════════════════════════════════════════
+
+    function normalizePlan(p) { return (p || "free").toString().toLowerCase(); }
+
+    function updateQualityFromPlan(plan) {
+      userPlan = normalizePlan(plan);
+      FIXED_RESOLUTION = (userPlan === "pro") ? "2K" : "1K";
+      const pill = document.getElementById("resolutionPill");
+      if (pill) pill.textContent = FIXED_RESOLUTION;
+    }
+
+    function setStatus(msg) { statusEl.textContent = msg || ""; }
+    function setModStatus(msg) { modStatusEl.textContent = msg || ""; }
+
+    function setOverlay(show, text) {
+      genOverlayText.textContent = text || "Generating…";
+      genOverlay.style.display = show ? "flex" : "none";
+    }
+
+    function setModeFromImages(count) {
+      modePill.textContent = count > 0 ? "image-to-image" : "text-to-image";
+    }
+
+    // ── Template Selection ──
+    window.selectTemplate = function(card) {
+      document.querySelectorAll('.tpl-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      selectedTemplate = card.dataset.template;
+      templatePill.textContent = selectedTemplate;
+    };
+
+    // ── Overlay Toggle ──
+    window.toggleOverlay = function() {
+      overlayEnabled = !overlayEnabled;
+      overlayToggle.classList.toggle('active', overlayEnabled);
+      overlayFields.classList.toggle('open', overlayEnabled);
+    };
+
+    // ── Show/Clear Image ──
+    function showImage(url, { final = false } = {}) {
+      emptyEl.style.display = "none";
+      imgEl.style.display = "block";
+      imgEl.src = url;
+
+      if (final) {
+        downloadLink.href = url;
+        downloadLink.style.display = "inline-block";
+        currentFinalImageUrl = url;
+        hasFinalOutput = true;
+        modifyBox.style.display = "block";
+      } else {
+        downloadLink.style.display = "none";
+        downloadLink.href = "#";
+        currentFinalImageUrl = "";
+        hasFinalOutput = false;
+        modifyBox.style.display = "none";
+        setModStatus("");
+      }
+    }
+
+    function clearResult() {
+      imgEl.style.display = "none"; imgEl.src = "";
+      emptyEl.style.display = "block";
+      downloadLink.style.display = "none"; downloadLink.href = "#";
+      currentFinalImageUrl = "";
+      hasFinalOutput = false;
+      modifyBox.style.display = "none";
+      setModStatus("");
+    }
+
+    function normalizeResponse(data) {
+      const image = data?.image_url || data?.resultImageUrl || data?.data?.response?.resultImageUrl || "";
+      const type = data?.type || "";
+      let status = "";
+      if (image) status = "done";
+      else status = "failed";
+      const errorMessage = data?.errorMessage || data?.message || "";
+      return { status, image, type, errorMessage };
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // CLOUDINARY UPLOAD
+    // ═══════════════════════════════════════════════════════
+
+    async function uploadToCloudinary(file) {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+      const res = await fetch(CLOUDINARY_UPLOAD_URL, { method: "POST", body: fd });
+      if (!res.ok) throw new Error("Cloudinary upload failed");
+      const json = await res.json();
+      if (!json.secure_url) throw new Error("Cloudinary: missing secure_url");
+      return json.secure_url;
+    }
+
+    // ── Image Previews ──
+    function renderImagePreviews() {
+      imagePreviews.innerHTML = "";
+      uploadedImageUrls.forEach((urlObj, index) => {
+        const div = document.createElement("div");
+        div.className = "preview-item" + (urlObj.uploading ? " uploading" : "");
+        div.innerHTML = `
+          <img src="${urlObj.preview || urlObj.url}" alt="Preview ${index + 1}">
+          <button class="remove-btn" onclick="removeImage(${index})">×</button>
+        `;
+        imagePreviews.appendChild(div);
+      });
+
+      const count = uploadedImageUrls.length;
+      if (count > 0) {
+        imageCountEl.textContent = `${count}/${MAX_IMAGES} image${count > 1 ? 's' : ''}`;
+        fileTitle.textContent = `${count} image${count > 1 ? 's' : ''} prête${count > 1 ? 's' : ''}`;
+        fileSub.textContent = count < MAX_IMAGES ? `+ ${MAX_IMAGES - count} de plus` : "Limite atteinte";
+      } else {
+        imageCountEl.textContent = "";
+        fileTitle.textContent = "Drop tes images produit ici";
+        fileSub.textContent = "PNG / JPG • jusqu'à 5 images";
+      }
+      setModeFromImages(count);
+    }
+
+    window.removeImage = function(index) {
+      uploadedImageUrls.splice(index, 1);
+      renderImagePreviews();
+    };
+
+    async function handleFiles(files) {
+      const toProcess = Array.from(files).slice(0, MAX_IMAGES - uploadedImageUrls.length);
+      if (toProcess.length === 0) {
+        setStatus(`Limite de ${MAX_IMAGES} images atteinte.`);
+        return;
+      }
+      for (const file of toProcess) {
+        const previewUrl = URL.createObjectURL(file);
+        const idx = uploadedImageUrls.length;
+        uploadedImageUrls.push({ preview: previewUrl, url: null, uploading: true, file });
+        renderImagePreviews();
+        try {
+          setStatus(`Upload image ${idx + 1}...`);
+          const cloudinaryUrl = await uploadToCloudinary(file);
+          uploadedImageUrls[idx].url = cloudinaryUrl;
+          uploadedImageUrls[idx].uploading = false;
+          renderImagePreviews();
+          setStatus(`Image ${idx + 1} uploadée ✅`);
+        } catch (e) {
+          uploadedImageUrls.splice(idx, 1);
+          renderImagePreviews();
+          setStatus(`Erreur upload: ${e.message}`);
+        }
+      }
+      if (uploadedImageUrls.length > 0) {
+        setStatus(`${uploadedImageUrls.length} image${uploadedImageUrls.length > 1 ? 's' : ''} prête${uploadedImageUrls.length > 1 ? 's' : ''}.`);
+      }
+    }
+
+    // ── Drag & Drop / Browse ──
+    browseBtn.addEventListener("click", (e) => { e.stopPropagation(); fileInput.click(); });
+    clearBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      uploadedImageUrls = [];
+      fileInput.value = "";
+      renderImagePreviews();
+      setStatus("Images effacées.");
+    });
+    dropZone.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files && fileInput.files.length > 0) handleFiles(fileInput.files);
+      fileInput.value = "";
+    });
+    ["dragenter","dragover"].forEach(evt => {
+      dropZone.addEventListener(evt, (e) => { e.preventDefault(); dropZone.classList.add("dragover"); });
+    });
+    ["dragleave","drop"].forEach(evt => {
+      dropZone.addEventListener(evt, (e) => { e.preventDefault(); dropZone.classList.remove("dragover"); });
+    });
+    dropZone.addEventListener("drop", (e) => {
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files);
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // GENERATE ADS
+    // ═══════════════════════════════════════════════════════
+
+    async function postJson(url, payload) {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error("n8n error: " + (txt || res.status));
+      }
+      return await res.json();
+    }
+
+    submitBtn.addEventListener("click", async () => {
+      setStatus("");
+      setModStatus("");
+
+      if (!canGenerate()) {
+        setStatus("❌ Plus de générations disponibles !");
+        alert('Plus de crédits. Passez au plan Pro pour continuer.');
+        return;
+      }
+
+      const prompt = (promptEl.value || "").trim();
+      if (!prompt) {
+        setStatus("Écris une description d'abord.");
+        return;
+      }
+
+      const stillUploading = uploadedImageUrls.some(img => img.uploading);
+      if (stillUploading) {
+        setStatus("Attends la fin de l'upload...");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      setOverlay(true, "Generating ADS…");
+      setStatus("Processing…");
+      clearResult();
+
+      try {
+        const imageUrls = uploadedImageUrls.filter(img => img.url).map(img => img.url);
+        setModeFromImages(imageUrls.length);
+
+        const payload = {
+          prompt_user: prompt,
+          template: selectedTemplate,
+          resolution: FIXED_RESOLUTION,
+          aspectRatio: aspectEl.value,
+          brand: brandEl.value.trim(),
+          product_name: productNameEl.value.trim()
+        };
+
+        if (imageUrls.length > 0) {
+          payload.image_urls = imageUrls;
+        }
+
+        // Overlay params
+        if (overlayEnabled) {
+          payload.overlay = true;
+          payload.overlay_text = overlayTextEl.value.trim();
+          payload.overlay_position = overlayPosEl.value;
+          payload.overlay_style = overlayStyleEl.value;
+        }
+
+        const data = await postJson(N8N_ADS_URL, payload);
+        const r = normalizeResponse(data);
+
+        if (r.status === "done" && r.image) {
+          setOverlay(false);
+          setStatus("Done ✅" + (r.type ? ` — ${r.type}` : ""));
+          showImage(r.image, { final: true });
+          modifyBtn.disabled = false;
+
+          const user = firebase.auth().currentUser;
+          if (user) await decrementGeneration(user);
+
+          // Save to history
+          if (typeof saveGeneration === 'function') {
+            saveGeneration({
+              imageUrl: r.image,
+              prompt: prompt,
+              aspectRatio: aspectEl.value,
+              mode: `ads-${selectedTemplate}`,
+              template: selectedTemplate,
+              brand: brandEl.value.trim(),
+              productName: productNameEl.value.trim()
+            });
+          }
+        } else {
+          setOverlay(false);
+          setStatus("Failed ❌ " + (r.errorMessage || "Pas d'image reçue"));
+        }
+      } catch (e) {
+        setOverlay(false);
+        setStatus("Error: " + (e.message || e));
+      } finally {
+        submitBtn.disabled = false;
+        modifyBtn.disabled = !hasFinalOutput;
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // MODIFY (re-use same webhook with edit_instructions)
+    // ═══════════════════════════════════════════════════════
+
+    modifyBtn.addEventListener("click", async () => {
+      if (!hasFinalOutput || !currentFinalImageUrl) {
+        setModStatus("Aucune image à modifier.");
+        return;
+      }
+      const instructions = (editInstrEl.value || "").trim();
+      if (!instructions) {
+        setModStatus("Écris des instructions.");
+        return;
+      }
+      if (!canGenerate()) {
+        setModStatus("Plus de crédits ❌");
+        return;
+      }
+
+      modifyBtn.disabled = true;
+      submitBtn.disabled = true;
+      const previousFinal = currentFinalImageUrl;
+
+      try {
+        setOverlay(true, "Applying changes…");
+        setModStatus("Processing…");
+
+        const payload = {
+          prompt_user: instructions,
+          template: "custom",
+          image_urls: [currentFinalImageUrl],
+          resolution: FIXED_RESOLUTION,
+          aspectRatio: aspectEl.value
+        };
+
+        const data = await postJson(N8N_ADS_URL, payload);
+        const r = normalizeResponse(data);
+
+        if (r.status === "done" && r.image) {
+          setOverlay(false);
+          setModStatus("Done ✅");
+          showImage(r.image, { final: true });
+          editInstrEl.value = "";
+
+          const user = firebase.auth().currentUser;
+          if (user) await decrementGeneration(user);
+
+          if (typeof saveGeneration === 'function') {
+            saveGeneration({
+              imageUrl: r.image,
+              prompt: instructions,
+              aspectRatio: aspectEl.value,
+              mode: 'ads-modification'
+            });
+          }
+        } else {
+          setOverlay(false);
+          setModStatus("Failed ❌ " + (r.errorMessage || ""));
+          showImage(previousFinal, { final: true });
+        }
+      } catch (e) {
+        setOverlay(false);
+        setModStatus("Error: " + (e.message || e));
+        showImage(previousFinal, { final: true });
+      } finally {
+        submitBtn.disabled = false;
+        modifyBtn.disabled = false;
+      }
+    });
+
+    clearModBtn.addEventListener("click", () => { editInstrEl.value = ""; setModStatus(""); });
+
+    // ═══════════════════════════════════════════════════════
+    // RESET
+    // ═══════════════════════════════════════════════════════
+
+    resetBtn.addEventListener("click", () => {
+      promptEl.value = "";
+      brandEl.value = "";
+      productNameEl.value = "";
+      overlayTextEl.value = "";
+      fileInput.value = "";
+      uploadedImageUrls = [];
+      renderImagePreviews();
+      clearResult();
+      setOverlay(false);
+      setStatus("Ready.");
+
+      // Reset template to lifestyle
+      document.querySelectorAll('.tpl-card').forEach(c => c.classList.remove('active'));
+      document.querySelector('[data-template="lifestyle"]').classList.add('active');
+      selectedTemplate = "lifestyle";
+      templatePill.textContent = "lifestyle";
+
+      // Reset overlay toggle
+      if (overlayEnabled) toggleOverlay();
+    });
+
+    // Init
+    setStatus("Ready.");
+    renderImagePreviews();
+  </script>
+
+  <script src="neora-tracker.js"></script>
+  <script src="neora-mobile-nav.js"></script>
+
+  <script>
+    function logout() {
+      try { if (typeof NeoraAuth !== 'undefined') NeoraAuth.clear(); } catch(e) {}
+      if (typeof firebase !== 'undefined' && firebase.auth) {
+        firebase.auth().signOut().then(() => window.location.href = 'index.html')
+          .catch(() => window.location.href = 'index.html');
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+  </script>
+
+</body>
+</html>
