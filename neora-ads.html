@@ -1146,12 +1146,20 @@
       modePill.textContent = count > 0 ? "image-to-image" : "text-to-image";
     }
 
-    // ── Template Selection ──
+    // ── Template Selection (toggle: re-click to deselect) ──
     window.selectTemplate = function(card) {
+      const wasActive = card.classList.contains('active');
       document.querySelectorAll('.tpl-card').forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
-      selectedTemplate = card.dataset.template;
-      templatePill.textContent = selectedTemplate;
+
+      if (wasActive) {
+        // Désélection → mode custom (pas d'enrichissement template)
+        selectedTemplate = "custom";
+        templatePill.textContent = "aucun";
+      } else {
+        card.classList.add('active');
+        selectedTemplate = card.dataset.template;
+        templatePill.textContent = selectedTemplate;
+      }
     };
 
     // ── Overlay Toggle ──
