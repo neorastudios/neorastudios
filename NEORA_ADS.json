@@ -1,0 +1,504 @@
+{
+  "name": "NEORA ADS",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "neora-ads",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        100,
+        500
+      ],
+      "id": "webhook-ads-001",
+      "name": "Webhook ADS",
+      "webhookId": "neora-ads"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ═══════════════════════════════════════════════════════\n// NEORA ADS — Validation & Extraction des paramètres\n// ═══════════════════════════════════════════════════════\n\nconst input = $input.first().json;\nconst b = input.body ?? input;\n\n// === Paramètres requis ===\nconst promptUser = (b.prompt_user ?? \"\").toString().trim();\nif (!promptUser) throw new Error(\"Missing prompt_user\");\n\n// === Images (multi-images support) ===\nlet imageUrls = [];\nif (b.image_urls && Array.isArray(b.image_urls)) {\n  imageUrls = b.image_urls.filter(url => url && url.trim() !== \"\");\n} else if (b.image_url && b.image_url.trim() !== \"\") {\n  imageUrls = [b.image_url.trim()];\n}\n\n// === Template ADS ===\n// Valeurs possibles : lifestyle, packshot, avant_apres, ugc, custom\nconst template = (b.template ?? \"custom\").toString().trim().toLowerCase();\n\n// === Paramètres optionnels ===\nconst resolution = (b.resolution ?? \"2K\").toString().trim();\nconst aspectRatio = (b.aspectRatio ?? \"1:1\").toString().trim();\nconst brand = (b.brand ?? \"\").toString().trim();\nconst productName = (b.product_name ?? \"\").toString().trim();\n\n// === Overlay (optionnel) ===\nconst overlayEnabled = b.overlay === true || b.overlay === \"true\";\nconst overlayText = (b.overlay_text ?? \"\").toString().trim();\nconst overlayPosition = (b.overlay_position ?? \"bottom\").toString().trim(); // top, center, bottom\nconst overlayStyle = (b.overlay_style ?? \"modern\").toString().trim(); // modern, bold, minimal\n\nreturn [{ json: {\n  promptUser,\n  imageUrls,\n  template,\n  resolution,\n  aspectRatio,\n  brand,\n  productName,\n  overlayEnabled,\n  overlayText,\n  overlayPosition,\n  overlayStyle\n}}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        500
+      ],
+      "id": "code-validate-001",
+      "name": "Validate & Extract"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ═══════════════════════════════════════════════════════\n// NEORA ADS — Template Engine\n// Enrichit le prompt selon le template sélectionné\n// + Traduction FR → EN intégrée\n// ═══════════════════════════════════════════════════════\n\nconst data = $input.first().json;\nconst { promptUser, template, brand, productName } = data;\n\n// ── Détection langue FR (basique mais efficace) ──\nconst frenchWords = [\"une\", \"pour\", \"avec\", \"dans\", \"sur\", \"les\", \"des\", \"est\", \"créer\", \"faire\", \"pub\", \"produit\", \"marque\", \"naturel\", \"soin\", \"beauté\", \"huile\", \"crème\", \"bien-être\"];\nconst words = promptUser.toLowerCase().split(/\\s+/);\nconst isFrench = frenchWords.some(fw => words.includes(fw));\n\n// ── Templates de prompt ads ──\nconst TEMPLATES = {\n  lifestyle: {\n    prefix: \"Professional advertising photography, lifestyle scene,\",\n    suffix: \"warm natural lighting, authentic moment, bokeh background, editorial quality, 8K ultra-detailed, commercial photography, aspirational mood, soft color palette\",\n    negativeHints: \"no text, no watermark, no logo overlay\"\n  },\n  packshot: {\n    prefix: \"Professional product packshot photography, studio setup,\",\n    suffix: \"clean white or gradient background, perfect studio lighting, product centered, sharp focus on product details, commercial grade, reflection on surface, 8K ultra-detailed, catalog quality\",\n    negativeHints: \"no distractions, no text, no watermark\"\n  },\n  avant_apres: {\n    prefix: \"Professional before and after comparison photography, split view,\",\n    suffix: \"clinical lighting, same angle both sides, clear transformation visible, professional medical/beauty advertising style, high contrast, 8K ultra-detailed, convincing results\",\n    negativeHints: \"no text overlay, no fake effects\"\n  },\n  ugc: {\n    prefix: \"User-generated content style photo, authentic social media aesthetic,\",\n    suffix: \"smartphone camera quality, natural imperfect lighting, genuine and relatable, casual setting, Instagram-worthy, warm tones, slight grain, real person using product, candid moment\",\n    negativeHints: \"no studio look, no over-processed\"\n  },\n  custom: {\n    prefix: \"Professional commercial photography,\",\n    suffix: \"high quality, 8K ultra-detailed, advertising grade\",\n    negativeHints: \"no watermark\"\n  }\n};\n\nconst tpl = TEMPLATES[template] || TEMPLATES.custom;\n\n// ── Construction du prompt enrichi ──\nlet enrichedParts = [tpl.prefix];\n\n// Ajout contexte marque/produit si fourni\nif (brand) enrichedParts.push(`brand: ${brand},`);\nif (productName) enrichedParts.push(`product: ${productName},`);\n\n// Ajout du prompt utilisateur\nenrichedParts.push(promptUser + \",\");\n\n// Ajout du suffix template\nenrichedParts.push(tpl.suffix);\n\nlet finalPrompt = enrichedParts.join(\" \").replace(/,\\s*,/g, \",\").replace(/,\\s*$/, \"\");\n\n// ── Traduction FR → EN (mapping courant) ──\nif (isFrench) {\n  const translations = {\n    \"créer une pub\": \"create an advertisement\",\n    \"créer\": \"create\",\n    \"pub\": \"advertisement\",\n    \"produit\": \"product\",\n    \"sur fond\": \"on background\",\n    \"fond blanc\": \"white background\",\n    \"fond noir\": \"black background\",\n    \"fond naturel\": \"natural background\",\n    \"avec\": \"with\",\n    \"pour\": \"for\",\n    \"huile\": \"oil\",\n    \"crème\": \"cream\",\n    \"soin\": \"skincare\",\n    \"beauté\": \"beauty\",\n    \"naturel\": \"natural\",\n    \"bien-être\": \"wellness\",\n    \"visage\": \"face\",\n    \"corps\": \"body\",\n    \"cheveux\": \"hair\",\n    \"massage\": \"massage\",\n    \"tropical\": \"tropical\",\n    \"exotique\": \"exotic\",\n    \"tahitien\": \"Tahitian\",\n    \"polynésien\": \"Polynesian\",\n    \"monoï\": \"monoi\",\n    \"tamanu\": \"tamanu\",\n    \"noix de coco\": \"coconut\",\n    \"coco\": \"coconut\",\n    \"fleur\": \"flower\",\n    \"plante\": \"plant\",\n    \"ingrédient\": \"ingredient\",\n    \"ingrédients\": \"ingredients\",\n    \"mis en scène\": \"staged scene\",\n    \"mise en scène\": \"staged scene\",\n    \"élégant\": \"elegant\",\n    \"luxueux\": \"luxurious\",\n    \"premium\": \"premium\",\n    \"moderne\": \"modern\",\n    \"minimaliste\": \"minimalist\",\n    \"une femme\": \"a woman\",\n    \"un homme\": \"a man\",\n    \"une personne\": \"a person\",\n    \"dans la nature\": \"in nature\",\n    \"sur la plage\": \"on the beach\",\n    \"plage\": \"beach\",\n    \"lagon\": \"lagoon\",\n    \"mer\": \"sea\",\n    \"palmier\": \"palm tree\"\n  };\n\n  // Remplacement des termes FR par EN dans le prompt user\n  let translatedPrompt = finalPrompt;\n  // Trier par longueur décroissante pour éviter les remplacements partiels\n  const sortedKeys = Object.keys(translations).sort((a, b) => b.length - a.length);\n  for (const fr of sortedKeys) {\n    const regex = new RegExp(fr, \"gi\");\n    translatedPrompt = translatedPrompt.replace(regex, translations[fr]);\n  }\n  finalPrompt = translatedPrompt;\n}\n\n// ── Nettoyage final ──\nfinalPrompt = finalPrompt\n  .replace(/\\s+/g, \" \")\n  .replace(/,\\s*,/g, \",\")\n  .trim();\n\n// ═══════════════════════════════════════════════════════\n// 🔒 PRODUCT PRESERVATION LOGIC\n// Si des images sont uploadées ET l'utilisateur ne demande PAS\n// de modifier le produit lui-même, on ajoute des instructions\n// strictes de préservation pour que l'IA ne touche qu'à\n// la mise en scène / le décor / l'éclairage.\n// ═══════════════════════════════════════════════════════\n\nconst hasImages = data.imageUrls.length > 0;\n\n// Mots-clés qui indiquent que l'utilisateur VEUT modifier le produit\n// (dans ce cas on ne force PAS la préservation)\nconst modifyProductKeywords = [\n  // FR\n  \"modifie le produit\", \"change le produit\", \"transforme le produit\",\n  \"change la couleur du produit\", \"nouveau packaging\", \"nouvelle étiquette\",\n  \"change l'étiquette\", \"modifie l'étiquette\", \"change le flacon\",\n  \"change la bouteille\", \"redesign\", \"refais le produit\",\n  \"remplace le produit\", \"change le label\", \"modifie le label\",\n  // EN\n  \"modify the product\", \"change the product\", \"transform the product\",\n  \"new packaging\", \"new label\", \"redesign the product\", \"replace the product\",\n  \"change product color\", \"modify the bottle\", \"change the bottle\"\n];\n\nconst lowerPrompt = promptUser.toLowerCase();\nconst userWantsToModifyProduct = modifyProductKeywords.some(kw =>\n  lowerPrompt.includes(kw)\n);\n\nif (hasImages && !userWantsToModifyProduct) {\n  // 🔒 INJECTION DES INSTRUCTIONS DE PRÉSERVATION\n  const preservationPrefix = \"CRITICAL INSTRUCTION: Preserve the uploaded product image EXACTLY as it is. Do NOT modify, alter, redesign, or change the product itself in any way. Keep the product's exact shape, colors, label, packaging, text, logo, and all visual details 100% identical to the source image. Only modify the surrounding environment, background, lighting, scene composition, and atmosphere. The product must remain pixel-perfect identical. \";\n\n  const preservationSuffix = \", IMPORTANT: the product itself must be preserved exactly as shown in the source image - same shape, same label, same colors, same text, same packaging - only the background and scene around it should be changed\";\n\n  finalPrompt = preservationPrefix + finalPrompt + preservationSuffix;\n}\n\nreturn [{ json: {\n  ...data,\n  finalPrompt,\n  template,\n  hasImages,\n  productPreserved: hasImages && !userWantsToModifyProduct,\n  userWantsToModifyProduct\n}}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        500
+      ],
+      "id": "code-template-001",
+      "name": "Template Engine + FR→EN"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-has-images",
+              "leftValue": "={{ $json.hasImages }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        500
+      ],
+      "id": "if-has-images-001",
+      "name": "Has Images?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://fal.run/fal-ai/nano-banana-pro/edit",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Key fe2232cd-be9e-411f-9e5b-4e88bfcb3930:4539ba5f78d39afecdf730b00b3cba10"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({\n  prompt: $json.finalPrompt,\n  image_urls: $json.imageUrls,\n  resolution: $json.resolution,\n  aspect_ratio: $json.aspectRatio || \"1:1\",\n  output_format: \"png\",\n  num_images: 1\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1040,
+        400
+      ],
+      "id": "http-edit-001",
+      "name": "fal.ai Edit (avec images)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://fal.run/fal-ai/nano-banana-pro",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Key fe2232cd-be9e-411f-9e5b-4e88bfcb3930:4539ba5f78d39afecdf730b00b3cba10"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({\n  prompt: $json.finalPrompt,\n  resolution: $json.resolution,\n  aspect_ratio: $json.aspectRatio || \"1:1\",\n  output_format: \"png\",\n  num_images: 1\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1040,
+        600
+      ],
+      "id": "http-generate-001",
+      "name": "fal.ai Generate (sans images)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-overlay",
+              "leftValue": "={{ $json.overlayEnabled }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        400
+      ],
+      "id": "if-overlay-edit-001",
+      "name": "Overlay? (edit)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-overlay-gen",
+              "leftValue": "={{ $json.overlayEnabled }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        600
+      ],
+      "id": "if-overlay-gen-001",
+      "name": "Overlay? (gen)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ═══════════════════════════════════════════════════════\n// NEORA ADS — Overlay Text sur Image\n// Utilise l'API fal.ai pour ajouter du texte promo\n// en re-générant avec le texte intégré au prompt\n// ═══════════════════════════════════════════════════════\n\nconst input = $input.first().json;\nconst imageUrl = input.images?.[0]?.url ?? \"\";\n\n// Récupérer les params overlay depuis le workflow\n// On remonte dans la chaîne pour trouver les données originales\nconst overlayText = input.overlayText ?? $('Template Engine + FR→EN').first().json.overlayText ?? \"\";\nconst overlayPosition = input.overlayPosition ?? $('Template Engine + FR→EN').first().json.overlayPosition ?? \"bottom\";\nconst overlayStyle = input.overlayStyle ?? $('Template Engine + FR→EN').first().json.overlayStyle ?? \"modern\";\nconst brand = input.brand ?? $('Template Engine + FR→EN').first().json.brand ?? \"\";\n\nif (!imageUrl) throw new Error(\"No image URL from generation\");\nif (!overlayText) throw new Error(\"Overlay enabled but no overlay_text provided\");\n\n// ── Style mapping ──\nconst styles = {\n  modern: \"sleek modern sans-serif typography, clean white text with subtle shadow, professional advertising layout\",\n  bold: \"bold impactful typography, large uppercase letters, high contrast text, attention-grabbing headline style\",\n  minimal: \"minimal elegant thin typography, understated text, luxury brand aesthetic, whisper-quiet lettering\"\n};\n\nconst positions = {\n  top: \"text positioned at the top of the image\",\n  center: \"text centered in the middle of the image\",\n  bottom: \"text positioned at the bottom of the image\"\n};\n\n// ── Prompt pour overlay ──\nlet overlayPrompt = `Add promotional text overlay to this image. Text: \"${overlayText}\"`;\nif (brand) overlayPrompt += `, brand: ${brand}`;\noverlayPrompt += `. ${styles[overlayStyle] || styles.modern}, ${positions[overlayPosition] || positions.bottom}`;\noverlayPrompt += \", do not change the product or background, only add text overlay\";\n\nreturn [{ json: {\n  overlayPrompt,\n  generatedImageUrl: imageUrl,\n  overlayText,\n  overlayPosition,\n  overlayStyle\n}}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        300
+      ],
+      "id": "code-overlay-001",
+      "name": "Prepare Overlay"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Même logique overlay pour la branche génération\nconst input = $input.first().json;\nconst imageUrl = input.images?.[0]?.url ?? \"\";\n\nconst overlayText = input.overlayText ?? $('Template Engine + FR→EN').first().json.overlayText ?? \"\";\nconst overlayPosition = input.overlayPosition ?? $('Template Engine + FR→EN').first().json.overlayPosition ?? \"bottom\";\nconst overlayStyle = input.overlayStyle ?? $('Template Engine + FR→EN').first().json.overlayStyle ?? \"modern\";\nconst brand = input.brand ?? $('Template Engine + FR→EN').first().json.brand ?? \"\";\n\nif (!imageUrl) throw new Error(\"No image URL from generation\");\nif (!overlayText) throw new Error(\"Overlay enabled but no overlay_text provided\");\n\nconst styles = {\n  modern: \"sleek modern sans-serif typography, clean white text with subtle shadow, professional advertising layout\",\n  bold: \"bold impactful typography, large uppercase letters, high contrast text, attention-grabbing headline style\",\n  minimal: \"minimal elegant thin typography, understated text, luxury brand aesthetic, whisper-quiet lettering\"\n};\n\nconst positions = {\n  top: \"text positioned at the top of the image\",\n  center: \"text centered in the middle of the image\",\n  bottom: \"text positioned at the bottom of the image\"\n};\n\nlet overlayPrompt = `Add promotional text overlay to this image. Text: \"${overlayText}\"`;\nif (brand) overlayPrompt += `, brand: ${brand}`;\noverlayPrompt += `. ${styles[overlayStyle] || styles.modern}, ${positions[overlayPosition] || positions.bottom}`;\noverlayPrompt += \", do not change the product or background, only add text overlay\";\n\nreturn [{ json: {\n  overlayPrompt,\n  generatedImageUrl: imageUrl,\n  overlayText,\n  overlayPosition,\n  overlayStyle\n}}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        520
+      ],
+      "id": "code-overlay-002",
+      "name": "Prepare Overlay (gen)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://fal.run/fal-ai/nano-banana-pro/edit",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Key fe2232cd-be9e-411f-9e5b-4e88bfcb3930:4539ba5f78d39afecdf730b00b3cba10"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({\n  prompt: $json.overlayPrompt,\n  image_urls: [$json.generatedImageUrl],\n  resolution: \"2K\",\n  aspect_ratio: \"1:1\",\n  output_format: \"png\",\n  num_images: 1\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1760,
+        300
+      ],
+      "id": "http-overlay-001",
+      "name": "fal.ai Overlay (edit branch)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://fal.run/fal-ai/nano-banana-pro/edit",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Key fe2232cd-be9e-411f-9e5b-4e88bfcb3930:4539ba5f78d39afecdf730b00b3cba10"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({\n  prompt: $json.overlayPrompt,\n  image_urls: [$json.generatedImageUrl],\n  resolution: \"2K\",\n  aspect_ratio: \"1:1\",\n  output_format: \"png\",\n  num_images: 1\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1760,
+        520
+      ],
+      "id": "http-overlay-002",
+      "name": "fal.ai Overlay (gen branch)"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"image_url\": \"{{ $json.images[0].url }}\",\n  \"type\": \"overlay\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2000,
+        300
+      ],
+      "id": "respond-overlay-edit-001",
+      "name": "Respond Overlay (edit)"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"image_url\": \"{{ $json.images[0].url }}\",\n  \"type\": \"overlay\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2000,
+        520
+      ],
+      "id": "respond-overlay-gen-001",
+      "name": "Respond Overlay (gen)"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"image_url\": \"{{ $json.images[0].url }}\",\n  \"type\": \"{{ $('Template Engine + FR→EN').first().json.template }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1520,
+        420
+      ],
+      "id": "respond-no-overlay-edit-001",
+      "name": "Respond (edit, no overlay)"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"image_url\": \"{{ $json.images[0].url }}\",\n  \"type\": \"{{ $('Template Engine + FR→EN').first().json.template }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1520,
+        640
+      ],
+      "id": "respond-no-overlay-gen-001",
+      "name": "Respond (gen, no overlay)"
+    }
+  ],
+  "connections": {
+    "Webhook ADS": {
+      "main": [
+        [
+          {
+            "node": "Validate & Extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Extract": {
+      "main": [
+        [
+          {
+            "node": "Template Engine + FR→EN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Template Engine + FR→EN": {
+      "main": [
+        [
+          {
+            "node": "Has Images?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Images?": {
+      "main": [
+        [
+          {
+            "node": "fal.ai Edit (avec images)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "fal.ai Generate (sans images)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fal.ai Edit (avec images)": {
+      "main": [
+        [
+          {
+            "node": "Overlay? (edit)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fal.ai Generate (sans images)": {
+      "main": [
+        [
+          {
+            "node": "Overlay? (gen)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Overlay? (edit)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Overlay",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond (edit, no overlay)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Overlay? (gen)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Overlay (gen)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond (gen, no overlay)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Overlay": {
+      "main": [
+        [
+          {
+            "node": "fal.ai Overlay (edit branch)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Overlay (gen)": {
+      "main": [
+        [
+          {
+            "node": "fal.ai Overlay (gen branch)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fal.ai Overlay (edit branch)": {
+      "main": [
+        [
+          {
+            "node": "Respond Overlay (edit)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fal.ai Overlay (gen branch)": {
+      "main": [
+        [
+          {
+            "node": "Respond Overlay (gen)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "instanceId": "800e9db063e02a73882ef1153702703b459a83607f86ecd249b9703a9a98ad37"
+  },
+  "tags": []
+}
